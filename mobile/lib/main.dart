@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'components/ui/input.dart';
 import '../../enums/input_size.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -13,7 +15,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'PetDex Input Test',
-      theme: ThemeData.light(),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        brightness: Brightness.light,
+        textTheme: GoogleFonts.poppinsTextTheme(
+          ThemeData.light().textTheme,
+        ),
+      ),
       home: const ComponentTestScreen(),
     );
   }
@@ -68,11 +76,7 @@ class _ComponentTestScreenState extends State<ComponentTestScreen> {
               label: 'Data de nascimento',
               hintText: 'Insira a data',
               controller: _dateController,
-              icon: const Icon(
-                Icons.calendar_today,
-                color: orangeColor,
-                size: 20,
-              ),
+              icon: const Icon(Icons.calendar_today, color: orangeColor, size: 20),
               size: InputSize.medium,
               keyboardType: TextInputType.datetime,
             ),
@@ -81,16 +85,10 @@ class _ComponentTestScreenState extends State<ComponentTestScreen> {
               label: 'Apelido',
               hintText: 'Insira o apelido',
               controller: _nicknameController,
-              icon: const Icon(
-                Icons.check_circle,
-                color: orangeColor,
-                size: 18,
-              ),
+              icon: const Icon(Icons.check_circle, color: orangeColor, size: 18),
               size: InputSize.small,
             ),
-
             const Divider(height: 60),
-
             Input(
               label: 'Nome',
               hintText: 'Insira o nome completo',
