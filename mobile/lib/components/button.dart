@@ -41,11 +41,11 @@ class Button extends StatelessWidget {
   EdgeInsets _getPadding() {
     switch (size) {
       case ButtonSize.small:
-        return const EdgeInsets.symmetric(horizontal: 18, vertical: 2);
+        return const EdgeInsets.symmetric(horizontal: 20, vertical: 8);
       case ButtonSize.medium:
-        return const EdgeInsets.symmetric(horizontal: 20, vertical: 12);
+        return const EdgeInsets.symmetric(horizontal: 24, vertical: 12);
       case ButtonSize.large:
-        return const EdgeInsets.symmetric(horizontal: 24, vertical: 16);
+        return const EdgeInsets.symmetric(horizontal: 28, vertical: 16);
     }
   }
 
@@ -53,31 +53,31 @@ class Button extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return SizedBox(
-      height: _getHeight(),
-      width: size == ButtonSize.small ? null : double.infinity,
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minHeight: _getHeight(),
+      ),
       child: ElevatedButton(
         onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: colorScheme.primary,
-          shape: RoundedRectangleBorder(
-            borderRadius: size == ButtonSize.small
-                ? BorderRadius.circular(200)
-                : BorderRadius.circular(12),
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.pressed)) {
+              return colorScheme.secondary;
+            }
+            return colorScheme.primary;
+          }),
+          padding: WidgetStateProperty.all(_getPadding()),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(200)),
           ),
-          padding: _getPadding(),
-          minimumSize: size == ButtonSize.small ? Size.zero : null,
-          tapTargetSize: size == ButtonSize.small
-              ? MaterialTapTargetSize.shrinkWrap
-              : null,
         ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
           children: [
             if (icon != null) ...[
               Icon(icon, size: _getFontSize() + 2, color: Colors.white),
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
             ],
             Text(
               text,
