@@ -10,6 +10,7 @@ class AppTheme {
     ).copyWith(
       primary: const Color(0xFFBF4904),
       secondary: const Color(0xFFF39200),
+      surface: const Color(0xFFFAEDCB),
     ),
     appBarTheme: const AppBarTheme(
       backgroundColor: Color(0xFFBF4904),
