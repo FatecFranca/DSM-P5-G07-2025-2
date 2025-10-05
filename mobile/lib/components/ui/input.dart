@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../enums/input_size.dart';
+import '../../theme/app_theme.dart';
 
 class Input extends StatefulWidget {
   final String label;
   final String hintText;
   final InputSize size;
   final TextEditingController controller;
-  final Widget? icon;
+  final IconData? icon;
   final Function(String)? onChanged;
   final TextInputType keyboardType;
   final bool obscureText;
@@ -49,20 +50,33 @@ class _InputState extends State<Input> {
 
   @override
   Widget build(BuildContext context) {
-    const Color orangeColor = Color(0xFFF29F05);
-
     double labelFontSize;
+    double textFieldFontSize;
+    double iconSize;
+    EdgeInsets contentPadding;
 
     switch (widget.size) {
       case InputSize.medium:
         labelFontSize = 14;
+        textFieldFontSize = 14;
+        iconSize = 20;
+        contentPadding =
+            const EdgeInsets.symmetric(horizontal: 22, vertical: 14);
         break;
       case InputSize.small:
         labelFontSize = 12;
+        textFieldFontSize = 12;
+        iconSize = 18;
+        contentPadding =
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 12);
         break;
       case InputSize.large:
       default:
         labelFontSize = 16;
+        textFieldFontSize = 16;
+        iconSize = 22;
+        contentPadding =
+            const EdgeInsets.symmetric(horizontal: 24, vertical: 16);
         break;
     }
 
@@ -72,14 +86,18 @@ class _InputState extends State<Input> {
         Row(
           children: [
             if (widget.icon != null) ...[
-              widget.icon!,
+              Icon(
+                widget.icon,
+                color: AppColors.orange,
+                size: iconSize,
+              ),
               const SizedBox(width: 8),
             ],
             Text(
               widget.label,
               style: TextStyle(
                 fontSize: labelFontSize,
-                color: Colors.grey[800],
+                color: AppColors.black400,
               ),
             ),
           ],
@@ -91,7 +109,7 @@ class _InputState extends State<Input> {
             color: Colors.transparent,
             borderRadius: BorderRadius.circular(30.0),
             border: Border.all(
-              color: orangeColor,
+              color: AppColors.orange,
               width: _isFocused ? 2.5 : 2.0,
             ),
           ),
@@ -101,15 +119,18 @@ class _InputState extends State<Input> {
             keyboardType: widget.keyboardType,
             onChanged: widget.onChanged,
             obscureText: widget.obscureText,
-            cursorColor: orangeColor,
-            style: const TextStyle(color: Colors.black, fontSize: 16),
+            cursorColor: AppColors.orange,
+            style: TextStyle(
+              color: AppColors.black400,
+              fontSize: textFieldFontSize,
+            ),
             decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 16,
-              ),
+              contentPadding: contentPadding,
               hintText: widget.hintText,
-              hintStyle: TextStyle(color: Colors.grey[500], fontSize: 16),
+              hintStyle: TextStyle(
+                color: AppColors.black200,
+                fontSize: textFieldFontSize,
+              ),
               border: InputBorder.none,
             ),
           ),
