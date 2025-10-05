@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:PetDex/theme/app_theme.dart';
-import 'package:PetDex/components/button.dart';
+import 'package:PetDex/components/ui/button.dart';
 
 void main() {
   runApp(const MyApp());
