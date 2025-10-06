@@ -1,3 +1,4 @@
+import 'package:PetDex/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 enum ButtonSize { small, medium, large }
@@ -51,20 +52,16 @@ class Button extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return ConstrainedBox(
-      constraints: BoxConstraints(
-        minHeight: _getHeight(),
-      ),
+      constraints: BoxConstraints(minHeight: _getHeight()),
       child: ElevatedButton(
         onPressed: onPressed,
         style: ButtonStyle(
           backgroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.pressed)) {
-              return colorScheme.secondary;
+              return AppColors.orange400;
             }
-            return colorScheme.primary;
+            return AppColors.orange900;
           }),
           padding: WidgetStateProperty.all(_getPadding()),
           shape: WidgetStateProperty.all(
