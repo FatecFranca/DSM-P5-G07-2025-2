@@ -1,5 +1,6 @@
 ---
-type: "manual"
+type: "always_apply"
+description: "Example description"
 ---
 
 # Contexto do Projeto  
