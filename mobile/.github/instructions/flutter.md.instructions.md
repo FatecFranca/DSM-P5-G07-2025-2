@@ -1,11 +1,6 @@
 ---
-type: "always_apply"
-<<<<<<< HEAD
-description: "Example description"
-=======
->>>>>>> main
+applyTo: '**'
 ---
-
 # Contexto do Projeto  
 O **PetDex** é um aplicativo mobile desenvolvido em **Flutter** que exibe informações coletadas por uma coleira inteligente, incluindo batimentos cardíacos e localização do animal em tempo real.
 
