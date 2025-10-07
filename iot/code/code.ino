@@ -13,7 +13,7 @@ WiFiManager wm;
 #define GREEN_PIN 12
 #define BLUE_PIN 11
 
-const char* serverName = "https://petdex-api-d75e.onrender.com";
+const char* serverName = "https://petdex-api-java.onrender.com";
 const String coleiraId = "6819475baa479949daccea94";
 const String animalId = "68194120636f719fcd5ee5fd";
 
