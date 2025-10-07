@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:PetDex/theme/app_theme.dart';
-import 'package:PetDex/components/question_card.dart';
+import '../theme/app_theme.dart';
+import './components/ui/question_card.dart';
 
 void main() {
   runApp(const MyApp());
