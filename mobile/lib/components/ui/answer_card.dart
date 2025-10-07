@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:PetDex/theme/app_theme.dart';
+import '../../theme/app_theme.dart';
 
 class AnswerCard extends StatelessWidget {
   final String hintText;
