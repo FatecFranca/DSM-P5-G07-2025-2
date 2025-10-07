@@ -1,5 +1,9 @@
 ---
 type: "always_apply"
+<<<<<<< HEAD
+description: "Example description"
+=======
+>>>>>>> main
 ---
 
 # Contexto do Projeto  

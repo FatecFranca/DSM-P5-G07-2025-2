@@ -35,7 +35,7 @@ class QuestionDemoPage extends StatelessWidget {
               questionNumber: 1,
               questionText: "pipi popopó? pó pô popo pó pipi pó",
             ),
-          ],
+          ),
         ),
       ),
     );
