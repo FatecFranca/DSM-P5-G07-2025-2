@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:PetDex/theme/app_theme.dart';
+import '../../theme/app_theme.dart';
 
 class QuestionCard extends StatelessWidget {
   final int questionNumber;
