@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
-import './components/ui/question_card.dart';
+import '/components/ui/pet_address_card.dart';
+import '/theme/app_theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,29 +12,26 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'PetDex',
+      title: 'PetDex Component Test',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      home: const QuestionDemoPage(),
+      home: const ComponentTestScreen(),
     );
   }
 }
 
-class QuestionDemoPage extends StatelessWidget {
-  const QuestionDemoPage({super.key});
+class ComponentTestScreen extends StatelessWidget {
+  const ComponentTestScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Exemplo QuestionCard")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: const [
-            QuestionCard(
-              questionNumber: 1,
-              questionText: "pipi popopó? pó pô popo pó pipi pó",
-            ),
+      appBar: AppBar(title: const Text('Teste do PetAddressCard')),
+      body: const Center(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: PetAddressCard(
+            petName: 'Uno',
+            address: 'R. Irênio Greco, 4580 - Vila Imperador, Franca - SP, 14405-101, Brasil',
           ),
         ),
       ),
