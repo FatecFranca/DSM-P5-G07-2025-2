@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       title: 'PetDex Component Test',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const NavBar(), // ✅ Apenas isso!
+      home: const NavBar(),
     );
   }
 }
