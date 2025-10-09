@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '/components/ui/chart_bar.dart';
+import 'components/ui/heart_chart_bar.dart';
 import '/models/heartbeat_data.dart';
 import '/services/animal_stats_service.dart';
 import '/theme/app_theme.dart';
@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'PetDex Chart Test',
       theme: AppTheme.lightTheme,
+      debugShowCheckedModeBanner: false,
       home: const ChartTestScreen(),
     );
   }
@@ -35,7 +36,6 @@ class _ChartTestScreenState extends State<ChartTestScreen> {
   @override
   void initState() {
     super.initState();
-    // Inicia a busca pelos dados quando a tela é criada
     _chartDataFuture = _statsService.getMediaUltimos5Dias();
   }
 
@@ -48,20 +48,19 @@ class _ChartTestScreenState extends State<ChartTestScreen> {
         child: FutureBuilder<List<HeartbeatData>>(
           future: _chartDataFuture,
           builder: (context, snapshot) {
-            // Enquanto os dados estão carregando, mostra um indicador de progresso
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator(color: AppColors.orange));
             }
-            // Se ocorreu um erro na API, mostra uma mensagem
             if (snapshot.hasError) {
               return Center(child: Text('Erro ao carregar dados: ${snapshot.error}'));
             }
-            // Se os dados chegaram com sucesso, mas a lista está vazia
             if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return const Center(child: Text('Nenhum dado encontrado.'));
             }
-            // Se tudo deu certo, exibe o gráfico
-            return ChartBar(data: snapshot.data!);
+            return HeartChartBar(
+              title: 'Média de batimentos dos últimos cinco dias:',
+              data: snapshot.data!,
+            );
           },
         ),
       ),
