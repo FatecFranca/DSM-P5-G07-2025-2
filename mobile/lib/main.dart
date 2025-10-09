@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
-import './components/ui/question_card.dart';
+import 'package:PetDex/theme/app_theme.dart';
+import 'package:PetDex/components/ui/answer_card.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,27 +15,24 @@ class MyApp extends StatelessWidget {
       title: 'PetDex',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const QuestionDemoPage(),
+      home: const AnswerCardDemoPage(),
     );
   }
 }
 
-class QuestionDemoPage extends StatelessWidget {
-  const QuestionDemoPage({super.key});
+class AnswerCardDemoPage extends StatelessWidget {
+  const AnswerCardDemoPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Exemplo QuestionCard")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: const [
-            QuestionCard(
-              questionNumber: 1,
-              questionText: "pipi popopó? pó pô popo pó pipi pó",
-            ),
-          ),
+      appBar: AppBar(title: const Text("Testando o componente AnswerCard")),
+      body: Center(
+        child: AnswerCard(
+          initialValue: "",
+          onAnswerChanged: (resposta) {
+            debugPrint("Usuário digitou: $resposta");
+          },
         ),
       ),
     );
