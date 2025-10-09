@@ -1,163 +1,105 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:PetDex/theme/app_theme.dart';
 
-class AnswerCard extends StatelessWidget {
-  final String hintText;
-  final TextEditingController? controller;
-  final ValueChanged<String>? onChanged;
-  final int maxLines;
-  final EdgeInsets padding;
+class AnswerCard extends StatefulWidget {
+  final ValueChanged<String> onAnswerChanged;
+  final String? initialValue;
 
   const AnswerCard({
-    super.key,
-    this.hintText = 'Insira sua resposta',
-    this.controller,
-    this.onChanged,
-    this.maxLines = 3,
-    this.padding = const EdgeInsets.all(16),
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppColors.sand300,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: padding,
-      child: TextField(
-        controller: controller,
-        onChanged: onChanged,
-        maxLines: maxLines,
-        decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: TextStyle(
-            color: AppColors.black200,
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-          ),
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.zero,
-        ),
-        style: const TextStyle(
-          color: AppColors.black400,
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-        ),
-      ),
-    );
-  }
-}
-
-class AnswerCard2 extends StatefulWidget {
-  final String hintText;
-  final String? initialValue;
-  final ValueChanged<String>? onChanged;
-  final VoidCallback? onSubmitted;
-  final int maxLines;
-  final int? maxLength;
-  final EdgeInsets padding;
-  final bool enabled;
-
-  const AnswerCard2({
-    super.key,
-    this.hintText = 'Insira sua resposta',
+    Key? key,
+    required this.onAnswerChanged,
     this.initialValue,
-    this.onChanged,
-    this.onSubmitted,
-    this.maxLines = 4,
-    this.maxLength,
-    this.padding = const EdgeInsets.all(16),
-    this.enabled = true,
-  });
+  }) : super(key: key);
 
   @override
-  State<AnswerCard2> createState() => _AnswerCard2State();
+  State<AnswerCard> createState() => _AnswerCardState();
 }
 
-class _AnswerCard2State extends State<AnswerCard2> {
-  late TextEditingController _controller;
-  late FocusNode _focusNode;
+class _AnswerCardState extends State<AnswerCard> {
+  late final TextEditingController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget.initialValue);
-    _focusNode = FocusNode();
-
+    _controller = TextEditingController(text: widget.initialValue ?? "");
     _controller.addListener(() {
-      if (widget.onChanged != null) {
-        widget.onChanged!(_controller.text);
-      }
+      widget.onAnswerChanged(_controller.text);
     });
   }
 
   @override
   void dispose() {
     _controller.dispose();
-    _focusNode.dispose();
     super.dispose();
-  }
-
-  String get value => _controller.text;
-
-  void clear() {
-    _controller.clear();
-  }
-
-  void setValue(String value) {
-    _controller.text = value;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      constraints: const BoxConstraints(
-        minHeight: 80,
-        maxHeight: 200,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.sand300,
-        borderRadius: BorderRadius.circular(12),
-        border: _focusNode.hasFocus
-          ? Border.all(color: AppColors.orange400, width: 1.5)
-          : null,
-      ),
-      padding: widget.padding,
-      child: TextField(
-        controller: _controller,
-        focusNode: _focusNode,
-        enabled: widget.enabled,
-        maxLines: widget.maxLines,
-        maxLength: widget.maxLength,
-        textInputAction: TextInputAction.done,
-        onSubmitted: (_) {
-          if (widget.onSubmitted != null) {
-            widget.onSubmitted!();
-          }
-        },
-        decoration: InputDecoration(
-          hintText: widget.hintText,
-          hintStyle: TextStyle(
-            color: AppColors.black200,
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-          ),
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.zero,
-          counterText: '',
-          isDense: true,
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+      child: Container(
+        constraints: const BoxConstraints(
+          minHeight: 100, 
+          maxHeight: 250, 
         ),
-        style: TextStyle(
-          color: widget.enabled ? AppColors.black400 : AppColors.black200,
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-          height: 1.4,
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        decoration: BoxDecoration(
+          color: AppColors.sand300,
+          borderRadius: BorderRadius.circular(16),
         ),
-        textAlignVertical: TextAlignVertical.top,
-        scrollPhysics: const BouncingScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "Resposta",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: colorScheme.secondary,
+              ),
+            ),
+            const SizedBox(height: 10),
+            ConstrainedBox(
+              constraints: const BoxConstraints(
+                minHeight: 40,
+                maxHeight: 160,
+              ),
+              child: Scrollbar(
+                thumbVisibility: false,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  reverse: true,
+                  child: TextField(
+                    controller: _controller,
+                    maxLines: null,
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                      hintText: "Digite sua resposta aqui...",
+                      hintStyle: GoogleFonts.poppins(
+                        color: AppColors.black200,
+                        fontSize: 16,
+                      ),
+                      border: InputBorder.none,
+                      isDense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      color: AppColors.black400,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
