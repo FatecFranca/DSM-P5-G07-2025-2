@@ -16,8 +16,8 @@ class _NavBarState extends State<NavBar> {
 
   final List<Widget> _pages = const [
     _NavPage(title: "Início", icon: FontAwesomeIcons.houseChimney),
-    _NavPage(title: "Localização", icon: FontAwesomeIcons.locationDot),
     _NavPage(title: "Saúde", icon: FontAwesomeIcons.heartPulse),
+    _NavPage(title: "Localização", icon: FontAwesomeIcons.locationDot),
   ];
 
   @override
@@ -43,13 +43,12 @@ class _NavBarState extends State<NavBar> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            // 
             _buildNavItem(FontAwesomeIcons.houseChimney, "Início", 0,
-                offsetX: -2.8),
-            _buildNavItem(FontAwesomeIcons.locationDot, "Localização", 1,
-                offsetX: -0.5),
-            _buildNavItem(FontAwesomeIcons.heartPulse, "Saúde", 2,
-                offsetX: 0.8),
+                offsetX: -1.5),
+            _buildNavItem(FontAwesomeIcons.heartPulse, "Saúde", 1,
+                offsetX: 0.0),
+            _buildNavItem(FontAwesomeIcons.locationDot, "Localização", 2,
+                offsetX: 1.2),
           ],
         ),
       ),
