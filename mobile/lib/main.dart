@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'PetDex',
+      title: 'PetDex Component Test',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       home: const NavBar(), // ✅ Apenas isso!
