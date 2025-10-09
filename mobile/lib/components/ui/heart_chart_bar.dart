@@ -3,11 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '/models/heartbeat_data.dart';
 import '/theme/app_theme.dart';
+import 'package:intl/intl.dart'; 
 
-class ChartBar extends StatelessWidget {
+class HeartChartBar extends StatelessWidget {
+  final String title;
   final List<HeartbeatData> data;
 
-  const ChartBar({super.key, required this.data});
+  const HeartChartBar({
+    super.key,
+    required this.title,
+    required this.data,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,38 +21,40 @@ class ChartBar extends StatelessWidget {
       return const Center(child: Text("Sem dados para exibir."));
     }
 
-    final maxY = data.map((d) => d.value).reduce((a, b) => a > b ? a : b);
+    final values = data.map((d) => d.value).toList();
+    final minY = values.reduce((a, b) => a < b ? a : b) - 10;
+    final maxY = values.reduce((a, b) => a > b ? a : b) + 10;
 
     return AspectRatio(
-      aspectRatio: 1.5,
+      aspectRatio: 1.7,
       child: Column(
-        // 👇 MUDANÇA 1: Alinhamento da coluna para 'center'
-        crossAxisAlignment: CrossAxisAlignment.center, 
         children: [
           Text(
-            'Média de batimentos dos últimos cinco dias:',
+            title,
             style: GoogleFonts.poppins(
-              color: AppColors.orange900,
+              color: AppColors.orange900, 
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           Expanded(
             child: BarChart(
               BarChartData(
-                maxY: (maxY * 1.2).ceilToDouble(),
+                maxY: maxY,
+                minY: minY,
                 alignment: BarChartAlignment.spaceAround,
                 borderData: FlBorderData(show: false),
                 gridData: FlGridData(
                   show: true,
                   drawVerticalLine: false,
+                  horizontalInterval: 10,
                   getDrawingHorizontalLine: (value) {
-                    return const FlLine(
-                      color: AppColors.orange200,
+                    return FlLine(
+                      color: AppColors.orange200.withAlpha(102),
                       strokeWidth: 1,
-                      dashArray: [4, 4],
+                      dashArray: [3, 3],
                     );
                   },
                 ),
@@ -56,10 +64,13 @@ class ChartBar extends StatelessWidget {
                       showTitles: true,
                       reservedSize: 30,
                       getTitlesWidget: (value, meta) {
-                        if (value == 0 || value > maxY * 1.2) return const SizedBox();
+                        if (value == minY || value == maxY) return const SizedBox();
                         return Text(
                           value.toInt().toString(),
-                          style: GoogleFonts.poppins(color: AppColors.orange400, fontSize: 12),
+                            style: GoogleFonts.poppins(
+                            color: AppColors.orange400, 
+                            fontSize: 12
+                          ),
                         );
                       },
                     ),
@@ -73,9 +84,17 @@ class ChartBar extends StatelessWidget {
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
                         if (index >= data.length) return const SizedBox();
+                        
+                        final date = DateTime.parse(data[index].date);
+                        final formattedDate = DateFormat('dd/MM').format(date);
+
                         return Text(
-                          data[index].value.toInt().toString(),
-                          style: GoogleFonts.poppins(color: AppColors.black400, fontSize: 10),
+                          formattedDate,
+                          style: GoogleFonts.poppins(
+                            color: AppColors.black400,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
                         );
                       },
                     ),
@@ -91,7 +110,7 @@ class ChartBar extends StatelessWidget {
                         toY: item.value,
                         color: AppColors.orange400,
                         width: 40, 
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: const BorderRadius.all(Radius.circular(4)),
                       ),
                     ],
                   );
