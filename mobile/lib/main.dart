@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:PetDex/theme/app_theme.dart';
-import 'package:PetDex/components/ui/nav_bar.dart';
+import 'components/ui/heart_chart_bar.dart';
+import '/models/heartbeat_data.dart';
+import '/services/animal_stats_service.dart';
+import '/theme/app_theme.dart';
 
 void main() {
   runApp(const MyApp());
