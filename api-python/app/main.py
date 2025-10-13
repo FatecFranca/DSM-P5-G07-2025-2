@@ -10,21 +10,17 @@ app = FastAPI(
     version="1.0.0"
 )
 
-@app.get("/batimentos", tags=["Batimentos"])
-async def get_batimentos():
-    dados = await java_api.buscar_todos_batimentos()
-    return {"dados": dados}
-
-@app.get("/batimentos/estatisticas", tags=["Batimentos"])
-async def get_estatisticas():
-    dados = await java_api.buscar_todos_batimentos()
+@app.get("/batimentos/animal/{animalId}/estatisticas", tags=["Batimentos"])
+async def get_estatisticas(animalId: str):
+    dados = await java_api.buscar_todos_batimentos(animalId)
     print(f"Total de batimentos carregados: {len(dados)}")
     resultado = stats.calcular_estatisticas(dados)
     return resultado
 
 
-@app.get("/batimentos/media-por-data", tags=["Batimentos"])
+@app.get("/batimentos/animal/{animalId}/batimentos/media-por-data", tags=["Batimentos"])
 async def media_batimentos_por_data(
+    animalId: str,
     inicio: date = Query(..., description="Data de início no formato YYYY-MM-DD"),
     fim: date = Query(..., description="Data de fim no formato YYYY-MM-DD")
 ):
@@ -32,9 +28,22 @@ async def media_batimentos_por_data(
     resultado = stats.media_por_intervalo(dados, inicio, fim)
     return resultado
 
-@app.get("/batimentos/probabilidade", tags=["Batimentos"])
-async def probabilidade_batimento(valor: int = Query(..., gt=0)):
-    dados = await java_api.buscar_todos_batimentos()
+@app.get("/batimentos/animal/{animalId}/probabilidade", tags=["Batimentos"])
+async def probabilidade_batimento(animalId: str,valor: int = Query(..., gt=0)):
+    dados = await java_api.buscar_todos_batimentos(animalId)
+    valores = [bat["frequenciaMedia"] for bat in dados if isinstance(bat.get("frequenciaMedia"), (int, float))]
+    
+    if not valores:
+        return {"erro": "Nenhum dado de batimentos disponível para análise."}
+
+    resultado = stats.calcular_probabilidade(valor, valores)
+
+    return resultado
+
+@app.get("/batimentos/animal/{animalId}/ultimo/probabilidade", tags=["Batimentos"])
+async def probabilidade_ultimo_batimento(animalId: str, valor: int = Query(..., gt=0)):
+    dados = await java_api.buscar_todos_batimentos(animalId)
+    dados = [bat for bat in dados if bat.get("animalId") == animalId]
     valores = [bat["frequenciaMedia"] for bat in dados if isinstance(bat.get("frequenciaMedia"), (int, float))]
     
     if not valores:
@@ -43,14 +52,13 @@ async def probabilidade_batimento(valor: int = Query(..., gt=0)):
     resultado = stats.calcular_probabilidade(valor, valores)
     return resultado
 
-
 @app.get("/health", tags=["Status"])
 async def health_check():
     return {"status": "Ok"}
 
-@app.get("/batimentos/media-ultimos-5-dias", tags=["Batimentos"])
-async def media_batimentos_ultimos_5_dias():
-    batimentos = await java_api.buscar_todos_batimentos()
+@app.get("/batimentos/animal/{animalId}/media-ultimos-5-dias", tags=["Batimentos"])
+async def media_batimentos_ultimos_5_dias(animalId: str):
+    batimentos = await java_api.buscar_todos_batimentos(animalId)
 
     print(batimentos[:5])
 
@@ -61,17 +69,17 @@ async def media_batimentos_ultimos_5_dias():
     return {"medias": medias}
 
 
-@app.get("/batimentos/media-ultimas-5-horas-registradas", tags=["Batimentos"])
-async def media_batimentos_ultimas_5_horas():
-    dados = await java_api.buscar_todos_batimentos()
+@app.get("/batimentos/animal/{animalId}/media-ultimas-5-horas-registradas", tags=["Batimentos"])
+async def media_batimentos_ultimas_5_horas(animalId: str ):
+    dados = await java_api.buscar_todos_batimentos(animalId)
     resultado = stats.media_ultimas_5_horas_registradas(dados)
     return resultado
 
 
-@app.get("/batimentos/regressao", tags=["Batimentos"])
-async def analise_regressao_batimentos():
-    batimentos = await java_api.buscar_todos_batimentos()
-    movimentos = await java_api.buscar_todos_movimentos()
+@app.get("/batimentos/animal/{animalId}/regressao", tags=["Batimentos"])
+async def analise_regressao_batimentos(animalId: str):
+    batimentos = await java_api.buscar_todos_batimentos(animalId)
+    movimentos = await java_api.buscar_todos_movimentos(animalId)
 
     if not batimentos or not movimentos:
         return {"erro": "Dados insuficientes para análise."}
@@ -79,14 +87,15 @@ async def analise_regressao_batimentos():
     resultado = stats.executar_regressao(batimentos, movimentos)
     return resultado
 
-@app.get("/batimentos/predizer", tags=["Batimentos"])
+@app.get("/batimentos/animal/{animalId}/predizer", tags=["Batimentos"])
 async def predizer_batimento(
+    animalId: str,
     acelerometroX: float = Query(...),
     acelerometroY: float = Query(...),
     acelerometroZ: float = Query(...)
 ):
-    batimentos = await java_api.buscar_todos_batimentos()
-    movimentos = await java_api.buscar_todos_movimentos()
+    batimentos = await java_api.buscar_todos_batimentos(animalId)
+    movimentos = await java_api.buscar_todos_movimentos(animalId)
 
     if not batimentos or not movimentos:
         return {"erro": "Dados insuficientes para gerar o modelo de regressão."}
