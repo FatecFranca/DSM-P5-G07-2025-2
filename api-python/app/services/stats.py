@@ -131,6 +131,70 @@ def calcular_probabilidade(valor: int, dados: list):
         "interpretacao": interpretacao,
         "avaliacao": interpretacao
     }
+    
+    
+def calcular_probabilidade_ultimo_batimento(valor: int, dados: list):
+    valores_validos = [v for v in dados if isinstance(v, (int, float)) and 20 <= v <= 200]
+
+    if not valores_validos:
+        return {
+            "erro": "Não há dados suficientes dentro da faixa fisiológica (20 a 200 BPM) para análise."
+        }
+
+    media = np.mean(valores_validos)
+    desvio = np.std(valores_validos)
+
+    if valor < 20 or valor > 250:
+        return {
+            "valor_informado": valor,
+            "media_registrada": round(media, 2),
+            "desvio_padrao": round(desvio, 2),
+            "titulo": "Valor fora da faixa ❌",
+            "avaliacao": "O valor informado está fora da faixa fisiológica plausível para cães e gatos (20 a 200 BPM)."
+        }
+
+    z = abs((valor - media) / desvio)
+    prob = (1 - norm.cdf(z)) * 2 * 100
+
+    if z < 1:
+        classificacao = "Dentro do esperado"
+        titulo = "Batimento esperado ✅"
+        interpretacao = (
+            f"O valor de {valor} BPM está dentro do comportamento normal observado nos últimos dias. "
+            f"A chance de ocorrer é alta ({round(prob, 2)}%)."
+        )
+    elif z < 2:
+        classificacao = "Ligeiramente incomum"
+        titulo = "Batimento um pouco fora do comum ⚠️"
+        interpretacao = (
+            f"O valor de {valor} BPM é um pouco diferente da média recente. "
+            f"A chance de ocorrer é de aproximadamente {round(prob, 2)}%. Não é necessário se preocupar, mas observe o comportamento do seu pet."
+        )
+    elif z < 3:
+        classificacao = "Incomum"
+        titulo = "Batimento incomum ❗"
+        interpretacao = (
+            f"O valor de {valor} BPM é estatisticamente incomum com base nos últimos dias. "
+            f"A chance de isso ocorrer naturalmente é de apenas {round(prob, 2)}%. Isso pode indicar agitação, estresse, exaustão ou até uma condição fisiológica crítica, como frequência cardíaca muito alta ou muito baixa. Observe o comportamento do seu pet e, se os sinais persistirem, tente acalmá-lo e procure um veterinário o quanto antes."
+        )
+    else:
+        classificacao = "Raro ou fora do padrão"
+        titulo = "Batimento raro ou atípico 🚨"
+        interpretacao = (
+            f"O valor de {valor} BPM é muito raro com base nos dados recentes. "
+            f"A chance de ocorrer é de apenas {round(prob, 2)}%. Isso pode indicar uma situação atípica, erro na medição ou necessidade de atenção veterinária se persistir."
+        )
+
+    return {
+        "valor_informado": valor,
+        "media_registrada": round(media, 2),
+        "desvio_padrao": round(desvio, 2),
+        "probabilidade_percentual": round(prob, 2),
+        "classificacao": classificacao,
+        "titulo": titulo,
+        "interpretacao": interpretacao,
+        "avaliacao": interpretacao
+    }
 
 def media_ultimos_5_dias_validos(dados: List[dict]) -> dict:
     df = pd.DataFrame(dados)

@@ -63,6 +63,20 @@ public class LocalizacaoController {
         );
     }
 
+    @Operation(
+            summary = "Buscar a última localização registrada de um animal",
+            description = "Retorna a localização mais recente de um animal específico, ordenada por data de registro",
+            parameters = {
+                    @Parameter(name = "idAnimal", description = "ID do animal que se deseja consultar a última localização", required = true)
+            }
+    )
+    @GetMapping("/animal/{idAnimal}/ultima")
+    public ResponseEntity<LocalizacaoResDTO> findLastByAnimal(@PathVariable String idAnimal) {
+        return localizacaoService.findLastByAnimalId(idAnimal)
+                .map(localizacao -> new ResponseEntity<>(localizacao, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
     @PostMapping("")
     public ResponseEntity<LocalizacaoResDTO> save (@RequestBody LocalizacaoReqDTO localizacao) {
         return new ResponseEntity<LocalizacaoResDTO>(localizacaoService.save(localizacao), HttpStatus.CREATED);

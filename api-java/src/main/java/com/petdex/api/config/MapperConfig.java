@@ -1,8 +1,10 @@
 package com.petdex.api.config;
 
+import com.petdex.api.domain.collections.AreaSegura;
 import com.petdex.api.domain.collections.Batimento;
 import com.petdex.api.domain.collections.Localizacao;
 import com.petdex.api.domain.collections.Movimento;
+import com.petdex.api.domain.contracts.dto.areasegura.AreaSeguraReqDTO;
 import com.petdex.api.domain.contracts.dto.batimento.BatimentoReqDTO;
 import com.petdex.api.domain.contracts.dto.localizacao.LocalizacaoReqDTO;
 import com.petdex.api.domain.contracts.dto.movimento.MovimentoReqDTO;
@@ -27,10 +29,11 @@ public class MapperConfig {
         mapper.createTypeMap(MovimentoReqDTO.class, Movimento.class)
                 .addMappings(m -> m.skip(Movimento::setId));
 
-
         mapper.createTypeMap(LocalizacaoReqDTO.class, Localizacao.class)
                 .addMappings(m -> m.skip(Localizacao::setId));
 
+        mapper.createTypeMap(AreaSeguraReqDTO.class, AreaSegura.class)
+                .addMappings(m -> m.skip(AreaSegura::setId));
 
         return  mapper;
     }
