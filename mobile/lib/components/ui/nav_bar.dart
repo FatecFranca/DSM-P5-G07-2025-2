@@ -26,7 +26,7 @@ class _NavBarState extends State<NavBar> {
     _pages = [
       const Center(
         child: AnimalPin(
-          especie: Species.dog,
+          especie: SpeciesEnum.dog,
           imageUrl: 'lib/assets/images/uno.png', 
           size: 90,
         ),

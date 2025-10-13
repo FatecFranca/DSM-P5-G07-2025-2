@@ -30,16 +30,9 @@ class MainScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Tela Principal')),
       body: Stack(
         children: [
-          const Center(
-            child: Text('Bem-vindo ao PetDex!'),
-          ),
+          const Center(child: Text('Bem-vindo ao PetDex!')),
 
-          const Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: StatusBar(animalId: AnimalService.unoId),
-          ),
+          StatusBar(animalId: AnimalService.unoId),
         ],
       ),
       bottomNavigationBar: const NavBar(),
