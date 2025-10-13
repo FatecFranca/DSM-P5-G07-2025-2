@@ -1,6 +1,8 @@
+import 'package:PetDex/data/enums/species.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:PetDex/theme/app_theme.dart';
+import 'package:PetDex/components/ui/animal_pin.dart';
 
 class NavBar extends StatefulWidget {
   final int initialIndex;
@@ -14,16 +16,25 @@ class NavBar extends StatefulWidget {
 class _NavBarState extends State<NavBar> {
   late int _selectedIndex;
 
-  final List<Widget> _pages = const [
-    _NavPage(title: "Início", icon: FontAwesomeIcons.houseChimney),
-    _NavPage(title: "Saúde", icon: FontAwesomeIcons.heartPulse),
-    _NavPage(title: "Localização", icon: FontAwesomeIcons.locationDot),
-  ];
+  late final List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
     _selectedIndex = widget.initialIndex;
+
+    _pages = [
+      const Center(
+        child: AnimalPin(
+          especie: Species.dog,
+          imageUrl: 'lib/assets/images/uno.png', 
+          size: 90,
+        ),
+      ),
+
+      const _NavPage(title: "Saúde", icon: FontAwesomeIcons.heartPulse),
+      const _NavPage(title: "Localização", icon: FontAwesomeIcons.locationDot),
+    ];
   }
 
   void _onItemTapped(int index) {
@@ -74,8 +85,9 @@ class _NavBarState extends State<NavBar> {
               child: Icon(
                 icon,
                 size: 30,
-                color:
-                    isSelected ? AppColors.orange900 : AppColors.orange200,
+                color: isSelected
+                    ? AppColors.orange900
+                    : AppColors.orange200,
               ),
             ),
             const SizedBox(height: 4),
@@ -84,8 +96,9 @@ class _NavBarState extends State<NavBar> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
-                color:
-                    isSelected ? AppColors.orange900 : AppColors.orange200,
+                color: isSelected
+                    ? AppColors.orange900
+                    : AppColors.orange200,
                 fontWeight:
                     isSelected ? FontWeight.bold : FontWeight.normal,
               ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../enums/input_size.dart';
+import '../../data/enums/input_size.dart';
 import '../../theme/app_theme.dart';
 
 class Input extends StatefulWidget {
