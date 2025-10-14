@@ -150,7 +150,8 @@ def calcular_probabilidade_ultimo_batimento(valor: int, dados: list):
             "media_registrada": round(media, 2),
             "desvio_padrao": round(desvio, 2),
             "titulo": "Último batimento fora da faixa ❌",
-            "interpretacao": "O valor do último batimento coletado está fora da faixa fisiológica plausível para cães e gatos (20 a 200 BPM). Provavelmente ocorreu um erro com a coleira durante a coleta."
+            "batimento_analisado": "({valor} BPM)",
+            "interpretacao": "O último batimento coletado está fora da faixa fisiológica plausível para cães e gatos (20 a 200 BPM). Provavelmente ocorreu um erro com a coleira durante a coleta."
         }
 
     z = abs((valor - media) / desvio)
@@ -160,27 +161,27 @@ def calcular_probabilidade_ultimo_batimento(valor: int, dados: list):
         classificacao = "Dentro do esperado"
         titulo = "Batimento esperado ✅"
         interpretacao = (
-            f"O valor do último batimento coletado ({valor} BPM) está dentro do comportamento normal observado nos últimos dias. "
+            f"O valor do último batimento coletado está dentro do comportamento normal observado nos últimos dias. "
         )
     elif z < 2:
         classificacao = "Ligeiramente incomum"
         titulo = "Batimento um pouco fora do comum ⚠️"
         interpretacao = (
-            f"O valor do último batimento coletado ({valor} BPM) é um pouco diferente da média recente. "
+            f"O valor do último batimento coletado é um pouco diferente da média recente. "
             f"Não é necessário se preocupar, mas observe o comportamento do seu pet."
         )
     elif z < 3:
         classificacao = "Incomum"
         titulo = "Batimento incomum ❗"
         interpretacao = (
-            f"O valor do último batimento coletado ({valor} BPM) é estatisticamente incomum com base nos últimos dias."
+            f"O valor do último batimento coletado é estatisticamente incomum com base nos últimos dias."
             f"Isso pode indicar agitação, estresse, exaustão ou até uma condição fisiológica crítica. Observe o comportamento do seu pet e, se os sinais persistirem, tente acalmá-lo, observe o comportamneto dele e as próximas análises, se persistir procure um veterinário"
         )
     else:
         classificacao = "Raro ou fora do padrão"
         titulo = "Batimento raro ou atípico 🚨"
         interpretacao = (
-            f"O valor do último batimento coletado ({valor} BPM) é muito raro com base nos dados recentes. "
+            f"O valor do último batimento coletado é muito raro com base nos dados recentes. "
             f"Isso pode indicar uma situação atípica, erro na medição ou necessidade de atenção veterinária se persistir."
         )
 
@@ -192,6 +193,7 @@ def calcular_probabilidade_ultimo_batimento(valor: int, dados: list):
         "classificacao": classificacao,
         "titulo": titulo,
         "interpretacao": interpretacao,
+        "batimento_analisado": "({valor} BPM)",
         "avaliacao": interpretacao
     }
 
