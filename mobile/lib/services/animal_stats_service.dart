@@ -1,14 +1,21 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '/models/heartbeat_data.dart';
 
 class AnimalStatsService {
 
-  static const String _pythonApiBaseUrl = "https://petdex-api-python.onrender.com";
-  static const String _javaApiBaseUrl = "https://petdex-api-java.onrender.com";
+  String get _pythonApiBaseUrl => dotenv.env['API_PYTHON_URL']!;
+  String get _javaApiBaseUrl => dotenv.env['API_JAVA_URL']!;
 
   /// Busca a média de batimentos dos últimos 5 dias na API Python.
   Future<List<HeartbeatData>> getMediaUltimos5Dias() async {
+    try {
+      await dotenv.load(fileName: ".env");
+    } catch (e) {
+      print('Arquivo .env não encontrado, usando valores padrão');
+    }
+
     final endpoint = '/batimentos/media-ultimos-5-dias';
     try {
       final response = await http.get(Uri.parse('$_pythonApiBaseUrl$endpoint'));
@@ -35,6 +42,12 @@ class AnimalStatsService {
   }
 
   Future<Map<String, double>?> getUltimaLocalizacaoAnimal(String idAnimal) async {
+    try {
+      await dotenv.load(fileName: ".env");
+    } catch (e) {
+      print('Arquivo .env não encontrado, usando valores padrão');
+    }
+
     final endpoint =
         '$_javaApiBaseUrl/localizacoes/animal/$idAnimal?page=0&size=1';
 
