@@ -92,7 +92,7 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
               topLeft: Radius.circular(30),
               topRight: Radius.circular(30),
             ),
-             boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, -5))]
+            boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, -5))]
           ),
           child: _buildContent(),
         );
@@ -104,7 +104,6 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator(color: AppColors.orange));
     }
-
     if (_animalInfo == null) {
       return Center(
         child: Text(
@@ -113,7 +112,6 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
         ),
       );
     }
-
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
       child: Column(
@@ -126,7 +124,7 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
       ),
     );
   }
-  
+
   Widget _buildHeader() {
     return GestureDetector(
       onTap: _toggleExpand,
@@ -151,9 +149,9 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        CircleAvatar(
+        const CircleAvatar(
           radius: 35,
-          backgroundImage: NetworkImage(_animalInfo!.imageUrl),
+          backgroundImage: AssetImage('imagens/uno.png'),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -163,14 +161,14 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
               Row(
                 children: [
                   Text(
-                    _animalInfo!.name,
+                    _animalInfo!.nome, 
                     style: GoogleFonts.poppins(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.black400),
                   ),
                   const SizedBox(width: 8),
                   FaIcon(
-                    _animalInfo!.sex.toUpperCase() == 'MACHO' ? FontAwesomeIcons.mars : FontAwesomeIcons.venus,
+                    _animalInfo!.sexo.toUpperCase() == 'MACHO' ? FontAwesomeIcons.mars : FontAwesomeIcons.venus,
                     size: 20,
-                    color: _animalInfo!.sex.toUpperCase() == 'MACHO' ? Colors.blue : Colors.pink,
+                    color: _animalInfo!.sexo.toUpperCase() == 'MACHO' ? Colors.blue : Colors.pink,
                   ),
                 ],
               ),
