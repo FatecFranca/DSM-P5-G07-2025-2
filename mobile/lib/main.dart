@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:PetDex/theme/app_theme.dart';
 import 'package:PetDex/components/ui/nav_bar.dart';
-import 'package:PetDex/components/ui/animal_pin.dart';
+import 'package:PetDex/components/ui/realtime_data_widget.dart';
 import 'package:PetDex/services/animal_stats_service.dart';
 
 void main() {
@@ -58,12 +58,21 @@ class _NavBarWithLocationTestState extends State<NavBarWithLocationTest> {
 
   @override
   Widget build(BuildContext context) {
+    const animalId = '68194120636f719fcd5ee5fd';
+    print('🐕 ===== INICIANDO APLICATIVO =====');
+    print('🐕 Animal ID configurado: $animalId');
+    print('🐕 Iniciando RealtimeDataWidget...');
+    print('🐕 ================================');
+
     return Scaffold(
-      bottomNavigationBar: const NavBar(),
-      body: const Center(
-      
+      body: const SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(height: 40),
+            RealtimeDataWidget(animalId: animalId),
+          ],
         ),
-      
+      ),
     );
   }
 }
