@@ -1,16 +1,15 @@
 import 'dart:ffi';
-
 import 'package:PetDex/data/enums/species.dart';
 import 'package:intl/intl.dart';
+
 
 class Animal {
   final String id;
   final String nome;
-  final DateFormat dataNascimento;
+  final DateTime dataNascimento;
   final String sexo;
-  final Float peso;
-  final Bool castrado;
-  final String usuario;
+  final double peso;
+  final bool castrado;
   final String raca;
   final SpeciesEnum especie;
 
@@ -21,7 +20,6 @@ class Animal {
     required this.sexo,
     required this.peso,
     required this.castrado,
-    required this.usuario,
     required this.raca,
     required this.especie,
   });
@@ -30,13 +28,12 @@ class Animal {
     return Animal(
       id: json['id'],
       nome: json['nome'],
-      dataNascimento: json['dataNascimento'],
+      dataNascimento: DateTime.parse(json['dataNascimento']),
       sexo: json['sexo'],
-      peso: json['peso'],
+      peso: (json['peso'] as num).toDouble(),
       castrado: json['castrado'],
-      usuario: json['usuario'],
       raca: json['racaNome'],
-      especie: json['especieNome'] == 'gato'
+      especie: json['especieNome'].toLowerCase() == 'gato'
           ? SpeciesEnum.cat
           : SpeciesEnum.dog,
     );

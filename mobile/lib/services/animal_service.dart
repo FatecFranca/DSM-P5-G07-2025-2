@@ -7,10 +7,8 @@ class AnimalService {
   final String _javaApiBaseUrl = "https://petdex-api-java.onrender.com";
   final String _pythonApiBaseUrl = "https://petdex-api-python.onrender.com";
 
-  // ID do Uno para consulta padrão
-  static const String unoId = "0a1e2531-5c46-4e3e-86b1-87e07fdd16b6";
+  static const String unoId = "0a1e2531-5c46-4e3e-86b1-87e07fdd16b6"; 
 
-  // Busca as informações gerais do animal
   Future<Animal> getAnimalInfo(String animalId) async {
     final response = await http.get(Uri.parse('$_javaApiBaseUrl/pets/$animalId'));
     if (response.statusCode == 200) {
@@ -21,9 +19,9 @@ class AnimalService {
     }
   }
 
-  // Busca o histórico de batimentos para o gráfico
   Future<List<HeartbeatData>> getHeartbeatHistory(String animalId) async {
-    final response = await http.get(Uri.parse('$_pythonApiBaseUrl/batimentos/media-ultimos-5-dias'));
+    final response = await http.get(Uri.parse('$_pythonApiBaseUrl/batimentos/animal/$animalId/media-ultimos-5-dias'));
+    
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
       final Map<String, dynamic> medias = data['medias'];
@@ -36,7 +34,7 @@ class AnimalService {
       mediasList.sort((a, b) => a.date.compareTo(b.date));
       return mediasList;
     } else {
-      throw Exception('Falha ao carregar histórico de batimentos.');
+      throw Exception('Falha ao carregar histórico de batimentos. Status: ${response.statusCode}');
     }
   }
 }
