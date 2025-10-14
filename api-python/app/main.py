@@ -43,12 +43,16 @@ async def probabilidade_batimento(animalId: str,valor: int = Query(..., gt=0)):
 @app.get("/batimentos/animal/{animalId}/ultimo/analise", tags=["Batimentos"])
 async def probabilidade_ultimo_batimento(animalId: str):
     dados = await java_api.buscar_todos_batimentos(animalId)
-    ultimo_batimento = await java_api.buscar_ultimo_batimento(animalId).frequenciaMedia
-    dados = [bat for bat in dados if bat.get("animalId") == animalId]
+    ultimo_batimento_dados = await java_api.buscar_ultimo_batimento(animalId)
+    ultimo_batimento = ultimo_batimento_dados.get("frequenciaMedia")
+    
     valores = [bat["frequenciaMedia"] for bat in dados if isinstance(bat.get("frequenciaMedia"), (int, float))]
     
     if not valores:
         return {"erro": "Nenhum dado de batimentos disponível para análise."}
+
+    if ultimo_batimento is None:
+        return {"erro": "Não foi possível obter o último batimento"}
 
     resultado = stats.calcular_probabilidade_ultimo_batimento(ultimo_batimento, valores)
     return resultado
