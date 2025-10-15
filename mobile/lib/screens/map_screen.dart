@@ -54,7 +54,11 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _requestPermissions();
-    _loadAnimalLocation();
+    _initializeApp();
+  }
+
+  Future<void> _initializeApp() async {
+    await _loadAnimalLocation();
     _initializeWebSocket();
     _initializeBackgroundService();
   }
@@ -67,19 +71,31 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
       });
 
       final location = await _locationService.getUltimaLocalizacaoAnimal(widget.animalId);
-      
+
       if (location != null) {
         setState(() {
           _currentLocation = location;
         });
         await _createMarker(location);
-        _animateToLocation(location.latitude, location.longitude);
+
+        // Aguarda o mapa ser criado antes de animar
+        if (_mapController != null) {
+          _animateToLocation(location.latitude, location.longitude);
+        } else {
+          // Se o mapa ainda não foi criado, agenda a animação para depois
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (_mapController != null) {
+              _animateToLocation(location.latitude, location.longitude);
+            }
+          });
+        }
       } else {
         setState(() {
           _errorMessage = 'Localização não encontrada';
         });
       }
     } catch (e) {
+      debugPrint('Erro ao carregar localização: $e');
       setState(() {
         _errorMessage = 'Erro ao carregar localização';
       });
@@ -208,6 +224,10 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
           GoogleMap(
             onMapCreated: (GoogleMapController controller) {
               _mapController = controller;
+              // Se já temos uma localização carregada, anima para ela
+              if (_currentLocation != null) {
+                _animateToLocation(_currentLocation!.latitude, _currentLocation!.longitude);
+              }
             },
             initialCameraPosition: _currentLocation != null
                 ? CameraPosition(
@@ -230,7 +250,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
 
           if (_isLoading)
             Container(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               child: const Center(
                 child: CircularProgressIndicator(
                   color: AppColors.orange400,
@@ -309,8 +329,8 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
           ),
 
           Positioned(
-            bottom: 16,
-            right: 16,
+            top: 60,
+            left: 16,
             child: FloatingActionButton(
               onPressed: _loadAnimalLocation,
               backgroundColor: AppColors.orange400,
