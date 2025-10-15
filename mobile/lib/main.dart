@@ -27,15 +27,12 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tela Principal')),
       body: Stack(
         children: [
           const Center(child: Text('Bem-vindo ao PetDex!')),
-
           StatusBar(animalId: AnimalService.unoId),
         ],
       ),
-      bottomNavigationBar: const NavBar(),
     );
   }
 }
