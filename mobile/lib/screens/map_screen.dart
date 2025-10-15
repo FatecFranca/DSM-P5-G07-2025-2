@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:PetDex/components/ui/animal_pin.dart';
 import 'package:PetDex/services/location_service.dart';
+import 'package:PetDex/services/websocket_service.dart';
 import 'package:PetDex/data/enums/species.dart';
 import 'package:PetDex/theme/app_theme.dart';
 import 'package:PetDex/models/location_model.dart';
+import 'package:PetDex/models/websocket_message.dart';
 import 'package:PetDex/utils/custom_marker_helper.dart';
+import 'dart:async';
 
 class MapScreen extends StatefulWidget {
   final String animalId;
@@ -29,11 +31,15 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   GoogleMapController? _mapController;
   final LocationService _locationService = LocationService();
-  
+  final WebSocketService _webSocketService = WebSocketService();
+
   LocationData? _currentLocation;
   Set<Marker> _markers = {};
   bool _isLoading = true;
   String? _errorMessage;
+  StreamSubscription<LocationUpdate>? _locationSubscription;
+  StreamSubscription<bool>? _connectionSubscription;
+  bool _isWebSocketConnected = false;
 
   static const CameraPosition _defaultPosition = CameraPosition(
     target: LatLng(-23.5505, -46.6333),
@@ -44,6 +50,7 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     _loadAnimalLocation();
+    _initializeWebSocket();
   }
 
   Future<void> _loadAnimalLocation() async {
@@ -104,6 +111,49 @@ class _MapScreenState extends State<MapScreen> {
         CameraUpdate.newLatLng(LatLng(latitude, longitude)),
       );
     }
+  }
+
+  void _initializeWebSocket() {
+    _connectionSubscription = _webSocketService.connectionStream.listen((isConnected) {
+      setState(() {
+        _isWebSocketConnected = isConnected;
+      });
+    });
+
+    _locationSubscription = _webSocketService.locationStream.listen((locationUpdate) {
+      _handleWebSocketLocationUpdate(locationUpdate);
+    });
+
+    _webSocketService.connect(widget.animalId);
+  }
+
+  void _handleWebSocketLocationUpdate(LocationUpdate locationUpdate) {
+    if (locationUpdate.animalId == widget.animalId) {
+      final newLocation = LocationData(
+        id: 'websocket-${DateTime.now().millisecondsSinceEpoch}',
+        data: locationUpdate.timestamp,
+        latitude: locationUpdate.latitude,
+        longitude: locationUpdate.longitude,
+        animal: locationUpdate.animalId,
+        coleira: locationUpdate.coleiraId,
+      );
+
+      setState(() {
+        _currentLocation = newLocation;
+      });
+
+      _createMarker(newLocation);
+      _animateToLocation(locationUpdate.latitude, locationUpdate.longitude);
+    }
+  }
+
+  @override
+  void dispose() {
+    _locationSubscription?.cancel();
+    _connectionSubscription?.cancel();
+    _webSocketService.disconnect();
+    _mapController?.dispose();
+    super.dispose();
   }
 
   @override
@@ -177,6 +227,44 @@ class _MapScreenState extends State<MapScreen> {
 
 
           Positioned(
+            top: 50,
+            right: 16,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: _isWebSocketConnected ? Colors.green : Colors.red,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    _isWebSocketConnected ? Icons.wifi : Icons.wifi_off,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    _isWebSocketConnected ? 'Conectado' : 'Desconectado',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          Positioned(
             bottom: 16,
             right: 16,
             child: FloatingActionButton(
@@ -193,9 +281,5 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  @override
-  void dispose() {
-    _mapController?.dispose();
-    super.dispose();
-  }
+
 }
