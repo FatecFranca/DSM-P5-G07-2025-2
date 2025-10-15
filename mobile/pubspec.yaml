@@ -39,8 +39,9 @@ dependencies:
   http: ^1.2.1
   fl_chart: ^0.68.0
   intl: ^0.18.1
-  flutter_dotenv: ^5.1.0
   google_maps_flutter: ^2.6.0
+  flutter_dotenv: ^6.0.0
+  web_socket_channel: ^3.0.3
 
 dev_dependencies:
   flutter_test:
