@@ -8,6 +8,8 @@ import 'package:PetDex/theme/app_theme.dart';
 import 'package:PetDex/models/location_model.dart';
 import 'package:PetDex/models/websocket_message.dart';
 import 'package:PetDex/utils/custom_marker_helper.dart';
+import 'package:permission_handler/permission_handler.dart';
+
 import 'dart:async';
 
 class MapScreen extends StatefulWidget {
@@ -28,7 +30,7 @@ class MapScreen extends StatefulWidget {
   State<MapScreen> createState() => _MapScreenState();
 }
 
-class _MapScreenState extends State<MapScreen> {
+class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
   GoogleMapController? _mapController;
   final LocationService _locationService = LocationService();
   final WebSocketService _webSocketService = WebSocketService();
@@ -40,6 +42,7 @@ class _MapScreenState extends State<MapScreen> {
   StreamSubscription<LocationUpdate>? _locationSubscription;
   StreamSubscription<bool>? _connectionSubscription;
   bool _isWebSocketConnected = false;
+  bool _isInBackground = false;
 
   static const CameraPosition _defaultPosition = CameraPosition(
     target: LatLng(-23.5505, -46.6333),
@@ -49,8 +52,11 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _requestPermissions();
     _loadAnimalLocation();
     _initializeWebSocket();
+    _initializeBackgroundService();
   }
 
   Future<void> _loadAnimalLocation() async {
@@ -147,10 +153,48 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    switch (state) {
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+        _isInBackground = true;
+        _webSocketService.setBackgroundMode(true);
+        _webSocketService.resetReconnectionAttempts();
+        break;
+      case AppLifecycleState.resumed:
+        _isInBackground = false;
+        _webSocketService.setBackgroundMode(false);
+        if (!_webSocketService.isConnected) {
+          _webSocketService.connect(widget.animalId);
+        }
+        break;
+      case AppLifecycleState.inactive:
+        break;
+      case AppLifecycleState.hidden:
+        break;
+    }
+  }
+
+  Future<void> _requestPermissions() async {
+    await Permission.notification.request();
+    await Permission.ignoreBatteryOptimizations.request();
+  }
+
+  Future<void> _initializeBackgroundService() async {
+    await _webSocketService.initializeBackgroundService();
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _locationSubscription?.cancel();
     _connectionSubscription?.cancel();
+    _webSocketService.setBackgroundMode(false);
     _webSocketService.disconnect();
     _mapController?.dispose();
     super.dispose();
