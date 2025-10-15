@@ -1,10 +1,12 @@
 package com.petdex.api.application.services.batimento;
 
 import com.petdex.api.application.services.ValidationService;
+import com.petdex.api.application.services.websocket.WebSocketNotificationService;
 import com.petdex.api.domain.collections.Batimento;
 import com.petdex.api.domain.contracts.dto.batimento.BatimentoReqDTO;
 import com.petdex.api.domain.contracts.dto.batimento.BatimentoResDTO;
 import com.petdex.api.domain.contracts.dto.PageDTO;
+import com.petdex.api.domain.contracts.dto.websocket.BatimentoWebSocketDTO;
 import com.petdex.api.infrastructure.mongodb.BatimentoRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class BatimentoService implements IBatimentoService {
@@ -26,13 +29,34 @@ public class BatimentoService implements IBatimentoService {
     @Autowired
     private ModelMapper mapper;
 
+    @Autowired
+    private WebSocketNotificationService webSocketNotificationService;
+
     public BatimentoResDTO save(BatimentoReqDTO batimentoReq) {
 //
 //        if (!validation.existAnimal(batimentoReq.getAnimalId()) || !validation.existColeira(batimentoReq.getColeiraId())) {
 //            return null; // Lançar excessão 404
 //        }
 
-        return mapper.map(batimentoRepository.save(mapper.map(batimentoReq, Batimento.class)), BatimentoResDTO.class);
+        // Salva o batimento no banco de dados
+        Batimento batimentoSalvo = batimentoRepository.save(mapper.map(batimentoReq, Batimento.class));
+        BatimentoResDTO batimentoResDTO = mapper.map(batimentoSalvo, BatimentoResDTO.class);
+
+        // Cria o DTO para envio via WebSocket
+        BatimentoWebSocketDTO webSocketDTO = new BatimentoWebSocketDTO(
+                batimentoReq.getAnimal(),
+                batimentoReq.getColeira(),
+                batimentoReq.getFrequenciaMedia(),
+                batimentoReq.getData()
+        );
+
+        // Envia notificação via WebSocket
+        webSocketNotificationService.enviarNotificacaoBatimento(
+                batimentoReq.getAnimal(),
+                webSocketDTO
+        );
+
+        return batimentoResDTO;
     }
 
     public BatimentoResDTO fidById(String batimentoId) {
@@ -59,6 +83,12 @@ public class BatimentoService implements IBatimentoService {
                 .toList();
 
         return new PageImpl<BatimentoResDTO>(dtoList, pageDTO.mapPage(), batimentosPage.getTotalElements());
+    }
+
+    @Override
+    public Optional<BatimentoResDTO> findLastByAnimalId(String animalId) {
+        Optional<Batimento> ultimoBatimento = batimentoRepository.findFirstByAnimalOrderByDataDesc(animalId);
+        return ultimoBatimento.map(batimento -> mapper.map(batimento, BatimentoResDTO.class));
     }
 
 }

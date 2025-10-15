@@ -63,6 +63,20 @@ public class BatimentoController {
         );
     }
 
+    @Operation(
+            summary = "Buscar o último batimento cardíaco registrado de um animal",
+            description = "Retorna o batimento cardíaco mais recente de um animal específico, ordenado por data de registro",
+            parameters = {
+                    @Parameter(name = "idAnimal", description = "ID do animal que se deseja consultar o último batimento", required = true)
+            }
+    )
+    @GetMapping("/animal/{idAnimal}/ultimo")
+    public ResponseEntity<BatimentoResDTO> findLastByAnimal(@PathVariable String idAnimal) {
+        return batimentoService.findLastByAnimalId(idAnimal)
+                .map(batimento -> new ResponseEntity<>(batimento, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
     @PostMapping("")
     public ResponseEntity<BatimentoResDTO> save (@RequestBody BatimentoReqDTO batimento) {
         return new ResponseEntity<BatimentoResDTO>(batimentoService.save(batimento), HttpStatus.CREATED);
