@@ -16,7 +16,7 @@ class MapServices {
 
       final local = await AnimalStatsService().getUltimaLocalizacaoAnimal(idAnimal);
 
-      if (local == null || local['latitude'] == null || local['longitude'] == null) {
+      if (local == null) {
         print('⚠️ Nenhuma localização encontrada para o animal $idAnimal');
         return;
       }
@@ -51,7 +51,7 @@ class MapServices {
     try {
       final local = await AnimalStatsService().getUltimaLocalizacaoAnimal(idAnimal);
 
-      if (local == null || local['latitude'] == null || local['longitude'] == null) {
+      if (local == null) {
         print('⚠️ Nenhuma localização válida encontrada para o animal.');
         return;
       }
