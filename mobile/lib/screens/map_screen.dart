@@ -1,16 +1,21 @@
+// lib/screens/map_screen.dart
+import 'dart:async';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/rendering.dart'; 
+
 import 'package:PetDex/services/location_service.dart';
 import 'package:PetDex/services/websocket_service.dart';
 import 'package:PetDex/data/enums/species.dart';
 import 'package:PetDex/theme/app_theme.dart';
 import 'package:PetDex/models/location_model.dart';
 import 'package:PetDex/models/websocket_message.dart';
-import 'package:PetDex/utils/custom_marker_helper.dart';
-import 'package:permission_handler/permission_handler.dart';
-
-import 'dart:async';
+import 'package:PetDex/components/ui/animal_pin.dart';
 
 class MapScreen extends StatefulWidget {
   final String animalId;
@@ -82,7 +87,6 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
         if (_mapController != null) {
           _animateToLocation(location.latitude, location.longitude);
         } else {
-          // Se o mapa ainda não foi criado, agenda a animação para depois
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (_mapController != null) {
               _animateToLocation(location.latitude, location.longitude);
@@ -106,25 +110,86 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
     }
   }
 
+  /// Cria o marcador com o AnimalPin convertido para BitmapDescriptor
   Future<void> _createMarker(LocationData location) async {
-    final customIcon = await CustomMarkerHelper.createAnimalPinMarker(
-      species: widget.animalSpecies,
-      imageUrl: widget.animalImageUrl,
-    );
+    try {
+      // Gera bytes do widget AnimalPin usando overlay capture
+      final Uint8List markerBytes = await _createMarkerFromWidget(
+        AnimalPin(
+          imageUrl: widget.animalImageUrl,
+          especie: widget.animalSpecies,
+          size: 64, // tamanho interno do avatar
+        ),
+        const Size(88, 88), // tamanho do widget que renderizamos (inclui borda)
+      );
 
-    final marker = Marker(
-      markerId: const MarkerId('animal_location'),
-      position: LatLng(location.latitude, location.longitude),
-      icon: customIcon,
-      infoWindow: InfoWindow(
-        title: widget.animalName,
-        snippet: 'Localização atual',
+      final marker = Marker(
+        markerId: const MarkerId('animal_location'),
+        position: LatLng(location.latitude, location.longitude),
+        icon: BitmapDescriptor.fromBytes(markerBytes),
+        infoWindow: InfoWindow(
+          title: widget.animalName,
+          snippet: 'Localização atual',
+        ),
+      );
+
+      setState(() {
+        _markers = {marker};
+      });
+    } catch (e) {
+      debugPrint('Erro ao criar marcador: $e');
+    }
+  }
+
+  /// Converte um widget (AnimalPin) para Uint8List usando um OverlayEntry e RepaintBoundary.
+  /// O widget é inserido off-screen, aguardamos o frame e capturamos a imagem.
+  Future<Uint8List> _createMarkerFromWidget(Widget widget, Size size) async {
+    final overlayState = Overlay.of(context);
+    if (overlayState == null) {
+      throw Exception('Overlay não disponível');
+    }
+
+    final key = GlobalKey();
+    final entry = OverlayEntry(
+      builder: (context) => Positioned(
+        // posicionar off-screen para não interferir na UI
+        left: -1000,
+        top: -1000,
+        child: Material(
+          type: MaterialType.transparency,
+          child: RepaintBoundary(
+            key: key,
+            child: SizedBox(width: size.width, height: size.height, child: widget),
+          ),
+        ),
       ),
     );
 
-    setState(() {
-      _markers = {marker};
-    });
+    overlayState.insert(entry);
+
+    // aguarda um frame para garantir que o widget foi renderizado
+    await Future.delayed(const Duration(milliseconds: 50));
+    await WidgetsBinding.instance.endOfFrame;
+
+    try {
+      final boundary = key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) {
+        throw Exception('Erro ao capturar RenderRepaintBoundary');
+      }
+
+      // captura a imagem com o devicePixelRatio adequado
+      final ui.Image image = await boundary.toImage(pixelRatio: ui.window.devicePixelRatio);
+      final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      final bytes = byteData!.buffer.asUint8List();
+
+      // remove o overlay
+      entry.remove();
+      return bytes;
+    } catch (e) {
+      // garante remoção do overlay em caso de erro
+      entry.remove();
+      rethrow;
+    }
   }
 
   void _animateToLocation(double latitude, double longitude) {
@@ -136,17 +201,24 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
   }
 
   void _initializeWebSocket() {
-    _connectionSubscription = _webSocketService.connectionStream.listen((isConnected) {
+    _connectionSubscription = _webSocket_service_connectionStreamListener();
+    _locationSubscription = _webSocket_service_locationStreamListener();
+    _webSocketService.connect(widget.animalId);
+  }
+
+  // small helpers to avoid long lines and make code searchable
+  StreamSubscription<bool>? _webSocket_service_connectionStreamListener() {
+    return _webSocketService.connectionStream.listen((isConnected) {
       setState(() {
         _isWebSocketConnected = isConnected;
       });
     });
+  }
 
-    _locationSubscription = _webSocketService.locationStream.listen((locationUpdate) {
+  StreamSubscription<LocationUpdate>? _webSocket_service_locationStreamListener() {
+    return _webSocketService.locationStream.listen((locationUpdate) {
       _handleWebSocketLocationUpdate(locationUpdate);
     });
-
-    _webSocketService.connect(widget.animalId);
   }
 
   void _handleWebSocketLocationUpdate(LocationUpdate locationUpdate) {
@@ -169,8 +241,6 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
     }
   }
 
-
-
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
@@ -190,7 +260,6 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
         }
         break;
       case AppLifecycleState.inactive:
-        break;
       case AppLifecycleState.hidden:
         break;
     }
@@ -209,11 +278,15 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _locationSubscription?.cancel();
-    _connectionSubscription?.cancel();
+    _connection_subscription_cancel();
     _webSocketService.setBackgroundMode(false);
     _webSocketService.disconnect();
     _mapController?.dispose();
     super.dispose();
+  }
+
+  void _connection_subscription_cancel() {
+    _connectionSubscription?.cancel();
   }
 
   @override
@@ -224,7 +297,6 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
           GoogleMap(
             onMapCreated: (GoogleMapController controller) {
               _mapController = controller;
-              // Se já temos uma localização carregada, anima para ela
               if (_currentLocation != null) {
                 _animateToLocation(_currentLocation!.latitude, _currentLocation!.longitude);
               }
@@ -250,11 +322,9 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
 
           if (_isLoading)
             Container(
-              color: Colors.black.withValues(alpha: 0.3),
+              color: Colors.black.withOpacity(0.3),
               child: const Center(
-                child: CircularProgressIndicator(
-                  color: AppColors.orange400,
-                ),
+                child: CircularProgressIndicator(color: AppColors.orange400),
               ),
             ),
 
@@ -288,8 +358,6 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
               ),
             ),
 
-
-
           Positioned(
             top: 50,
             right: 16,
@@ -300,7 +368,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.2),
+                    color: Colors.black.withOpacity(0.2),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -334,16 +402,11 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
             child: FloatingActionButton(
               onPressed: _loadAnimalLocation,
               backgroundColor: AppColors.orange400,
-              child: const Icon(
-                Icons.my_location,
-                color: Colors.white,
-              ),
+              child: const Icon(Icons.my_location, color: Colors.white),
             ),
           ),
         ],
       ),
     );
   }
-
-
 }

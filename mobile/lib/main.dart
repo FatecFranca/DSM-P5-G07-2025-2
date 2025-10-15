@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
         animalId: "68194120636f719fcd5ee5fd",
         animalName: "Uno",
         animalSpecies: Species.dog,
-        animalImageUrl: "https://love.doghero.com.br/wp-content/uploads/2018/12/golden-retriever-1.png",
+        animalImageUrl: "lib/assets/images/uno.png",
       ),
     );
   }
