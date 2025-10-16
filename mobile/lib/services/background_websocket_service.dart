@@ -3,57 +3,23 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../models/websocket_message.dart';
+import 'notification_service.dart';
 
 class BackgroundWebSocketService {
   static const String _taskName = 'websocket_background_task';
-  static const String _notificationChannelId = 'petdex_websocket';
-  static const String _notificationChannelName = 'PetDex WebSocket';
-  
-  static final FlutterLocalNotificationsPlugin _notificationsPlugin = 
-      FlutterLocalNotificationsPlugin();
-  
+
   static bool _isInitialized = false;
 
   static Future<void> initialize() async {
     if (_isInitialized) return;
-    
-    await _initializeNotifications();
+
     await _initializeBackgroundService();
     await _initializeWorkManager();
-    
+
     _isInitialized = true;
-  }
-
-  static Future<void> _initializeNotifications() async {
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-    );
-
-    const initSettings = InitializationSettings(
-      android: androidSettings,
-      iOS: iosSettings,
-    );
-
-    await _notificationsPlugin.initialize(initSettings);
-
-    const androidChannel = AndroidNotificationChannel(
-      _notificationChannelId,
-      _notificationChannelName,
-      description: 'Notificações do WebSocket do PetDex',
-      importance: Importance.high,
-    );
-
-    await _notificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(androidChannel);
   }
 
   static Future<void> _initializeBackgroundService() async {
@@ -68,11 +34,7 @@ class BackgroundWebSocketService {
       androidConfiguration: AndroidConfiguration(
         onStart: _onBackgroundStart,
         autoStart: false,
-        isForegroundMode: true,
-        notificationChannelId: _notificationChannelId,
-        initialNotificationTitle: 'PetDex - Monitoramento Ativo',
-        initialNotificationContent: 'Mantendo conexão com seu pet',
-        foregroundServiceNotificationId: 888,
+        isForegroundMode: false, // ✅ DESABILITADO - Remove notificação persistente
       ),
     );
   }
@@ -211,7 +173,7 @@ class BackgroundWebSocketService {
   static void _handleBackgroundMessage(dynamic message, String animalId, ServiceInstance service) {
     try {
       final messageStr = message.toString();
-      
+
       if (messageStr.startsWith('CONNECTED')) {
         final subscribeMessage = 'SUBSCRIBE\nid:sub-$animalId\ndestination:/topic/animal/$animalId\n\n\x00';
         service.invoke('websocket_send', {'message': subscribeMessage});
@@ -221,13 +183,13 @@ class BackgroundWebSocketService {
       if (messageStr.startsWith('MESSAGE')) {
         final lines = messageStr.split('\n');
         final bodyIndex = lines.indexWhere((line) => line.isEmpty);
-        
+
         if (bodyIndex != -1 && bodyIndex + 1 < lines.length) {
           final jsonBody = lines.sublist(bodyIndex + 1).join('\n').replaceAll('\x00', '');
-          
+
           if (jsonBody.isNotEmpty) {
             final data = json.decode(jsonBody);
-            _showLocationNotification(animalId, data);
+            _checkAndNotifySafeZone(data);
           }
         }
       }
@@ -236,36 +198,32 @@ class BackgroundWebSocketService {
     }
   }
 
-  static Future<void> _showLocationNotification(String animalId, Map<String, dynamic> data) async {
-    const androidDetails = AndroidNotificationDetails(
-      _notificationChannelId,
-      _notificationChannelName,
-      channelDescription: 'Atualizações de localização do seu pet',
-      importance: Importance.high,
-      priority: Priority.high,
-      icon: '@mipmap/ic_launcher',
-    );
+  /// Verifica se o pet saiu da área segura e envia notificação via NotificationService
+  static Future<void> _checkAndNotifySafeZone(Map<String, dynamic> data) async {
+    try {
+      // Verifica se a mensagem contém informações de área segura
+      final isOutsideSafeZone = data['isOutsideSafeZone'] as bool? ?? false;
 
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-    );
+      if (isOutsideSafeZone) {
+        debugPrint('🚨 [Background] Pet fora da área segura! Enviando notificação...');
 
-    const notificationDetails = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
-
-    final lat = data['latitude']?.toString() ?? 'N/A';
-    final lng = data['longitude']?.toString() ?? 'N/A';
-
-    await _notificationsPlugin.show(
-      DateTime.now().millisecondsSinceEpoch.remainder(100000),
-      'Localização do Pet Atualizada',
-      'Seu pet está em: $lat, $lng',
-      notificationDetails,
-    );
+        // Usa o NotificationService para enviar a notificação de alerta
+        final notificationService = NotificationService();
+        await notificationService.sendSafeZoneAlert(
+          petName: 'Seu pet',
+          isOutside: true,
+        );
+      } else {
+        // Pet voltou para área segura - reseta o estado
+        final notificationService = NotificationService();
+        await notificationService.sendSafeZoneAlert(
+          petName: 'Seu pet',
+          isOutside: false,
+        );
+      }
+    } catch (e) {
+      debugPrint('❌ Erro ao verificar área segura em background: $e');
+    }
   }
 
   @pragma('vm:entry-point')
