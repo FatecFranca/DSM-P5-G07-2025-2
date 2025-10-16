@@ -1,4 +1,4 @@
-// lib/screens/map_screen.dart
+// lib/screens/location_screen_new.dart
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -6,24 +6,26 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter/rendering.dart'; 
+import 'package:flutter/rendering.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:PetDex/services/location_service.dart';
-import 'package:PetDex/services/websocket_service.dart';
 import 'package:PetDex/data/enums/species.dart';
 import 'package:PetDex/theme/app_theme.dart';
 import 'package:PetDex/models/location_model.dart';
-import 'package:PetDex/models/websocket_message.dart';
 import 'package:PetDex/components/ui/animal_pin.dart';
+import 'package:PetDex/components/ui/pet_address_card.dart';
 
-class MapScreen extends StatefulWidget {
+/// LocationScreen - Tela de localização do animal
+/// Exibe o mapa com a última localização conhecida e o endereço formatado
+/// Mantém o estado vivo usando AutomaticKeepAliveClientMixin
+class LocationScreen extends StatefulWidget {
   final String animalId;
   final String animalName;
   final Species animalSpecies;
   final String? animalImageUrl;
 
-  const MapScreen({
+  const LocationScreen({
     super.key,
     required this.animalId,
     required this.animalName,
@@ -32,24 +34,21 @@ class MapScreen extends StatefulWidget {
   });
 
   @override
-  State<MapScreen> createState() => _MapScreenState();
+  State<LocationScreen> createState() => _LocationScreenState();
 }
 
-class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
+class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAliveClientMixin {
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => true; // Mantém o estado vivo ao trocar de abas
+
   GoogleMapController? _mapController;
   final LocationService _locationService = LocationService();
-  final WebSocketService _webSocketService = WebSocketService();
 
   LocationData? _currentLocation;
   Set<Marker> _markers = {};
   bool _isLoading = true;
   String? _errorMessage;
-  StreamSubscription<LocationUpdate>? _locationSubscription;
-  StreamSubscription<bool>? _connectionSubscription;
-  bool _isWebSocketConnected = false;
-  bool _isInBackground = false;
+  String? _address; // Endereço formatado
 
   static const CameraPosition _defaultPosition = CameraPosition(
     target: LatLng(-23.5505, -46.6333),
@@ -59,17 +58,10 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    _requestPermissions();
-    _initializeApp();
+    _loadAnimalLocation();
   }
 
-  Future<void> _initializeApp() async {
-    await _loadAnimalLocation();
-    _initializeWebSocket();
-    _initializeBackgroundService();
-  }
-
+  /// Carrega a última localização do animal e converte em endereço
   Future<void> _loadAnimalLocation() async {
     try {
       setState(() {
@@ -77,15 +69,35 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
         _errorMessage = null;
       });
 
+      // Busca a última localização do animal
       final location = await _locationService.getUltimaLocalizacaoAnimal(widget.animalId);
 
       if (location != null) {
         setState(() {
           _currentLocation = location;
         });
+        
+        // Cria o marcador no mapa
         await _createMarker(location);
 
-        // Aguarda o mapa ser criado antes de animar
+        // Busca o endereço formatado usando Google Maps API
+        final googleMapsApiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '';
+        if (googleMapsApiKey.isNotEmpty) {
+          final address = await _locationService.getEnderecoFromCoordinates(
+            location.latitude,
+            location.longitude,
+            googleMapsApiKey,
+          );
+          setState(() {
+            _address = address ?? 'Endereço não disponível';
+          });
+        } else {
+          setState(() {
+            _address = 'API Key do Google Maps não configurada';
+          });
+        }
+
+        // Centraliza o mapa na localização
         if (_mapController != null) {
           _animateToLocation(location.latitude, location.longitude);
         } else {
@@ -115,14 +127,13 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
   /// Cria o marcador com o AnimalPin convertido para BitmapDescriptor
   Future<void> _createMarker(LocationData location) async {
     try {
-      // Gera bytes do widget AnimalPin usando overlay capture
       final Uint8List markerBytes = await _createMarkerFromWidget(
         AnimalPin(
           imageUrl: widget.animalImageUrl,
           especie: widget.animalSpecies,
-          size: 64, // tamanho interno do avatar
+          size: 64,
         ),
-        const Size(88, 88), // tamanho do widget que renderizamos (inclui borda)
+        const Size(88, 88),
       );
 
       final marker = Marker(
@@ -143,8 +154,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
     }
   }
 
-  /// Converte um widget (AnimalPin) para Uint8List usando um OverlayEntry e RepaintBoundary.
-  /// O widget é inserido off-screen, aguardamos o frame e capturamos a imagem.
+  /// Converte um widget (AnimalPin) para Uint8List usando OverlayEntry
   Future<Uint8List> _createMarkerFromWidget(Widget widget, Size size) async {
     final overlayState = Overlay.of(context);
     if (overlayState == null) {
@@ -154,7 +164,6 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
     final key = GlobalKey();
     final entry = OverlayEntry(
       builder: (context) => Positioned(
-        // posicionar off-screen para não interferir na UI
         left: -1000,
         top: -1000,
         child: Material(
@@ -168,8 +177,6 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
     );
 
     overlayState.insert(entry);
-
-    // aguarda um frame para garantir que o widget foi renderizado
     await Future.delayed(const Duration(milliseconds: 50));
     await WidgetsBinding.instance.endOfFrame;
 
@@ -179,21 +186,19 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
         throw Exception('Erro ao capturar RenderRepaintBoundary');
       }
 
-      // captura a imagem com o devicePixelRatio adequado
       final ui.Image image = await boundary.toImage(pixelRatio: ui.window.devicePixelRatio);
       final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final bytes = byteData!.buffer.asUint8List();
 
-      // remove o overlay
       entry.remove();
       return bytes;
     } catch (e) {
-      // garante remoção do overlay em caso de erro
       entry.remove();
       rethrow;
     }
   }
 
+  /// Anima a câmera do mapa para a localização especificada
   void _animateToLocation(double latitude, double longitude) {
     if (_mapController != null) {
       _mapController!.animateCamera(
@@ -209,101 +214,20 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
     }
   }
 
-  void _initializeWebSocket() {
-    _connectionSubscription = _webSocket_service_connectionStreamListener();
-    _locationSubscription = _webSocket_service_locationStreamListener();
-    _webSocketService.connect(widget.animalId);
-  }
-
-  // small helpers to avoid long lines and make code searchable
-  StreamSubscription<bool>? _webSocket_service_connectionStreamListener() {
-    return _webSocketService.connectionStream.listen((isConnected) {
-      setState(() {
-        _isWebSocketConnected = isConnected;
-      });
-    });
-  }
-
-  StreamSubscription<LocationUpdate>? _webSocket_service_locationStreamListener() {
-    return _webSocketService.locationStream.listen((locationUpdate) {
-      _handleWebSocketLocationUpdate(locationUpdate);
-    });
-  }
-
-  void _handleWebSocketLocationUpdate(LocationUpdate locationUpdate) {
-    if (locationUpdate.animalId == widget.animalId) {
-      final newLocation = LocationData(
-        id: 'websocket-${DateTime.now().millisecondsSinceEpoch}',
-        data: locationUpdate.timestamp,
-        latitude: locationUpdate.latitude,
-        longitude: locationUpdate.longitude,
-        animal: locationUpdate.animalId,
-        coleira: locationUpdate.coleiraId,
-      );
-
-      setState(() {
-        _currentLocation = newLocation;
-      });
-
-      _createMarker(newLocation);
-      _animateToLocation(locationUpdate.latitude, locationUpdate.longitude);
-    }
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-
-    switch (state) {
-      case AppLifecycleState.paused:
-      case AppLifecycleState.detached:
-        _isInBackground = true;
-        _webSocketService.setBackgroundMode(true);
-        _webSocketService.resetReconnectionAttempts();
-        break;
-      case AppLifecycleState.resumed:
-        _isInBackground = false;
-        _webSocketService.setBackgroundMode(false);
-        if (!_webSocketService.isConnected) {
-          _webSocketService.connect(widget.animalId);
-        }
-        break;
-      case AppLifecycleState.inactive:
-      case AppLifecycleState.hidden:
-        break;
-    }
-  }
-
-  Future<void> _requestPermissions() async {
-    await Permission.notification.request();
-    await Permission.ignoreBatteryOptimizations.request();
-  }
-
-  Future<void> _initializeBackgroundService() async {
-    await _webSocketService.initializeBackgroundService();
-  }
-
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _locationSubscription?.cancel();
-    _connection_subscription_cancel();
-    _webSocketService.setBackgroundMode(false);
-    _webSocketService.disconnect();
     _mapController?.dispose();
     super.dispose();
   }
 
-  void _connection_subscription_cancel() {
-    _connectionSubscription?.cancel();
-  }
-
   @override
   Widget build(BuildContext context) {
-    super.build(context);
+    super.build(context); // Necessário para AutomaticKeepAliveClientMixin
+    
     return Scaffold(
       body: Stack(
         children: [
+          // Mapa do Google Maps
           GoogleMap(
             onMapCreated: (GoogleMapController controller) {
               _mapController = controller;
@@ -330,6 +254,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
             zoomGesturesEnabled: true,
           ),
 
+          // Indicador de carregamento
           if (_isLoading)
             Container(
               color: Colors.black.withOpacity(0.3),
@@ -338,6 +263,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
               ),
             ),
 
+          // Mensagem de erro
           if (_errorMessage != null)
             Positioned(
               top: 100,
@@ -368,43 +294,17 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
               ),
             ),
 
-          Positioned(
-            top: 50,
-            right: 16,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: _isWebSocketConnected ? Colors.green : Colors.red,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    _isWebSocketConnected ? Icons.wifi : Icons.wifi_off,
-                    color: Colors.white,
-                    size: 16,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    _isWebSocketConnected ? 'Conectado' : 'Desconectado',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+          // PetAddressCard - Exibe o endereço do animal
+          if (_address != null && !_isLoading)
+            Positioned(
+              top: 60,
+              left: 16,
+              right: 16,
+              child: PetAddressCard(
+                petName: widget.animalName,
+                address: _address!,
               ),
             ),
-          ),
 
           // Botão de centralização - Canto inferior direito, acima da NavBar
           if (_currentLocation != null)
@@ -422,3 +322,4 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
     );
   }
 }
+

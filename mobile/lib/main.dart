@@ -1,5 +1,4 @@
-import 'package:PetDex/screens/map_screen.dart';
-import 'package:PetDex/data/enums/species.dart';
+import 'package:PetDex/screens/app_shell.dart';
 import 'package:PetDex/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -20,12 +19,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const MapScreen(
-        animalId: "68194120636f719fcd5ee5fd",
-        animalName: "Uno",
-        animalSpecies: Species.dog,
-        animalImageUrl: "lib/assets/images/uno.png",
-      ),
+      home: const AppShell(),
     );
   }
 }
