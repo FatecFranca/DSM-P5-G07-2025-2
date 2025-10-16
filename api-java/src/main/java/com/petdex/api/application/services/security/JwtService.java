@@ -24,9 +24,6 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    @Value("${jwt.expiration}")
-    private Long expiration;
-
     /**
      * Gera a chave secreta para assinar os tokens JWT
      * Garante que a chave tenha pelo menos 256 bits (32 bytes) usando SHA-256
@@ -57,20 +54,18 @@ public class JwtService {
     }
 
     /**
-     * Cria o token JWT com as claims fornecidas
+     * Cria o token JWT com as claims fornecidas (sem expiração)
      * @param claims Informações adicionais a serem incluídas no token
      * @param subject Assunto do token (geralmente o ID do usuário)
      * @return Token JWT
      */
     private String createToken(Map<String, Object> claims, String subject) {
         Date now = new Date();
-        Date expirationDate = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
                 .claims(claims)
                 .subject(subject)
                 .issuedAt(now)
-                .expiration(expirationDate)
                 .signWith(getSigningKey())
                 .compact();
     }
@@ -93,14 +88,7 @@ public class JwtService {
         return extractClaim(token, claims -> claims.get("email", String.class));
     }
 
-    /**
-     * Extrai a data de expiração do token
-     * @param token Token JWT
-     * @return Data de expiração
-     */
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
+
 
     /**
      * Extrai uma claim específica do token
@@ -127,33 +115,29 @@ public class JwtService {
     }
 
     /**
-     * Verifica se o token está expirado
-     * @param token Token JWT
-     * @return true se o token está expirado, false caso contrário
-     */
-    public Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-    /**
      * Valida o token JWT
      * @param token Token JWT
      * @param userId ID do usuário esperado
      * @return true se o token é válido, false caso contrário
      */
     public Boolean validateToken(String token, String userId) {
-        final String extractedUserId = extractUserId(token);
-        return (extractedUserId.equals(userId) && !isTokenExpired(token));
+        try {
+            final String extractedUserId = extractUserId(token);
+            return extractedUserId.equals(userId);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
-     * Valida apenas se o token é válido (não expirado e bem formado)
+     * Valida apenas se o token é válido e bem formado
      * @param token Token JWT
      * @return true se o token é válido, false caso contrário
      */
     public Boolean validateToken(String token) {
         try {
-            return !isTokenExpired(token);
+            extractAllClaims(token);
+            return true;
         } catch (Exception e) {
             return false;
         }
