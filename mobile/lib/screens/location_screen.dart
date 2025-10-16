@@ -17,6 +17,7 @@ import 'package:PetDex/models/location_model.dart';
 import 'package:PetDex/models/websocket_message.dart';
 import 'package:PetDex/components/ui/animal_pin.dart';
 import 'package:PetDex/components/ui/pet_address_card.dart';
+import 'package:PetDex/screens/define_safe_area_screen.dart';
 
 /// LocationScreen - Tela de localização do animal
 /// Exibe o mapa com a última localização conhecida e o endereço formatado
@@ -77,7 +78,15 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
   /// Inicializa a aplicação: carrega localização inicial e conecta WebSocket
   Future<void> _initializeApp() async {
     await _loadAnimalLocation();
+    await _initializeNotifications(); // ✅ CRÍTICO: Inicializa notificações
     _initializeWebSocket();
+  }
+
+  /// Inicializa o serviço de notificações
+  Future<void> _initializeNotifications() async {
+    debugPrint('🔔 [LocationScreen] Inicializando notificações para ${widget.animalName}...');
+    await _webSocketService.initializeNotifications(petName: widget.animalName);
+    debugPrint('✅ [LocationScreen] Notificações inicializadas!');
   }
 
   /// Inicializa o WebSocket e seus listeners
@@ -346,6 +355,32 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
     }
   }
 
+  /// Navega para a tela de definição de área segura
+  void _navigateToDefineSafeArea() {
+    if (_currentLocation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Aguarde o carregamento da localização',
+            style: GoogleFonts.poppins(),
+          ),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => DefineSafeAreaScreen(
+          animalId: widget.animalId,
+          animalName: widget.animalName,
+          initialLocation: _currentLocation!,
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _locationSubscription?.cancel();
@@ -452,6 +487,26 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
                 onPressed: _centerOnAnimalLocation,
                 backgroundColor: AppColors.orange400,
                 child: const Icon(Icons.my_location, color: Colors.white),
+              ),
+            ),
+
+          // Botão "Definir área segura" - Canto inferior esquerdo, acima da NavBar
+          if (_currentLocation != null && !_isLoading)
+            Positioned(
+              bottom: 100,
+              left: 16,
+              child: FloatingActionButton.extended(
+                onPressed: _navigateToDefineSafeArea,
+                backgroundColor: Colors.blue.shade600,
+                icon: const Icon(Icons.shield_outlined, color: Colors.white),
+                label: Text(
+                  'Definir área segura',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
               ),
             ),
         ],

@@ -72,6 +72,13 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
     await _loadAnimalLocation();
     _initializeWebSocket();
     _initializeBackgroundService();
+    _initializeNotifications();
+  }
+
+  /// Inicializa o serviço de notificações
+  Future<void> _initializeNotifications() async {
+    await _webSocketService.initializeNotifications(petName: widget.animalName);
+    debugPrint('🔔 Notificações inicializadas para ${widget.animalName}');
   }
 
   Future<void> _loadAnimalLocation() async {

@@ -4,6 +4,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/websocket_message.dart';
 import 'background_websocket_service.dart';
+import 'notification_service.dart';
 
 class WebSocketService {
   static final WebSocketService _instance = WebSocketService._internal();
@@ -33,6 +34,10 @@ class WebSocketService {
   bool get isConnected => _isConnected;
   bool get isInBackground => _isInBackground;
 
+  // Serviço de notificações
+  final NotificationService _notificationService = NotificationService();
+  String? _currentPetName; // Nome do pet para notificações
+
   void setBackgroundMode(bool isBackground) {
     _isInBackground = isBackground;
 
@@ -52,6 +57,18 @@ class WebSocketService {
 
   Future<void> initializeBackgroundService() async {
     await BackgroundWebSocketService.initialize();
+  }
+
+  /// Inicializa o serviço de notificações
+  Future<void> initializeNotifications({String? petName}) async {
+    _currentPetName = petName;
+    await _notificationService.initialize();
+    print('🔔 Serviço de notificações inicializado para: ${petName ?? "pet"}');
+  }
+
+  /// Define o nome do pet para notificações
+  void setPetName(String petName) {
+    _currentPetName = petName;
   }
 
 
@@ -249,6 +266,9 @@ class WebSocketService {
             print('📍 Distância do Perímetro: ${wsMessage.distanciaDoPerimetro}m');
             print('📍 Timestamp: ${wsMessage.timestamp}');
             print('🎯 =========================================');
+
+            // Envia notificação se o pet saiu da área segura
+            _checkAndNotifySafeZone(wsMessage);
           } else if (wsMessage is HeartrateUpdate) {
             _heartrateController.add(wsMessage);
             print('💓 ===== BATIMENTO RECEBIDO VIA JSON =====');
@@ -322,6 +342,9 @@ class WebSocketService {
               print('📍 Distância do Perímetro: ${wsMessage.distanciaDoPerimetro}m');
               print('📍 Timestamp: ${wsMessage.timestamp}');
               print('🎯 ==========================================');
+
+              // Envia notificação se o pet saiu da área segura
+              _checkAndNotifySafeZone(wsMessage);
             } else if (wsMessage is HeartrateUpdate) {
               _heartrateController.add(wsMessage);
               print('💓 ===== BATIMENTO RECEBIDO VIA STOMP =====');
@@ -415,5 +438,30 @@ class WebSocketService {
 
   void resetReconnectionAttempts() {
     _reconnectAttempts = 0;
+  }
+
+  /// Verifica se o pet saiu da área segura e envia notificação
+  void _checkAndNotifySafeZone(LocationUpdate locationUpdate) {
+    print('🔍 [WebSocketService] _checkAndNotifySafeZone chamado:');
+    print('   - isOutsideSafeZone: ${locationUpdate.isOutsideSafeZone}');
+    print('   - distanciaDoPerimetro: ${locationUpdate.distanciaDoPerimetro}m');
+    print('   - _currentPetName: $_currentPetName');
+
+    if (locationUpdate.isOutsideSafeZone) {
+      print('🚨 [WebSocketService] Pet FORA da área segura! Chamando NotificationService...');
+      _notificationService.sendSafeZoneAlert(
+        petName: _currentPetName ?? 'Seu pet',
+        isOutside: true,
+      );
+      print('✅ [WebSocketService] NotificationService.sendSafeZoneAlert chamado (isOutside: true)');
+    } else {
+      print('✅ [WebSocketService] Pet DENTRO da área segura, resetando flag...');
+      // Pet voltou para área segura - reseta o estado de notificação
+      _notificationService.sendSafeZoneAlert(
+        petName: _currentPetName ?? 'Seu pet',
+        isOutside: false,
+      );
+      print('✅ [WebSocketService] NotificationService.sendSafeZoneAlert chamado (isOutside: false)');
+    }
   }
 }
