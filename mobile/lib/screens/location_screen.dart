@@ -1,4 +1,4 @@
-// lib/screens/location_screen_new.dart
+// lib/screens/location_screen.dart
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -10,14 +10,17 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:PetDex/services/location_service.dart';
+import 'package:PetDex/services/websocket_service.dart';
 import 'package:PetDex/data/enums/species.dart';
 import 'package:PetDex/theme/app_theme.dart';
 import 'package:PetDex/models/location_model.dart';
+import 'package:PetDex/models/websocket_message.dart';
 import 'package:PetDex/components/ui/animal_pin.dart';
 import 'package:PetDex/components/ui/pet_address_card.dart';
 
 /// LocationScreen - Tela de localização do animal
 /// Exibe o mapa com a última localização conhecida e o endereço formatado
+/// Atualiza automaticamente via WebSocket quando novas coordenadas chegam
 /// Mantém o estado vivo usando AutomaticKeepAliveClientMixin
 class LocationScreen extends StatefulWidget {
   final String animalId;
@@ -43,12 +46,22 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
 
   GoogleMapController? _mapController;
   final LocationService _locationService = LocationService();
+  final WebSocketService _webSocketService = WebSocketService();
 
   LocationData? _currentLocation;
   Set<Marker> _markers = {};
   bool _isLoading = true;
   String? _errorMessage;
   String? _address; // Endereço formatado
+
+  // Informações de área segura
+  bool? _isOutsideSafeZone;
+  double? _distanceFromPerimeter;
+
+  // Subscriptions do WebSocket
+  StreamSubscription<LocationUpdate>? _locationSubscription;
+  StreamSubscription<bool>? _connectionSubscription;
+  bool _isWebSocketConnected = false;
 
   static const CameraPosition _defaultPosition = CameraPosition(
     target: LatLng(-23.5505, -46.6333),
@@ -58,10 +71,118 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
   @override
   void initState() {
     super.initState();
-    _loadAnimalLocation();
+    _initializeApp();
   }
 
-  /// Carrega a última localização do animal e converte em endereço
+  /// Inicializa a aplicação: carrega localização inicial e conecta WebSocket
+  Future<void> _initializeApp() async {
+    await _loadAnimalLocation();
+    _initializeWebSocket();
+  }
+
+  /// Inicializa o WebSocket e seus listeners
+  void _initializeWebSocket() {
+    // Listener de conexão
+    _connectionSubscription = _webSocketService.connectionStream.listen((isConnected) {
+      if (mounted) {
+        setState(() {
+          _isWebSocketConnected = isConnected;
+        });
+      }
+    });
+
+    // Listener de atualizações de localização
+    _locationSubscription = _webSocketService.locationStream.listen((locationUpdate) {
+      _handleWebSocketLocationUpdate(locationUpdate);
+    });
+
+    // Conecta ao WebSocket
+    _webSocketService.connect(widget.animalId);
+  }
+
+  /// Processa atualizações de localização recebidas via WebSocket
+  void _handleWebSocketLocationUpdate(LocationUpdate locationUpdate) {
+    debugPrint('📍 WebSocket: Nova localização recebida - Lat: ${locationUpdate.latitude}, Lng: ${locationUpdate.longitude}');
+    debugPrint('🔒 Área segura: ${locationUpdate.isOutsideSafeZone ? "FORA" : "DENTRO"} - Distância: ${locationUpdate.distanciaDoPerimetro}m');
+
+    // Atualiza informações de área segura
+    setState(() {
+      _isOutsideSafeZone = locationUpdate.isOutsideSafeZone;
+      _distanceFromPerimeter = locationUpdate.distanciaDoPerimetro;
+    });
+
+    // Cria LocationData a partir do LocationUpdate
+    final newLocation = LocationData(
+      id: 'websocket-${DateTime.now().millisecondsSinceEpoch}',
+      data: locationUpdate.timestamp,
+      latitude: locationUpdate.latitude,
+      longitude: locationUpdate.longitude,
+      animal: locationUpdate.animalId,
+      coleira: locationUpdate.coleiraId,
+    );
+
+    // Atualiza a localização usando o método unificado
+    // CORREÇÃO: shouldAnimate = true para recentralizar automaticamente
+    updateAnimalLocation(newLocation, shouldAnimate: true);
+  }
+
+  /// MÉTODO UNIFICADO DE ATUALIZAÇÃO
+  /// Atualiza a posição do animal no mapa e o endereço exibido
+  /// Chamado tanto pelo botão de centralização quanto pelo WebSocket
+  Future<void> updateAnimalLocation(LocationData newLocation, {bool shouldAnimate = true}) async {
+    debugPrint('🔄 Atualizando localização do animal...');
+
+    // Atualiza a localização atual
+    setState(() {
+      _currentLocation = newLocation;
+    });
+
+    // Atualiza o marcador no mapa
+    await _createMarker(newLocation);
+
+    // Busca o novo endereço
+    await _updateAddress(newLocation.latitude, newLocation.longitude);
+
+    // Anima o mapa para a nova posição (se solicitado)
+    if (shouldAnimate) {
+      _animateToLocation(newLocation.latitude, newLocation.longitude);
+    }
+  }
+
+  /// Atualiza o endereço a partir das coordenadas
+  Future<void> _updateAddress(double latitude, double longitude) async {
+    try {
+      final googleMapsApiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '';
+      if (googleMapsApiKey.isNotEmpty) {
+        final address = await _locationService.getEnderecoFromCoordinates(
+          latitude,
+          longitude,
+          googleMapsApiKey,
+        );
+        if (mounted) {
+          setState(() {
+            _address = address ?? 'Endereço não disponível';
+          });
+        }
+        debugPrint('📍 Endereço atualizado: $_address');
+      } else {
+        if (mounted) {
+          setState(() {
+            _address = 'API Key do Google Maps não configurada';
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('❌ Erro ao atualizar endereço: $e');
+      if (mounted) {
+        setState(() {
+          _address = 'Erro ao buscar endereço';
+        });
+      }
+    }
+  }
+
+  /// Carrega a última localização do animal (chamado apenas no initState)
   Future<void> _loadAnimalLocation() async {
     try {
       setState(() {
@@ -73,40 +194,8 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
       final location = await _locationService.getUltimaLocalizacaoAnimal(widget.animalId);
 
       if (location != null) {
-        setState(() {
-          _currentLocation = location;
-        });
-        
-        // Cria o marcador no mapa
-        await _createMarker(location);
-
-        // Busca o endereço formatado usando Google Maps API
-        final googleMapsApiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '';
-        if (googleMapsApiKey.isNotEmpty) {
-          final address = await _locationService.getEnderecoFromCoordinates(
-            location.latitude,
-            location.longitude,
-            googleMapsApiKey,
-          );
-          setState(() {
-            _address = address ?? 'Endereço não disponível';
-          });
-        } else {
-          setState(() {
-            _address = 'API Key do Google Maps não configurada';
-          });
-        }
-
-        // Centraliza o mapa na localização
-        if (_mapController != null) {
-          _animateToLocation(location.latitude, location.longitude);
-        } else {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (_mapController != null) {
-              _animateToLocation(location.latitude, location.longitude);
-            }
-          });
-        }
+        // Usa o método unificado para atualizar tudo
+        await updateAnimalLocation(location, shouldAnimate: true);
       } else {
         setState(() {
           _errorMessage = 'Localização não encontrada';
@@ -127,6 +216,9 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
   /// Cria o marcador com o AnimalPin convertido para BitmapDescriptor
   Future<void> _createMarker(LocationData location) async {
     try {
+      // CORREÇÃO: Pré-carrega a imagem antes de criar o marcador
+      await _precacheAnimalImage();
+
       final Uint8List markerBytes = await _createMarkerFromWidget(
         AnimalPin(
           imageUrl: widget.animalImageUrl,
@@ -154,6 +246,26 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
     }
   }
 
+  /// Pré-carrega a imagem do animal para garantir que esteja disponível
+  Future<void> _precacheAnimalImage() async {
+    try {
+      final bool temImagem = widget.animalImageUrl != null && widget.animalImageUrl!.isNotEmpty;
+
+      final String imagePath = temImagem
+          ? widget.animalImageUrl!
+          : (widget.animalSpecies == Species.cat
+              ? 'assets/images/gato_default.png'
+              : 'assets/images/cachorro_default.png');
+
+      // Pré-carrega a imagem
+      await precacheImage(AssetImage(imagePath), context);
+      debugPrint('✅ Imagem do marcador pré-carregada: $imagePath');
+    } catch (e) {
+      debugPrint('⚠️ Erro ao pré-carregar imagem: $e');
+      // Continua mesmo se falhar - o marcador será criado com imagem padrão
+    }
+  }
+
   /// Converte um widget (AnimalPin) para Uint8List usando OverlayEntry
   Future<Uint8List> _createMarkerFromWidget(Widget widget, Size size) async {
     final overlayState = Overlay.of(context);
@@ -177,8 +289,13 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
     );
 
     overlayState.insert(entry);
-    await Future.delayed(const Duration(milliseconds: 50));
+
+    // CORREÇÃO: Aumenta o delay para garantir que a imagem seja carregada
+    await Future.delayed(const Duration(milliseconds: 150));
     await WidgetsBinding.instance.endOfFrame;
+
+    // Aguarda mais um frame para garantir renderização completa
+    await Future.delayed(const Duration(milliseconds: 50));
 
     try {
       final boundary = key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
@@ -191,9 +308,11 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
       final bytes = byteData!.buffer.asUint8List();
 
       entry.remove();
+      debugPrint('✅ Marcador criado com sucesso');
       return bytes;
     } catch (e) {
       entry.remove();
+      debugPrint('❌ Erro ao criar marcador: $e');
       rethrow;
     }
   }
@@ -208,14 +327,30 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
   }
 
   /// Centraliza o mapa na localização atual do animal
-  void _centerOnAnimalLocation() {
+  /// Também recarrega o endereço (útil se o usuário moveu o mapa)
+  Future<void> _centerOnAnimalLocation() async {
     if (_currentLocation != null) {
-      _animateToLocation(_currentLocation!.latitude, _currentLocation!.longitude);
+      debugPrint('🎯 Botão de centralização pressionado');
+      // Recarrega a localização mais recente da API
+      try {
+        final location = await _locationService.getUltimaLocalizacaoAnimal(widget.animalId);
+        if (location != null) {
+          // Usa o método unificado para atualizar posição e endereço
+          await updateAnimalLocation(location, shouldAnimate: true);
+        }
+      } catch (e) {
+        debugPrint('❌ Erro ao recarregar localização: $e');
+        // Se falhar, apenas centraliza na última posição conhecida
+        _animateToLocation(_currentLocation!.latitude, _currentLocation!.longitude);
+      }
     }
   }
 
   @override
   void dispose() {
+    _locationSubscription?.cancel();
+    _connectionSubscription?.cancel();
+    _webSocketService.disconnect();
     _mapController?.dispose();
     super.dispose();
   }
@@ -294,7 +429,7 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
               ),
             ),
 
-          // PetAddressCard - Exibe o endereço do animal
+          // PetAddressCard - Exibe o endereço do animal e status da área segura
           if (_address != null && !_isLoading)
             Positioned(
               top: 60,
@@ -303,6 +438,8 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
               child: PetAddressCard(
                 petName: widget.animalName,
                 address: _address!,
+                isOutsideSafeZone: _isOutsideSafeZone,
+                distanceFromPerimeter: _distanceFromPerimeter,
               ),
             ),
 
