@@ -12,7 +12,7 @@ class AnimalPin extends StatelessWidget {
     super.key,
     this.imageUrl,
     required this.especie,
-    this.size = 40,
+    this.size = 20,
   });
 
   @override

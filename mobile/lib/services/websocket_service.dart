@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/websocket_message.dart';
@@ -91,7 +92,7 @@ class WebSocketService {
           wsUrl = wsUrl.replaceFirst('http://', 'ws://');
         }
 
-        print('🔌 Tentando conectar: $wsUrl');
+        debugPrint('🔌 Tentando conectar: $wsUrl');
 
         _channel = WebSocketChannel.connect(
           Uri.parse(wsUrl),
@@ -221,7 +222,7 @@ class WebSocketService {
   }
 
   void _handleMessage(dynamic message) {
-    print('📨 Mensagem WebSocket recebida: $message');
+    // Mensagem recebida via WebSocket
 
     if (message is String && message.trim().isNotEmpty) {
       // Verificar se é uma mensagem STOMP
@@ -234,51 +235,30 @@ class WebSocketService {
         // Tentar processar como JSON
         try {
           final Map<String, dynamic> data = json.decode(message);
-          print('📋 Dados JSON decodificados: $data');
-
           final wsMessage = WebSocketMessage.fromJson(data);
 
           if (wsMessage is LocationUpdate) {
             _locationController.add(wsMessage);
-            print('🎯 ===== LOCALIZAÇÃO RECEBIDA VIA JSON =====');
-            print('📍 Animal ID: ${wsMessage.animalId}');
-            print('📍 Coleira ID: ${wsMessage.coleiraId}');
-            print('📍 Latitude: ${wsMessage.latitude}');
-            print('📍 Longitude: ${wsMessage.longitude}');
-            print('📍 Zona Segura: ${wsMessage.isOutsideSafeZone ? "FORA" : "DENTRO"}');
-            print('📍 Distância do Perímetro: ${wsMessage.distanciaDoPerimetro}m');
-            print('📍 Timestamp: ${wsMessage.timestamp}');
-            print('🎯 =========================================');
+            debugPrint('📍 Nova localização: ${wsMessage.latitude}, ${wsMessage.longitude}');
           } else if (wsMessage is HeartrateUpdate) {
             _heartrateController.add(wsMessage);
-            print('💓 ===== BATIMENTO RECEBIDO VIA JSON =====');
-            print('💓 Animal ID: ${wsMessage.animalId}');
-            print('💓 Coleira ID: ${wsMessage.coleiraId}');
-            print('💓 Frequência Média: ${wsMessage.frequenciaMedia} bpm');
-            print('💓 Timestamp: ${wsMessage.timestamp}');
-            print('💓 ====================================');
+            debugPrint('💓 Batimento: ${wsMessage.frequenciaMedia} bpm');
           }
         } catch (e) {
-          print('❌ Erro ao processar JSON: $e');
-          print('Mensagem original: $message');
+          debugPrint('❌ Erro ao processar JSON: $e');
         }
       }
-    } else {
-      print('⚠️ Mensagem vazia ou inválida: $message (tipo: ${message.runtimeType})');
     }
   }
 
   void _handleStompMessage(String message) {
-    print('📋 Processando mensagem STOMP: $message');
-
     final lines = message.split('\n');
     if (lines.isEmpty) return;
 
     final command = lines[0];
-    print('🔧 Comando STOMP: $command');
 
     if (command == 'CONNECTED') {
-      print('✅ Conexão STOMP estabelecida');
+      debugPrint('✅ Conexão STOMP estabelecida');
     } else if (command == 'MESSAGE') {
       // Extrair o corpo da mensagem (após linha vazia)
       int bodyStartIndex = -1;
@@ -292,7 +272,7 @@ class WebSocketService {
       if (bodyStartIndex > 0 && bodyStartIndex < lines.length) {
         final body = lines.sublist(bodyStartIndex).join('\n').trim();
         if (body.isNotEmpty && body != '\x00') {
-          print('📦 Corpo da mensagem: $body');
+          // Processando corpo da mensagem STOMP
 
           try {
             // Limpar caracteres especiais e null bytes
@@ -306,30 +286,17 @@ class WebSocketService {
               }
             }
 
-            print('📦 Corpo limpo: $cleanBody');
+            // Corpo da mensagem processado
 
             final Map<String, dynamic> data = json.decode(cleanBody);
             final wsMessage = WebSocketMessage.fromJson(data);
 
             if (wsMessage is LocationUpdate) {
               _locationController.add(wsMessage);
-              print('🎯 ===== LOCALIZAÇÃO RECEBIDA VIA STOMP =====');
-              print('📍 Animal ID: ${wsMessage.animalId}');
-              print('📍 Coleira ID: ${wsMessage.coleiraId}');
-              print('📍 Latitude: ${wsMessage.latitude}');
-              print('📍 Longitude: ${wsMessage.longitude}');
-              print('📍 Zona Segura: ${wsMessage.isOutsideSafeZone ? "FORA" : "DENTRO"}');
-              print('📍 Distância do Perímetro: ${wsMessage.distanciaDoPerimetro}m');
-              print('📍 Timestamp: ${wsMessage.timestamp}');
-              print('🎯 ==========================================');
+              debugPrint('📍 Nova localização STOMP: ${wsMessage.latitude}, ${wsMessage.longitude}');
             } else if (wsMessage is HeartrateUpdate) {
               _heartrateController.add(wsMessage);
-              print('💓 ===== BATIMENTO RECEBIDO VIA STOMP =====');
-              print('💓 Animal ID: ${wsMessage.animalId}');
-              print('💓 Coleira ID: ${wsMessage.coleiraId}');
-              print('💓 Frequência Média: ${wsMessage.frequenciaMedia} bpm');
-              print('💓 Timestamp: ${wsMessage.timestamp}');
-              print('💓 =====================================');
+              debugPrint('💓 Batimento STOMP: ${wsMessage.frequenciaMedia} bpm');
             }
           } catch (e) {
             print('❌ Erro ao processar corpo STOMP: $e');

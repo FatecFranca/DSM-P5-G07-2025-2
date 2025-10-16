@@ -18,20 +18,11 @@ class PetAddressCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          'endereço do animal',
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            color: AppColors.black200,
-          ),
-        ),
-        const SizedBox(height: 8),
-
         Container(
-          width: double.infinity, 
+          width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
           decoration: BoxDecoration(
-            color: AppColors.sand100, 
+            color: AppColors.sand100,
             borderRadius: BorderRadius.circular(24.0),
             boxShadow: [
               BoxShadow(
@@ -49,7 +40,7 @@ class PetAddressCard extends StatelessWidget {
                   const Icon(
                     Icons.location_on,
                     color: AppColors.orange200,
-                    size: 22, 
+                    size: 22,
                   ),
                   const SizedBox(width: 8),
                   Text(

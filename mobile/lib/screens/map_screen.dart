@@ -22,6 +22,7 @@ class MapScreen extends StatefulWidget {
   final String animalName;
   final Species animalSpecies;
   final String? animalImageUrl;
+  final bool showCenterButton;
 
   const MapScreen({
     super.key,
@@ -29,6 +30,7 @@ class MapScreen extends StatefulWidget {
     required this.animalName,
     required this.animalSpecies,
     this.animalImageUrl,
+    this.showCenterButton = true,
   });
 
   @override
@@ -396,15 +398,16 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
             ),
           ),
 
-          Positioned(
-            top: 60,
-            left: 16,
-            child: FloatingActionButton(
-              onPressed: _loadAnimalLocation,
-              backgroundColor: AppColors.orange400,
-              child: const Icon(Icons.my_location, color: Colors.white),
+          if (widget.showCenterButton)
+            Positioned(
+              bottom: 100,
+              right: 16,
+              child: FloatingActionButton(
+                onPressed: _loadAnimalLocation,
+                backgroundColor: AppColors.orange400,
+                child: const Icon(Icons.my_location, color: Colors.white),
+              ),
             ),
-          ),
         ],
       ),
     );
