@@ -51,6 +51,10 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
   bool _isWebSocketConnected = false;
   bool _isInBackground = false;
 
+  // Informações de área segura
+  bool? _isOutsideSafeZone;
+  double? _distanceFromPerimeter;
+
   static const CameraPosition _defaultPosition = CameraPosition(
     target: LatLng(-23.5505, -46.6333),
     zoom: 16.0,
@@ -232,6 +236,9 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
 
   void _handleWebSocketLocationUpdate(LocationUpdate locationUpdate) {
     if (locationUpdate.animalId == widget.animalId) {
+      debugPrint('📍 WebSocket: Nova localização recebida - Lat: ${locationUpdate.latitude}, Lng: ${locationUpdate.longitude}');
+      debugPrint('🔒 Área segura: ${locationUpdate.isOutsideSafeZone ? "FORA" : "DENTRO"} - Distância: ${locationUpdate.distanciaDoPerimetro}m');
+
       final newLocation = LocationData(
         id: 'websocket-${DateTime.now().millisecondsSinceEpoch}',
         data: locationUpdate.timestamp,
@@ -243,6 +250,8 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
 
       setState(() {
         _currentLocation = newLocation;
+        _isOutsideSafeZone = locationUpdate.isOutsideSafeZone;
+        _distanceFromPerimeter = locationUpdate.distanciaDoPerimetro;
       });
 
       _createMarker(newLocation);
@@ -368,8 +377,54 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
               ),
             ),
 
+          // Alerta de área segura - Aparece quando animal está fora
+          if (_isOutsideSafeZone == true && !_isLoading)
+            Positioned(
+              top: 50,
+              left: 16,
+              right: 16,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(
+                    color: Colors.red.shade200,
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 6,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.warning_rounded,
+                      color: Colors.red.shade700,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Pet fora da área segura',
+                      style: GoogleFonts.poppins(
+                        color: Colors.red.shade700,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+          // Status de conexão WebSocket - Canto superior direito
           Positioned(
-            top: 50,
+            top: _isOutsideSafeZone == true ? 115 : 50, // Ajusta posição se alerta estiver visível
             right: 16,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
