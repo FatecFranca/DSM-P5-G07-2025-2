@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente de Teste WebSocket - PetDex</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #555;
+            margin-top: 0;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .disconnect-btn {
+            background-color: #f44336;
+        }
+        .disconnect-btn:hover {
+            background-color: #da190b;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .status.connected {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .messages {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .message {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #4CAF50;
+            background-color: white;
+        }
+        .message.location {
+            border-left-color: #2196F3;
+        }
+        .message.heartrate {
+            border-left-color: #FF5722;
+        }
+        .message.alert {
+            border-left-color: #FF9800;
+            background-color: #fff3cd;
+        }
+        .message-type {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .message-content {
+            color: #666;
+            font-size: 14px;
+        }
+        .timestamp {
+            color: #999;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .clear-btn {
+            background-color: #ff9800;
+            margin-top: 10px;
+        }
+        .clear-btn:hover {
+            background-color: #e68900;
+        }
+    </style>
+</head>
+<body>
+    <h1>🐾 Cliente de Teste WebSocket - PetDex</h1>
+    
+    <div class="container">
+        <h2>Configurações de Conexão</h2>
+        <div class="input-group">
+            <label for="serverUrl">URL do Servidor WebSocket:</label>
+            <input type="text" id="serverUrl" value="http://localhost:8080/ws-petdex" placeholder="http://localhost:8080/ws-petdex">
+        </div>
+        <div class="input-group">
+            <label for="animalId">ID do Animal para Monitorar:</label>
+            <input type="text" id="animalId" placeholder="Digite o ID do animal">
+        </div>
+        <div>
+            <button id="connectBtn" onclick="connect()">Conectar</button>
+            <button id="disconnectBtn" onclick="disconnect()" disabled class="disconnect-btn">Desconectar</button>
+        </div>
+        <div id="status" class="status disconnected">Status: Desconectado</div>
+    </div>
+
+    <div class="container">
+        <h2>Mensagens Recebidas</h2>
+        <div id="messages" class="messages">
+            <p style="color: #999; text-align: center;">Nenhuma mensagem ainda. Conecte e inscreva-se para começar a receber atualizações.</p>
+        </div>
+        <button class="clear-btn" onclick="clearMessages()">Limpar Mensagens</button>
+    </div>
+
+    <script>
+        let stompClient = null;
+        let subscription = null;
+
+        function setConnected(connected) {
+            document.getElementById('connectBtn').disabled = connected;
+            document.getElementById('disconnectBtn').disabled = !connected;
+            document.getElementById('serverUrl').disabled = connected;
+            document.getElementById('animalId').disabled = connected;
+            
+            const statusDiv = document.getElementById('status');
+            if (connected) {
+                statusDiv.className = 'status connected';
+                statusDiv.textContent = 'Status: Conectado';
+            } else {
+                statusDiv.className = 'status disconnected';
+                statusDiv.textContent = 'Status: Desconectado';
+            }
+        }
+
+        function connect() {
+            const serverUrl = document.getElementById('serverUrl').value;
+            const animalId = document.getElementById('animalId').value;
+
+            if (!animalId) {
+                alert('Por favor, digite um ID de Animal');
+                return;
+            }
+
+            const socket = new SockJS(serverUrl);
+            stompClient = Stomp.over(socket);
+
+            stompClient.connect({}, function(frame) {
+                console.log('Conectado: ' + frame);
+                setConnected(true);
+                showMessage('system', 'Conectado ao servidor WebSocket', new Date());
+
+                // Inscrever-se para atualizações do animal
+                const topic = '/topic/animal/' + animalId;
+                subscription = stompClient.subscribe(topic, function(message) {
+                    const data = JSON.parse(message.body);
+                    handleMessage(data);
+                });
+
+                showMessage('system', 'Inscrito em: ' + topic, new Date());
+            }, function(error) {
+                console.error('Erro de conexão:', error);
+                showMessage('error', 'Falha na conexão: ' + error, new Date());
+                setConnected(false);
+            });
+        }
+
+        function disconnect() {
+            if (subscription) {
+                subscription.unsubscribe();
+            }
+            if (stompClient !== null) {
+                stompClient.disconnect();
+            }
+            setConnected(false);
+            showMessage('system', 'Desconectado do servidor WebSocket', new Date());
+            console.log('Desconectado');
+        }
+
+        function handleMessage(data) {
+            console.log('Mensagem recebida:', data);
+
+            if (data.messageType === 'location_update') {
+                const content = `
+                    <strong>Localização:</strong> ${data.latitude}, ${data.longitude}<br>
+                    <strong>ID da Coleira:</strong> ${data.coleiraId}<br>
+                    <strong>Fora da Zona Segura:</strong> ${data.isOutsideSafeZone ? '⚠️ SIM' : '✅ NÃO'}
+                `;
+                showMessage('location', content, new Date(data.timestamp), data.isOutsideSafeZone);
+            } else if (data.messageType === 'heartrate_update') {
+                const content = `
+                    <strong>Batimentos Cardíacos:</strong> ${data.frequenciaMedia} BPM<br>
+                    <strong>ID da Coleira:</strong> ${data.coleiraId}
+                `;
+                showMessage('heartrate', content, new Date(data.timestamp));
+            }
+        }
+
+        function showMessage(type, content, timestamp, isAlert = false) {
+            const messagesDiv = document.getElementById('messages');
+            
+            // Limpar o texto "nenhuma mensagem" se existir
+            if (messagesDiv.querySelector('p')) {
+                messagesDiv.innerHTML = '';
+            }
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ' + type + (isAlert ? ' alert' : '');
+
+            let typeLabel = type.charAt(0).toUpperCase() + type.slice(1);
+            if (type === 'location_update' || type === 'location') typeLabel = '📍 Atualização de Localização';
+            if (type === 'heartrate_update' || type === 'heartrate') typeLabel = '❤️ Atualização de Batimentos';
+            if (type === 'system') typeLabel = '🔧 Sistema';
+            if (type === 'error') typeLabel = '❌ Erro';
+
+            messageDiv.innerHTML = `
+                <div class="message-type">${typeLabel}</div>
+                <div class="message-content">${content}</div>
+                <div class="timestamp">${timestamp.toLocaleString('pt-BR')}</div>
+            `;
+
+            messagesDiv.insertBefore(messageDiv, messagesDiv.firstChild);
+
+            // Manter apenas as últimas 50 mensagens
+            while (messagesDiv.children.length > 50) {
+                messagesDiv.removeChild(messagesDiv.lastChild);
+            }
+        }
+
+        function clearMessages() {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = '<p style="color: #999; text-align: center;">Mensagens limpas.</p>';
+        }
+
+        // Desconectar ao fechar a página
+        window.addEventListener('beforeunload', function() {
+            if (stompClient !== null) {
+                disconnect();
+            }
+        });
+    </script>
+</body>
+</html>
+
