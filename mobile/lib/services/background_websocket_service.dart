@@ -20,22 +20,18 @@ class BackgroundWebSocketService {
 
   static Future<void> initialize() async {
     if (_isInitialized) {
-      debugPrint('⚠️ Background service já foi inicializado');
       return;
     }
 
-    debugPrint('⚙️ Inicializando background service...');
     await _initializeBackgroundService();
     await _initializeWorkManager();
 
     _isInitialized = true;
-    debugPrint('✅ Background service inicializado');
   }
 
   /// Reseta o estado de inicialização (útil para testes ou reinicializações)
   static void resetInitialization() {
     _isInitialized = false;
-    debugPrint('🔄 Estado de inicialização resetado');
   }
 
   static Future<void> _initializeBackgroundService() async {
@@ -45,7 +41,6 @@ class BackgroundWebSocketService {
       // Verifica se o serviço já está configurado
       // Se já estiver rodando, não precisa configurar novamente
       if (await service.isRunning()) {
-        debugPrint('⚠️ Background service já está rodando, pulando configuração');
         return;
       }
 
@@ -68,9 +63,7 @@ class BackgroundWebSocketService {
           foregroundServiceNotificationId: 888,
         ),
       );
-      debugPrint('✅ Background service configurado com sucesso');
     } catch (e) {
-      debugPrint('❌ Erro ao configurar background service: $e');
       // Não propaga o erro para evitar crash do app
     }
   }
@@ -83,8 +76,6 @@ class BackgroundWebSocketService {
     }
 
     try {
-      debugPrint('📢 Criando canal de notificação para background service...');
-
       final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
           FlutterLocalNotificationsPlugin();
 
@@ -104,12 +95,8 @@ class BackgroundWebSocketService {
 
       if (androidImplementation != null) {
         await androidImplementation.createNotificationChannel(channel);
-        debugPrint('✅ Canal de notificação criado: $_notificationChannelId');
-      } else {
-        debugPrint('⚠️ Não foi possível criar canal de notificação');
       }
     } catch (e) {
-      debugPrint('❌ Erro ao criar canal de notificação: $e');
       // Não propaga o erro, mas isso pode causar problemas no foreground service
     }
   }
@@ -120,10 +107,9 @@ class BackgroundWebSocketService {
 
   static Future<void> startBackgroundService(String animalId) async {
     try {
-      debugPrint('🚀 Iniciando background service para animal: $animalId');
+      print('🔄 Mudando para WebSocket em background');
 
       if (!_isInitialized) {
-        debugPrint('⚙️ Inicializando background service...');
         await initialize();
       }
 
@@ -131,15 +117,12 @@ class BackgroundWebSocketService {
 
       // Verifica se o serviço já está rodando
       final isRunning = await service.isRunning();
-      debugPrint('📊 Background service status: ${isRunning ? "rodando" : "parado"}');
 
       if (isRunning) {
-        debugPrint('✅ Serviço já está rodando, apenas atualizando animalId');
         service.invoke('setAnimalId', {'animalId': animalId});
         return;
       }
 
-      debugPrint('▶️ Iniciando novo serviço de background');
       await service.startService();
 
       // Aguarda um pouco para garantir que o serviço iniciou
@@ -148,7 +131,6 @@ class BackgroundWebSocketService {
       service.invoke('setAnimalId', {'animalId': animalId});
 
       // Registra tarefa periódica do WorkManager
-      debugPrint('📅 Registrando tarefa periódica do WorkManager');
       await Workmanager().registerPeriodicTask(
         _taskName,
         _taskName,
@@ -158,33 +140,25 @@ class BackgroundWebSocketService {
           networkType: NetworkType.connected,
         ),
       );
-
-      debugPrint('✅ Background service iniciado com sucesso');
     } catch (e) {
-      debugPrint('❌ Erro ao iniciar background service: $e');
       // Não propaga o erro para evitar crash do app
     }
   }
 
   static Future<void> stopBackgroundService() async {
     try {
-      debugPrint('🛑 Parando background service');
+      print('🔄 Mudando para WebSocket em foreground');
 
       final service = FlutterBackgroundService();
 
       // Verifica se o serviço está rodando antes de tentar parar
       if (await service.isRunning()) {
         service.invoke('stop');
-        debugPrint('✅ Comando de parada enviado ao background service');
-      } else {
-        debugPrint('⚠️ Background service já está parado');
       }
 
       // Cancela tarefas do WorkManager
       await Workmanager().cancelByUniqueName(_taskName);
-      debugPrint('✅ Tarefas do WorkManager canceladas');
     } catch (e) {
-      debugPrint('❌ Erro ao parar background service: $e');
       // Não propaga o erro para evitar crash do app
     }
   }
@@ -246,25 +220,27 @@ class BackgroundWebSocketService {
   static Future<WebSocketChannel?> _connectWebSocket(String animalId, ServiceInstance service) async {
     try {
       await dotenv.load(fileName: ".env");
-      
+
       final baseUrl = '${dotenv.env['API_JAVA_URL']!}/ws-petdex';
       var wsUrl = baseUrl.replaceFirst('https://', 'wss://').replaceFirst('http://', 'ws://');
-      
+
       final channel = WebSocketChannel.connect(Uri.parse('$wsUrl/websocket'));
-      
+
       await channel.ready;
-      
+
+      print('✅ Conectado ao WebSocket (background)');
+
       channel.sink.add('CONNECT\naccept-version:1.2,1.1,1.0\nheart-beat:30000,30000\n\n\x00');
-      
+
       channel.stream.listen(
         (message) {
           _handleBackgroundMessage(message, animalId, service);
         },
         onError: (error) {
-          print('Erro WebSocket Background: $error');
+          // Silencioso
         },
         onDone: () {
-          print('Conexão WebSocket Background finalizada');
+          print('🔌 Desconectado do WebSocket (background)');
         },
       );
 
@@ -278,7 +254,6 @@ class BackgroundWebSocketService {
 
       return channel;
     } catch (e) {
-      print('Erro ao conectar WebSocket Background: $e');
       return null;
     }
   }
@@ -307,7 +282,7 @@ class BackgroundWebSocketService {
         }
       }
     } catch (e) {
-      print('Erro ao processar mensagem background: $e');
+      // Silencioso
     }
   }
 
@@ -318,8 +293,6 @@ class BackgroundWebSocketService {
       final isOutsideSafeZone = data['isOutsideSafeZone'] as bool? ?? false;
 
       if (isOutsideSafeZone) {
-        debugPrint('🚨 [Background] Pet fora da área segura! Enviando notificação...');
-
         // Usa o NotificationService para enviar a notificação de alerta
         final notificationService = NotificationService();
         await notificationService.sendSafeZoneAlert(
@@ -335,7 +308,7 @@ class BackgroundWebSocketService {
         );
       }
     } catch (e) {
-      debugPrint('❌ Erro ao verificar área segura em background: $e');
+      // Silencioso
     }
   }
 
@@ -343,7 +316,6 @@ class BackgroundWebSocketService {
   static void _callbackDispatcher() {
     Workmanager().executeTask((task, inputData) async {
       try {
-        debugPrint('🔄 WorkManager task executado: $task');
         // ⚠️ IMPORTANTE: Não usar FlutterBackgroundService aqui
         // Este callback roda em um isolate separado do WorkManager
         // FlutterBackgroundService só deve ser usado no isolate principal (UI)
@@ -352,7 +324,6 @@ class BackgroundWebSocketService {
         // O serviço de background é gerenciado pelo lifecycle do app
         return Future.value(true);
       } catch (e) {
-        debugPrint('❌ Erro no WorkManager: $e');
         return Future.value(false);
       }
     });

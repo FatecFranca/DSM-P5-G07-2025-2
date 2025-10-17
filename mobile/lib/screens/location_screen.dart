@@ -339,12 +339,13 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
         throw Exception('Erro ao capturar RenderRepaintBoundary');
       }
 
-      final ui.Image image = await boundary.toImage(pixelRatio: ui.window.devicePixelRatio);
+      // ✅ OTIMIZAÇÃO: Usa pixelRatio menor para reduzir o tamanho da imagem
+      // Isso reduz drasticamente o uso de memória e evita o erro de decodificação
+      final ui.Image image = await boundary.toImage(pixelRatio: 2.0);
       final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final bytes = byteData!.buffer.asUint8List();
 
       entry.remove();
-      debugPrint('✅ Marcador criado com sucesso');
       return bytes;
     } catch (e) {
       entry.remove();

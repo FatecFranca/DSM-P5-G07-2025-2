@@ -207,8 +207,9 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
         throw Exception('Erro ao capturar RenderRepaintBoundary');
       }
 
-      // captura a imagem com o devicePixelRatio adequado
-      final ui.Image image = await boundary.toImage(pixelRatio: ui.window.devicePixelRatio);
+      // ✅ OTIMIZAÇÃO: Usa pixelRatio menor para reduzir o tamanho da imagem
+      // Isso reduz drasticamente o uso de memória e evita o erro de decodificação
+      final ui.Image image = await boundary.toImage(pixelRatio: 2.0);
       final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final bytes = byteData!.buffer.asUint8List();
 

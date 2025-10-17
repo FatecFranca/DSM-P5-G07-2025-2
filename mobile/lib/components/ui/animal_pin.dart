@@ -37,12 +37,19 @@ class AnimalPin extends StatelessWidget {
         child: Image.asset(
           temImagem ? imageUrl! : imagemPadrao,
           fit: BoxFit.cover,
+          // ✅ OTIMIZAÇÃO: Reduz o tamanho da imagem em memória
+          cacheWidth: (size * 2).toInt(),
+          cacheHeight: (size * 2).toInt(),
+          // ✅ OTIMIZAÇÃO: Filtragem de baixa qualidade para melhor performance
+          filterQuality: FilterQuality.low,
           errorBuilder: (context, error, stackTrace) {
             // Fallback se a imagem falhar ao carregar
-            debugPrint('❌ Erro ao carregar imagem do pin: $error');
             return Image.asset(
               imagemPadrao,
               fit: BoxFit.cover,
+              cacheWidth: (size * 2).toInt(),
+              cacheHeight: (size * 2).toInt(),
+              filterQuality: FilterQuality.low,
             );
           },
         ),
