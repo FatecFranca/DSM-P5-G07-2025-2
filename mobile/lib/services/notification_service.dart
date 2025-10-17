@@ -156,7 +156,6 @@ class NotificationService {
       playSound: true,
       enableVibration: true,
       vibrationPattern: Int64List.fromList([0, 500, 250, 500]), // Padrão de vibração
-      sound: const RawResourceAndroidNotificationSound('notification_sound'), // Som customizado (opcional)
       icon: '@mipmap/ic_launcher',
       largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
       styleInformation: const BigTextStyleInformation(
