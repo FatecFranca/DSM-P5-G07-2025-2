@@ -19,9 +19,10 @@ class AnimalPin extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool temImagem = imageUrl != null && imageUrl!.isNotEmpty;
 
+    // ✅ CORREÇÃO: Usar os nomes corretos dos arquivos de imagem
     final String imagemPadrao = especie == SpeciesEnum.cat
-        ? 'assets/images/gato_default.png'
-        : 'assets/images/cachorro_default.png';
+        ? 'assets/images/gato-dex.png'
+        : 'assets/images/cao-dex.png';
 
     final double borderWidth = 6.0;
 
@@ -36,6 +37,14 @@ class AnimalPin extends StatelessWidget {
         child: Image.asset(
           temImagem ? imageUrl! : imagemPadrao,
           fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            // Fallback se a imagem falhar ao carregar
+            debugPrint('❌ Erro ao carregar imagem do pin: $error');
+            return Image.asset(
+              imagemPadrao,
+              fit: BoxFit.cover,
+            );
+          },
         ),
       ),
     );

@@ -31,14 +31,14 @@ class _AppShellState extends State<AppShell> {
         animalId: "68194120636f719fcd5ee5fd",
         animalName: "Uno",
         animalSpecies: SpeciesEnum.dog,
-        animalImageUrl: "lib/assets/images/uno.png",
+        animalImageUrl: "assets/images/uno.png", // ✅ CORREÇÃO: Caminho correto sem 'lib/'
       ),
       HealthScreen(),
       LocationScreen(
         animalId: "68194120636f719fcd5ee5fd",
         animalName: "Uno",
         animalSpecies: SpeciesEnum.dog,
-        animalImageUrl: "lib/assets/images/uno.png",
+        animalImageUrl: "assets/images/uno.png", // ✅ CORREÇÃO: Caminho correto sem 'lib/'
       ),
     ];
 

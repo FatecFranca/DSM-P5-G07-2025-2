@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -17,33 +19,99 @@ class BackgroundWebSocketService {
   static bool _isInitialized = false;
 
   static Future<void> initialize() async {
-    if (_isInitialized) return;
+    if (_isInitialized) {
+      debugPrint('⚠️ Background service já foi inicializado');
+      return;
+    }
 
+    debugPrint('⚙️ Inicializando background service...');
     await _initializeBackgroundService();
     await _initializeWorkManager();
 
     _isInitialized = true;
+    debugPrint('✅ Background service inicializado');
+  }
+
+  /// Reseta o estado de inicialização (útil para testes ou reinicializações)
+  static void resetInitialization() {
+    _isInitialized = false;
+    debugPrint('🔄 Estado de inicialização resetado');
   }
 
   static Future<void> _initializeBackgroundService() async {
-    final service = FlutterBackgroundService();
+    try {
+      final service = FlutterBackgroundService();
 
-    await service.configure(
-      iosConfiguration: IosConfiguration(
-        autoStart: false,
-        onForeground: _onBackgroundStart,
-        onBackground: _onIosBackground,
-      ),
-      androidConfiguration: AndroidConfiguration(
-        onStart: _onBackgroundStart,
-        autoStart: false,
-        isForegroundMode: true, // ✅ HABILITADO - Mantém notificação persistente
-        notificationChannelId: _notificationChannelId,
-        initialNotificationTitle: 'PetDex - Conectado',
-        initialNotificationContent: 'Mantendo conexão com seu pet',
-        foregroundServiceNotificationId: 888,
-      ),
-    );
+      // Verifica se o serviço já está configurado
+      // Se já estiver rodando, não precisa configurar novamente
+      if (await service.isRunning()) {
+        debugPrint('⚠️ Background service já está rodando, pulando configuração');
+        return;
+      }
+
+      // ✅ CRÍTICO: Cria o canal de notificação ANTES de configurar o serviço
+      await _createNotificationChannel();
+
+      await service.configure(
+        iosConfiguration: IosConfiguration(
+          autoStart: false,
+          onForeground: _onBackgroundStart,
+          onBackground: _onIosBackground,
+        ),
+        androidConfiguration: AndroidConfiguration(
+          onStart: _onBackgroundStart,
+          autoStart: false,
+          isForegroundMode: true, // ✅ HABILITADO - Mantém notificação persistente
+          notificationChannelId: _notificationChannelId,
+          initialNotificationTitle: 'PetDex - Conectado',
+          initialNotificationContent: 'Mantendo conexão com seu pet',
+          foregroundServiceNotificationId: 888,
+        ),
+      );
+      debugPrint('✅ Background service configurado com sucesso');
+    } catch (e) {
+      debugPrint('❌ Erro ao configurar background service: $e');
+      // Não propaga o erro para evitar crash do app
+    }
+  }
+
+  /// Cria o canal de notificação para o background service
+  /// CRÍTICO: Deve ser chamado ANTES de iniciar o foreground service
+  static Future<void> _createNotificationChannel() async {
+    if (defaultTargetPlatform != TargetPlatform.android) {
+      return;
+    }
+
+    try {
+      debugPrint('📢 Criando canal de notificação para background service...');
+
+      final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+          FlutterLocalNotificationsPlugin();
+
+      const AndroidNotificationChannel channel = AndroidNotificationChannel(
+        _notificationChannelId, // ID do canal
+        _notificationChannelName, // Nome do canal
+        description: 'Mantém a conexão com o dispositivo do seu pet',
+        importance: Importance.low, // Importância baixa para não incomodar
+        playSound: false,
+        enableVibration: false,
+        showBadge: false,
+      );
+
+      final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
+          flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
+
+      if (androidImplementation != null) {
+        await androidImplementation.createNotificationChannel(channel);
+        debugPrint('✅ Canal de notificação criado: $_notificationChannelId');
+      } else {
+        debugPrint('⚠️ Não foi possível criar canal de notificação');
+      }
+    } catch (e) {
+      debugPrint('❌ Erro ao criar canal de notificação: $e');
+      // Não propaga o erro, mas isso pode causar problemas no foreground service
+    }
   }
 
   static Future<void> _initializeWorkManager() async {
@@ -51,36 +119,74 @@ class BackgroundWebSocketService {
   }
 
   static Future<void> startBackgroundService(String animalId) async {
-    if (!_isInitialized) {
-      await initialize();
-    }
+    try {
+      debugPrint('🚀 Iniciando background service para animal: $animalId');
 
-    final service = FlutterBackgroundService();
-    
-    if (await service.isRunning()) {
+      if (!_isInitialized) {
+        debugPrint('⚙️ Inicializando background service...');
+        await initialize();
+      }
+
+      final service = FlutterBackgroundService();
+
+      // Verifica se o serviço já está rodando
+      final isRunning = await service.isRunning();
+      debugPrint('📊 Background service status: ${isRunning ? "rodando" : "parado"}');
+
+      if (isRunning) {
+        debugPrint('✅ Serviço já está rodando, apenas atualizando animalId');
+        service.invoke('setAnimalId', {'animalId': animalId});
+        return;
+      }
+
+      debugPrint('▶️ Iniciando novo serviço de background');
+      await service.startService();
+
+      // Aguarda um pouco para garantir que o serviço iniciou
+      await Future.delayed(const Duration(milliseconds: 500));
+
       service.invoke('setAnimalId', {'animalId': animalId});
-      return;
+
+      // Registra tarefa periódica do WorkManager
+      debugPrint('📅 Registrando tarefa periódica do WorkManager');
+      await Workmanager().registerPeriodicTask(
+        _taskName,
+        _taskName,
+        frequency: const Duration(minutes: 15),
+        inputData: {'animalId': animalId},
+        constraints: Constraints(
+          networkType: NetworkType.connected,
+        ),
+      );
+
+      debugPrint('✅ Background service iniciado com sucesso');
+    } catch (e) {
+      debugPrint('❌ Erro ao iniciar background service: $e');
+      // Não propaga o erro para evitar crash do app
     }
-
-    await service.startService();
-    service.invoke('setAnimalId', {'animalId': animalId});
-
-    await Workmanager().registerPeriodicTask(
-      _taskName,
-      _taskName,
-      frequency: const Duration(minutes: 15),
-      inputData: {'animalId': animalId},
-      constraints: Constraints(
-        networkType: NetworkType.connected,
-      ),
-    );
   }
 
   static Future<void> stopBackgroundService() async {
-    final service = FlutterBackgroundService();
-    service.invoke('stop');
-    
-    await Workmanager().cancelByUniqueName(_taskName);
+    try {
+      debugPrint('🛑 Parando background service');
+
+      final service = FlutterBackgroundService();
+
+      // Verifica se o serviço está rodando antes de tentar parar
+      if (await service.isRunning()) {
+        service.invoke('stop');
+        debugPrint('✅ Comando de parada enviado ao background service');
+      } else {
+        debugPrint('⚠️ Background service já está parado');
+      }
+
+      // Cancela tarefas do WorkManager
+      await Workmanager().cancelByUniqueName(_taskName);
+      debugPrint('✅ Tarefas do WorkManager canceladas');
+    } catch (e) {
+      debugPrint('❌ Erro ao parar background service: $e');
+      // Não propaga o erro para evitar crash do app
+    }
   }
 
   @pragma('vm:entry-point')
@@ -141,7 +247,7 @@ class BackgroundWebSocketService {
     try {
       await dotenv.load(fileName: ".env");
       
-      final baseUrl = '${dotenv.env['API_JAVA_URL']!}/ws-petdx';
+      final baseUrl = '${dotenv.env['API_JAVA_URL']!}/ws-petdex';
       var wsUrl = baseUrl.replaceFirst('https://', 'wss://').replaceFirst('http://', 'ws://');
       
       final channel = WebSocketChannel.connect(Uri.parse('$wsUrl/websocket'));
@@ -237,16 +343,16 @@ class BackgroundWebSocketService {
   static void _callbackDispatcher() {
     Workmanager().executeTask((task, inputData) async {
       try {
-        final animalId = inputData?['animalId'] as String?;
-        if (animalId != null) {
-          final service = FlutterBackgroundService();
-          if (!(await service.isRunning())) {
-            await startBackgroundService(animalId);
-          }
-        }
+        debugPrint('🔄 WorkManager task executado: $task');
+        // ⚠️ IMPORTANTE: Não usar FlutterBackgroundService aqui
+        // Este callback roda em um isolate separado do WorkManager
+        // FlutterBackgroundService só deve ser usado no isolate principal (UI)
+
+        // Por enquanto, apenas retorna sucesso
+        // O serviço de background é gerenciado pelo lifecycle do app
         return Future.value(true);
       } catch (e) {
-        print('Erro no WorkManager: $e');
+        debugPrint('❌ Erro no WorkManager: $e');
         return Future.value(false);
       }
     });

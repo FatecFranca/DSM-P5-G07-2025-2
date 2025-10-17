@@ -54,6 +54,7 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
   bool _isLoading = true;
   String? _errorMessage;
   String? _address; // Endereço formatado
+  bool _isInitialized = false; // Flag para evitar inicializações duplicadas
 
   // Informações de área segura
   bool? _isOutsideSafeZone;
@@ -77,9 +78,22 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
 
   /// Inicializa a aplicação: carrega localização inicial e conecta WebSocket
   Future<void> _initializeApp() async {
-    await _loadAnimalLocation();
-    await _initializeNotifications(); // ✅ CRÍTICO: Inicializa notificações
-    _initializeWebSocket();
+    // Evita inicializações duplicadas
+    if (_isInitialized) {
+      debugPrint('⚠️ LocationScreen já foi inicializado, pulando inicialização');
+      return;
+    }
+
+    try {
+      debugPrint('🚀 Inicializando LocationScreen...');
+      await _loadAnimalLocation();
+      await _initializeNotifications(); // ✅ CRÍTICO: Inicializa notificações
+      _initializeWebSocket();
+      _isInitialized = true;
+      debugPrint('✅ LocationScreen inicializado com sucesso');
+    } catch (e) {
+      debugPrint('❌ Erro ao inicializar LocationScreen: $e');
+    }
   }
 
   /// Inicializa o serviço de notificações
@@ -91,22 +105,34 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
 
   /// Inicializa o WebSocket e seus listeners
   void _initializeWebSocket() {
-    // Listener de conexão
-    _connectionSubscription = _webSocketService.connectionStream.listen((isConnected) {
-      if (mounted) {
-        setState(() {
-          _isWebSocketConnected = isConnected;
-        });
-      }
-    });
+    try {
+      debugPrint('🔌 Inicializando WebSocket para animal: ${widget.animalId}');
 
-    // Listener de atualizações de localização
-    _locationSubscription = _webSocketService.locationStream.listen((locationUpdate) {
-      _handleWebSocketLocationUpdate(locationUpdate);
-    });
+      // Cancela subscriptions anteriores se existirem
+      _connectionSubscription?.cancel();
+      _locationSubscription?.cancel();
 
-    // Conecta ao WebSocket
-    _webSocketService.connect(widget.animalId);
+      // Listener de conexão
+      _connectionSubscription = _webSocketService.connectionStream.listen((isConnected) {
+        if (mounted) {
+          setState(() {
+            _isWebSocketConnected = isConnected;
+          });
+        }
+      });
+
+      // Listener de atualizações de localização
+      _locationSubscription = _webSocketService.locationStream.listen((locationUpdate) {
+        _handleWebSocketLocationUpdate(locationUpdate);
+      });
+
+      // Conecta ao WebSocket
+      _webSocketService.connect(widget.animalId);
+
+      debugPrint('✅ WebSocket inicializado');
+    } catch (e) {
+      debugPrint('❌ Erro ao inicializar WebSocket: $e');
+    }
   }
 
   /// Processa atualizações de localização recebidas via WebSocket
@@ -260,11 +286,12 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
     try {
       final bool temImagem = widget.animalImageUrl != null && widget.animalImageUrl!.isNotEmpty;
 
+      // ✅ CORREÇÃO: Usar os nomes corretos das imagens que existem
       final String imagePath = temImagem
           ? widget.animalImageUrl!
           : (widget.animalSpecies == SpeciesEnum.cat
-              ? 'assets/images/gato_default.png'
-              : 'assets/images/cachorro_default.png');
+              ? 'assets/images/gato-dex.png'
+              : 'assets/images/cao-dex.png');
 
       // Pré-carrega a imagem
       await precacheImage(AssetImage(imagePath), context);
@@ -478,10 +505,10 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
               ),
             ),
 
-          // Botão de centralização - Canto inferior direito, acima da NavBar
+          // Botão de centralização - Bem acima do StatusBar, canto direito
           if (_currentLocation != null)
             Positioned(
-              bottom: 100, // Acima da NavBar (altura da NavBar é ~85)
+              bottom: 250, // 20 pixels acima da posição anterior (230 + 20)
               right: 16,
               child: FloatingActionButton(
                 onPressed: _centerOnAnimalLocation,
@@ -490,10 +517,10 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
               ),
             ),
 
-          // Botão "Definir área segura" - Canto inferior esquerdo, acima da NavBar
+          // Botão "Definir área segura" - Acima do botão de centralização, canto esquerdo
           if (_currentLocation != null && !_isLoading)
             Positioned(
-              bottom: 100,
+              bottom: 250, // Mesma altura do botão de centralização
               left: 16,
               child: FloatingActionButton.extended(
                 onPressed: _navigateToDefineSafeArea,
