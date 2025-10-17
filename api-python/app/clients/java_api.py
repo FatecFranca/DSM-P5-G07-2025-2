@@ -58,3 +58,16 @@ async def buscar_todos_movimentos(animalId: str):
             movimentos.extend(data["content"])
 
     return movimentos
+
+async def buscar_dados_animal(animalId: str):
+    async with httpx.AsyncClient() as client:
+        response = await client.get(f"{API_URL}/animais/{animalId}")
+        if response.status_code != 200:
+            return None
+        animal_data = response.json()
+
+        # Busca último batimento
+        ultimo_bat = await buscar_ultimo_batimento(animalId)
+        animal_data["ultimo_batimento"] = ultimo_bat.get("frequenciaMedia")
+
+    return animal_data
