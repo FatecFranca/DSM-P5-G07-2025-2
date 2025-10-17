@@ -3,16 +3,25 @@ import 'dart:convert';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/websocket_message.dart';
+import 'background_websocket_service.dart';
+import 'notification_service.dart';
 
 class WebSocketService {
   static final WebSocketService _instance = WebSocketService._internal();
   factory WebSocketService() => _instance;
   WebSocketService._internal();
 
+  bool _isInBackground = false;
+
   WebSocketChannel? _channel;
   bool _isConnected = false;
   Timer? _reconnectTimer;
+  Timer? _heartbeatTimer;
   String? _currentAnimalId;
+  int _reconnectAttempts = 0;
+  static const int _maxReconnectAttempts = 10;
+  static const Duration _baseReconnectDelay = Duration(seconds: 2);
+  DateTime? _lastSuccessfulConnection;
 
   final StreamController<LocationUpdate> _locationController = StreamController<LocationUpdate>.broadcast();
   final StreamController<HeartrateUpdate> _heartrateController = StreamController<HeartrateUpdate>.broadcast();
@@ -23,6 +32,49 @@ class WebSocketService {
   Stream<bool> get connectionStream => _connectionController.stream;
 
   bool get isConnected => _isConnected;
+  bool get isInBackground => _isInBackground;
+
+  // Serviço de notificações
+  final NotificationService _notificationService = NotificationService();
+  String? _currentPetName; // Nome do pet para notificações
+
+  void setBackgroundMode(bool isBackground) {
+    _isInBackground = isBackground;
+
+    if (isBackground) {
+      print('🔄 App entrou em background - iniciando serviço de background');
+      if (_currentAnimalId != null) {
+        BackgroundWebSocketService.startBackgroundService(_currentAnimalId!);
+      }
+    } else {
+      print('🔄 App voltou para foreground - parando serviço de background');
+      BackgroundWebSocketService.stopBackgroundService();
+      if (!_isConnected && _currentAnimalId != null) {
+        connect(_currentAnimalId!);
+      }
+    }
+  }
+
+  Future<void> initializeBackgroundService() async {
+    try {
+      await BackgroundWebSocketService.initialize();
+    } catch (e) {
+      // Não propaga o erro para evitar crash do app
+    }
+  }
+
+  /// Inicializa o serviço de notificações
+  Future<void> initializeNotifications({String? petName}) async {
+    _currentPetName = petName;
+    await _notificationService.initialize();
+  }
+
+  /// Define o nome do pet para notificações
+  void setPetName(String petName) {
+    _currentPetName = petName;
+  }
+
+
 
   Future<void> connect(String animalId) async {
     if (_isConnected) {
@@ -30,11 +82,12 @@ class WebSocketService {
     }
 
     _currentAnimalId = animalId;
+    _reconnectAttempts = 0;
 
     try {
       await dotenv.load(fileName: ".env");
     } catch (e) {
-      print('Arquivo .env não encontrado, usando valores padrão');
+      // Silencioso
     }
 
     final baseUrl = '${dotenv.env['API_JAVA_URL']!}/ws-petdex';
@@ -58,8 +111,6 @@ class WebSocketService {
           wsUrl = wsUrl.replaceFirst('http://', 'ws://');
         }
 
-        print('🔌 Tentando conectar: $wsUrl');
-
         _channel = WebSocketChannel.connect(
           Uri.parse(wsUrl),
           protocols: ['v12.stomp', 'v11.stomp', 'v10.stomp'],
@@ -73,26 +124,25 @@ class WebSocketService {
             _handleMessage(message);
           },
           onError: (error) {
-            print('❌ Erro WebSocket ($wsUrl): $error');
             if (!_isConnected) {
               _handleDisconnection();
             }
           },
           onDone: () {
-            print('🔌 Conexão WebSocket finalizada ($wsUrl)');
-            print('🔄 Tentando reconectar em 3 segundos...');
+            print('🔌 Desconectado do WebSocket');
             _handleDisconnection();
           },
         );
 
         _isConnected = true;
+        _reconnectAttempts = 0;
+        _lastSuccessfulConnection = DateTime.now();
         _connectionController.add(true);
-        print('✅ Conectado ao WebSocket: $wsUrl');
+        print('✅ Conectado ao WebSocket');
 
-        // Enviar comando CONNECT primeiro
         _sendConnectCommand();
+        _startHeartbeat();
 
-        // Aguardar um pouco antes de se inscrever
         Future.delayed(const Duration(seconds: 1), () {
           _subscribeToTopic(animalId);
         });
@@ -100,13 +150,11 @@ class WebSocketService {
         break;
 
       } catch (e) {
-        print('❌ Falha ao conectar em $endpoint: $e');
         continue;
       }
     }
 
     if (!_isConnected) {
-      print('❌ Não foi possível conectar a nenhum endpoint');
       _scheduleReconnect();
     }
   }
@@ -120,9 +168,8 @@ class WebSocketService {
 
       try {
         _channel!.sink.add(connectCommand);
-        print('🔗 Enviado comando CONNECT STOMP');
       } catch (e) {
-        print('❌ Erro ao enviar CONNECT: $e');
+        // Silencioso
       }
     }
   }
@@ -150,14 +197,11 @@ class WebSocketService {
         'destination': '/topic/animal/$animalId',
       });
 
-      print('📡 Tentando inscrever no tópico: /topic/animal/$animalId');
-
       // Tentar formato STOMP primeiro
       try {
         _channel!.sink.add(stompSubscribe);
-        print('📡 Enviado comando STOMP SUBSCRIBE');
       } catch (e) {
-        print('❌ Erro ao enviar STOMP: $e');
+        // Silencioso
       }
 
       // Aguardar um pouco e tentar JSON
@@ -165,9 +209,8 @@ class WebSocketService {
         if (_channel != null) {
           try {
             _channel!.sink.add(jsonSubscribe);
-            print('📡 Enviado comando JSON SUBSCRIBE');
           } catch (e) {
-            print('❌ Erro ao enviar JSON: $e');
+            // Silencioso
           }
         }
       });
@@ -177,9 +220,8 @@ class WebSocketService {
         if (_channel != null) {
           try {
             _channel!.sink.add(directMessage);
-            print('📡 Enviado comando direto');
           } catch (e) {
-            print('❌ Erro ao enviar direto: $e');
+            // Silencioso
           }
         }
       });
@@ -187,8 +229,6 @@ class WebSocketService {
   }
 
   void _handleMessage(dynamic message) {
-    print('📨 Mensagem WebSocket recebida: $message');
-
     if (message is String && message.trim().isNotEmpty) {
       // Verificar se é uma mensagem STOMP
       if (message.startsWith('CONNECTED') ||
@@ -200,51 +240,30 @@ class WebSocketService {
         // Tentar processar como JSON
         try {
           final Map<String, dynamic> data = json.decode(message);
-          print('📋 Dados JSON decodificados: $data');
-
           final wsMessage = WebSocketMessage.fromJson(data);
 
           if (wsMessage is LocationUpdate) {
             _locationController.add(wsMessage);
-            print('🎯 ===== LOCALIZAÇÃO RECEBIDA VIA JSON =====');
-            print('📍 Animal ID: ${wsMessage.animalId}');
-            print('📍 Coleira ID: ${wsMessage.coleiraId}');
-            print('📍 Latitude: ${wsMessage.latitude}');
-            print('📍 Longitude: ${wsMessage.longitude}');
-            print('📍 Zona Segura: ${wsMessage.isOutsideSafeZone ? "FORA" : "DENTRO"}');
-            print('📍 Distância do Perímetro: ${wsMessage.distanciaDoPerimetro}m');
-            print('📍 Timestamp: ${wsMessage.timestamp}');
-            print('🎯 =========================================');
+            // Envia notificação se o pet saiu da área segura
+            _checkAndNotifySafeZone(wsMessage);
           } else if (wsMessage is HeartrateUpdate) {
             _heartrateController.add(wsMessage);
-            print('💓 ===== BATIMENTO RECEBIDO VIA JSON =====');
-            print('💓 Animal ID: ${wsMessage.animalId}');
-            print('💓 Coleira ID: ${wsMessage.coleiraId}');
-            print('💓 Frequência Média: ${wsMessage.frequenciaMedia} bpm');
-            print('💓 Timestamp: ${wsMessage.timestamp}');
-            print('💓 ====================================');
           }
         } catch (e) {
-          print('❌ Erro ao processar JSON: $e');
-          print('Mensagem original: $message');
+          // Silencioso
         }
       }
-    } else {
-      print('⚠️ Mensagem vazia ou inválida: $message (tipo: ${message.runtimeType})');
     }
   }
 
   void _handleStompMessage(String message) {
-    print('📋 Processando mensagem STOMP: $message');
-
     final lines = message.split('\n');
     if (lines.isEmpty) return;
 
     final command = lines[0];
-    print('🔧 Comando STOMP: $command');
 
     if (command == 'CONNECTED') {
-      print('✅ Conexão STOMP estabelecida');
+      print('✅ Conectado ao WebSocket');
     } else if (command == 'MESSAGE') {
       // Extrair o corpo da mensagem (após linha vazia)
       int bodyStartIndex = -1;
@@ -258,8 +277,6 @@ class WebSocketService {
       if (bodyStartIndex > 0 && bodyStartIndex < lines.length) {
         final body = lines.sublist(bodyStartIndex).join('\n').trim();
         if (body.isNotEmpty && body != '\x00') {
-          print('📦 Corpo da mensagem: $body');
-
           try {
             // Limpar caracteres especiais e null bytes
             String cleanBody = body.replaceAll('\x00', '').replaceAll('\n', '').trim();
@@ -272,39 +289,21 @@ class WebSocketService {
               }
             }
 
-            print('📦 Corpo limpo: $cleanBody');
-
             final Map<String, dynamic> data = json.decode(cleanBody);
             final wsMessage = WebSocketMessage.fromJson(data);
 
             if (wsMessage is LocationUpdate) {
               _locationController.add(wsMessage);
-              print('🎯 ===== LOCALIZAÇÃO RECEBIDA VIA STOMP =====');
-              print('📍 Animal ID: ${wsMessage.animalId}');
-              print('📍 Coleira ID: ${wsMessage.coleiraId}');
-              print('📍 Latitude: ${wsMessage.latitude}');
-              print('📍 Longitude: ${wsMessage.longitude}');
-              print('📍 Zona Segura: ${wsMessage.isOutsideSafeZone ? "FORA" : "DENTRO"}');
-              print('📍 Distância do Perímetro: ${wsMessage.distanciaDoPerimetro}m');
-              print('📍 Timestamp: ${wsMessage.timestamp}');
-              print('🎯 ==========================================');
+              // Envia notificação se o pet saiu da área segura
+              _checkAndNotifySafeZone(wsMessage);
             } else if (wsMessage is HeartrateUpdate) {
               _heartrateController.add(wsMessage);
-              print('💓 ===== BATIMENTO RECEBIDO VIA STOMP =====');
-              print('💓 Animal ID: ${wsMessage.animalId}');
-              print('💓 Coleira ID: ${wsMessage.coleiraId}');
-              print('💓 Frequência Média: ${wsMessage.frequenciaMedia} bpm');
-              print('💓 Timestamp: ${wsMessage.timestamp}');
-              print('💓 =====================================');
             }
           } catch (e) {
-            print('❌ Erro ao processar corpo STOMP: $e');
-            print('Corpo: $body');
+            // Silencioso
           }
         }
       }
-    } else if (command == 'ERROR') {
-      print('❌ Erro STOMP recebido: $message');
     }
   }
 
@@ -316,10 +315,32 @@ class WebSocketService {
 
   void _scheduleReconnect() {
     _reconnectTimer?.cancel();
-    _reconnectTimer = Timer(const Duration(seconds: 5), () {
+
+    if (_reconnectAttempts >= _maxReconnectAttempts) {
+      return;
+    }
+
+    final delay = Duration(
+      seconds: (_baseReconnectDelay.inSeconds * (1 << _reconnectAttempts)).clamp(2, 300),
+    );
+
+    _reconnectTimer = Timer(delay, () {
       if (!_isConnected && _currentAnimalId != null) {
-        print('🔄 Tentando reconectar...');
+        _reconnectAttempts++;
         connect(_currentAnimalId!);
+      }
+    });
+  }
+
+  void _startHeartbeat() {
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      if (_isConnected && _channel != null) {
+        try {
+          _channel!.sink.add('PING');
+        } catch (e) {
+          _handleDisconnection();
+        }
       }
     });
   }
@@ -327,6 +348,8 @@ class WebSocketService {
   void disconnect() {
     _reconnectTimer?.cancel();
     _reconnectTimer = null;
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = null;
 
     if (_channel != null) {
       _channel!.sink.close();
@@ -340,6 +363,7 @@ class WebSocketService {
     }
 
     _currentAnimalId = null;
+    _reconnectAttempts = 0;
   }
 
   void dispose() {
@@ -347,5 +371,25 @@ class WebSocketService {
     _locationController.close();
     _heartrateController.close();
     _connectionController.close();
+  }
+
+  void resetReconnectionAttempts() {
+    _reconnectAttempts = 0;
+  }
+
+  /// Verifica se o pet saiu da área segura e envia notificação
+  void _checkAndNotifySafeZone(LocationUpdate locationUpdate) {
+    if (locationUpdate.isOutsideSafeZone) {
+      _notificationService.sendSafeZoneAlert(
+        petName: _currentPetName ?? 'Seu pet',
+        isOutside: true,
+      );
+    } else {
+      // Pet voltou para área segura - reseta o estado de notificação
+      _notificationService.sendSafeZoneAlert(
+        petName: _currentPetName ?? 'Seu pet',
+        isOutside: false,
+      );
+    }
   }
 }
