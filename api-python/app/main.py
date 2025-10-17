@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query, HTTPException
+from fastapi import FastAPI, Query, HTTPException, APIRouter
 from app.clients import java_api
 from app.services import stats
 #from app.services import pmml_predictor
