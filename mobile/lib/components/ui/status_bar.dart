@@ -10,8 +10,13 @@ import 'heart_chart_bar.dart';
 
 class StatusBar extends StatefulWidget {
   final String animalId;
+  final bool isConnected;
 
-  const StatusBar({super.key, required this.animalId});
+  const StatusBar({
+    super.key,
+    required this.animalId,
+    required this.isConnected,
+  });
 
   @override
   State<StatusBar> createState() => _StatusBarState();
@@ -200,13 +205,21 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Conectado', // Usando seu texto mais curto
-                    style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey[700], fontWeight: FontWeight.w500),
+                    widget.isConnected ? 'Conectado' : 'Desconectado',
+                    style: GoogleFonts.poppins(
+                      fontSize: 11,
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   const SizedBox(width: 6),
                   Container(
-                    width: 8, height: 8,
-                    decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle),
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: widget.isConnected ? Colors.green : Colors.red,
+                      shape: BoxShape.circle,
+                    ),
                   )
                 ],
               )

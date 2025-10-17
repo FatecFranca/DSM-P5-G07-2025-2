@@ -9,7 +9,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class AnimalLocationCard extends StatefulWidget {
   final String animalId;
   final String animalName;
-  final Species animalSpecies;
+  final SpeciesEnum animalSpecies;
   final String? animalImageUrl;
 
   const AnimalLocationCard({

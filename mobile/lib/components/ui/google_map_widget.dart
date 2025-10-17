@@ -9,7 +9,7 @@ class GoogleMapWidget extends StatefulWidget {
   final double latitude;
   final double longitude;
   final String? animalImageUrl;
-  final Species animalSpecies;
+  final SpeciesEnum animalSpecies;
   final String animalName;
   final double mapHeight;
   final double zoom;
