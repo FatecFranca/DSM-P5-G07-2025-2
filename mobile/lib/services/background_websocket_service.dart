@@ -10,6 +10,8 @@ import 'notification_service.dart';
 
 class BackgroundWebSocketService {
   static const String _taskName = 'websocket_background_task';
+  static const String _notificationChannelId = 'petdex_websocket';
+  static const String _notificationChannelName = 'PetDex WebSocket';
 
   static bool _isInitialized = false;
 
@@ -34,7 +36,11 @@ class BackgroundWebSocketService {
       androidConfiguration: AndroidConfiguration(
         onStart: _onBackgroundStart,
         autoStart: false,
-        isForegroundMode: false, // ✅ DESABILITADO - Remove notificação persistente
+        isForegroundMode: true, // ✅ HABILITADO - Mantém notificação persistente
+        notificationChannelId: _notificationChannelId,
+        initialNotificationTitle: 'PetDex - Conectado',
+        initialNotificationContent: 'Mantendo conexão com seu pet',
+        foregroundServiceNotificationId: 888,
       ),
     );
   }
