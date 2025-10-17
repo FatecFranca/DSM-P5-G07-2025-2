@@ -4,7 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '/models/animal.dart';
 import '/models/heartbeat_data.dart';
 import '/models/latest_heartbeat.dart';
+import '/models/websocket_message.dart';
 import '/services/animal_service.dart';
+import '/services/websocket_service.dart';
 import '/theme/app_theme.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'heart_chart_bar.dart';
@@ -29,12 +31,15 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
   late final Animation<double> _heightAnimation;
 
   final AnimalService _animalService = AnimalService();
+  final WebSocketService _webSocketService = WebSocketService();
+
   Animal? _animalInfo;
   LatestHeartbeat? _latestHeartbeat;
   List<HeartbeatData>? _heartbeatHistory;
   bool _isLoading = true;
   int _retryCount = 0;
   Timer? _retryTimer;
+  StreamSubscription<HeartrateUpdate>? _heartrateSubscription;
 
   static const double _collapsedHeight = 150.0;
   static const double _expandedHeight = 420.0;
@@ -52,6 +57,33 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
     _fetchData();
+    _initializeWebSocketListener();
+  }
+
+  /// Inicializa o listener do WebSocket para atualizações de batimento cardíaco em tempo real
+  void _initializeWebSocketListener() {
+    _heartrateSubscription = _webSocketService.heartrateStream.listen(
+      (heartrateUpdate) {
+        // Verifica se a atualização é para o animal correto
+        if (heartrateUpdate.animalId == widget.animalId) {
+          debugPrint('💓 StatusBar: Batimento atualizado via WebSocket - ${heartrateUpdate.frequenciaMedia} bpm');
+
+          if (mounted) {
+            setState(() {
+              // Atualiza o batimento cardíaco com os dados do WebSocket
+              _latestHeartbeat = LatestHeartbeat(
+                frequenciaMedia: heartrateUpdate.frequenciaMedia,
+              );
+            });
+          }
+        }
+      },
+      onError: (error) {
+        debugPrint('❌ Erro no stream de batimentos: $error');
+      },
+    );
+
+    debugPrint('✅ StatusBar: Listener de batimentos WebSocket inicializado');
   }
 
   @override
@@ -147,10 +179,11 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
       });
     }
   }
-  
+
   @override
   void dispose() {
     _retryTimer?.cancel(); // Cancela retry pendente
+    _heartrateSubscription?.cancel(); // Cancela subscription do WebSocket
     _animationController.dispose();
     super.dispose();
   }
