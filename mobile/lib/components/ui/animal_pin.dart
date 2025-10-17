@@ -3,10 +3,10 @@ import 'package:PetDex/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class AnimalPin extends StatelessWidget {
-  final String? imageUrl; 
-  final Species especie; 
-  final double size; 
-  static const Color pinColor = AppColors.orange400; 
+  final String? imageUrl;
+  final SpeciesEnum especie;
+  final double size;
+  static const Color pinColor = AppColors.orange400;
 
   const AnimalPin({
     super.key,
@@ -19,11 +19,12 @@ class AnimalPin extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool temImagem = imageUrl != null && imageUrl!.isNotEmpty;
 
-    final String imagemPadrao = especie == Species.cat
-        ? 'assets/imagens/gato_default.png'
-        : 'assets/imagens/cachorro_default.png';
+    // ✅ CORREÇÃO: Usar os nomes corretos dos arquivos de imagem
+    final String imagemPadrao = especie == SpeciesEnum.cat
+        ? 'assets/images/gato-dex.png'
+        : 'assets/images/cao-dex.png';
 
-    final double borderWidth = 6.0; 
+    final double borderWidth = 6.0;
 
     return Container(
       width: size + borderWidth * 2,
@@ -35,9 +36,22 @@ class AnimalPin extends StatelessWidget {
       child: ClipOval(
         child: Image.asset(
           temImagem ? imageUrl! : imagemPadrao,
-          width: size,
-          height: size,
           fit: BoxFit.cover,
+          // ✅ OTIMIZAÇÃO: Reduz o tamanho da imagem em memória
+          cacheWidth: (size * 2).toInt(),
+          cacheHeight: (size * 2).toInt(),
+          // ✅ OTIMIZAÇÃO: Filtragem de baixa qualidade para melhor performance
+          filterQuality: FilterQuality.low,
+          errorBuilder: (context, error, stackTrace) {
+            // Fallback se a imagem falhar ao carregar
+            return Image.asset(
+              imagemPadrao,
+              fit: BoxFit.cover,
+              cacheWidth: (size * 2).toInt(),
+              cacheHeight: (size * 2).toInt(),
+              filterQuality: FilterQuality.low,
+            );
+          },
         ),
       ),
     );

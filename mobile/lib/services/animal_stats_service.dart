@@ -41,15 +41,8 @@ class AnimalStatsService {
     }
   }
 
-  Future<Map<String, double>?> getUltimaLocalizacaoAnimal(String idAnimal) async {
-    try {
-      await dotenv.load(fileName: ".env");
-    } catch (e) {
-      print('Arquivo .env não encontrado, usando valores padrão');
-    }
-
-    final endpoint =
-        '$_javaApiBaseUrl/localizacoes/animal/$idAnimal?page=0&size=1';
+  Future<Map<String, dynamic>?> getUltimaLocalizacaoAnimal(String idAnimal) async {
+    final endpoint = '$_javaApiBaseUrl/localizacoes/animal/$idAnimal/ultima';
 
     try {
       final response = await http.get(Uri.parse(endpoint));
@@ -57,20 +50,14 @@ class AnimalStatsService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
 
-        // Verifica se existe conteúdo na resposta (padrão Spring Page)
-        if (data.containsKey('content') &&
-            data['content'] is List &&
-            data['content'].isNotEmpty) {
-          final ultimo = data['content'][0];
-
-          return {
-            'latitude': double.tryParse(ultimo['latitude'].toString()) ?? 0.0,
-            'longitude': double.tryParse(ultimo['longitude'].toString()) ?? 0.0,
-          };
-        } else {
-          print('Nenhuma localização encontrada para o animal $idAnimal');
-          return null;
-        }
+        return {
+          'id': data['id'],
+          'data': data['data'],
+          'latitude': (data['latitude'] as num).toDouble(),
+          'longitude': (data['longitude'] as num).toDouble(),
+          'animal': data['animal'],
+          'coleira': data['coleira'],
+        };
       } else {
         throw Exception(
             'Falha ao buscar localização: Status ${response.statusCode}');
