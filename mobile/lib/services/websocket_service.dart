@@ -3,16 +3,25 @@ import 'dart:convert';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/websocket_message.dart';
+import 'background_websocket_service.dart';
+import 'notification_service.dart';
 
 class WebSocketService {
   static final WebSocketService _instance = WebSocketService._internal();
   factory WebSocketService() => _instance;
   WebSocketService._internal();
 
+  bool _isInBackground = false;
+
   WebSocketChannel? _channel;
   bool _isConnected = false;
   Timer? _reconnectTimer;
+  Timer? _heartbeatTimer;
   String? _currentAnimalId;
+  int _reconnectAttempts = 0;
+  static const int _maxReconnectAttempts = 10;
+  static const Duration _baseReconnectDelay = Duration(seconds: 2);
+  DateTime? _lastSuccessfulConnection;
 
   final StreamController<LocationUpdate> _locationController = StreamController<LocationUpdate>.broadcast();
   final StreamController<HeartrateUpdate> _heartrateController = StreamController<HeartrateUpdate>.broadcast();
@@ -23,6 +32,46 @@ class WebSocketService {
   Stream<bool> get connectionStream => _connectionController.stream;
 
   bool get isConnected => _isConnected;
+  bool get isInBackground => _isInBackground;
+
+  // Serviço de notificações
+  final NotificationService _notificationService = NotificationService();
+  String? _currentPetName; // Nome do pet para notificações
+
+  void setBackgroundMode(bool isBackground) {
+    _isInBackground = isBackground;
+
+    if (isBackground) {
+      print('🔄 App entrou em background - iniciando serviço de background');
+      if (_currentAnimalId != null) {
+        BackgroundWebSocketService.startBackgroundService(_currentAnimalId!);
+      }
+    } else {
+      print('🔄 App voltou para foreground - parando serviço de background');
+      BackgroundWebSocketService.stopBackgroundService();
+      if (!_isConnected && _currentAnimalId != null) {
+        connect(_currentAnimalId!);
+      }
+    }
+  }
+
+  Future<void> initializeBackgroundService() async {
+    await BackgroundWebSocketService.initialize();
+  }
+
+  /// Inicializa o serviço de notificações
+  Future<void> initializeNotifications({String? petName}) async {
+    _currentPetName = petName;
+    await _notificationService.initialize();
+    print('🔔 Serviço de notificações inicializado para: ${petName ?? "pet"}');
+  }
+
+  /// Define o nome do pet para notificações
+  void setPetName(String petName) {
+    _currentPetName = petName;
+  }
+
+
 
   Future<void> connect(String animalId) async {
     if (_isConnected) {
@@ -30,6 +79,7 @@ class WebSocketService {
     }
 
     _currentAnimalId = animalId;
+    _reconnectAttempts = 0;
 
     try {
       await dotenv.load(fileName: ".env");
@@ -86,13 +136,14 @@ class WebSocketService {
         );
 
         _isConnected = true;
+        _reconnectAttempts = 0;
+        _lastSuccessfulConnection = DateTime.now();
         _connectionController.add(true);
         print('✅ Conectado ao WebSocket: $wsUrl');
 
-        // Enviar comando CONNECT primeiro
         _sendConnectCommand();
+        _startHeartbeat();
 
-        // Aguardar um pouco antes de se inscrever
         Future.delayed(const Duration(seconds: 1), () {
           _subscribeToTopic(animalId);
         });
@@ -215,6 +266,9 @@ class WebSocketService {
             print('📍 Distância do Perímetro: ${wsMessage.distanciaDoPerimetro}m');
             print('📍 Timestamp: ${wsMessage.timestamp}');
             print('🎯 =========================================');
+
+            // Envia notificação se o pet saiu da área segura
+            _checkAndNotifySafeZone(wsMessage);
           } else if (wsMessage is HeartrateUpdate) {
             _heartrateController.add(wsMessage);
             print('💓 ===== BATIMENTO RECEBIDO VIA JSON =====');
@@ -288,6 +342,9 @@ class WebSocketService {
               print('📍 Distância do Perímetro: ${wsMessage.distanciaDoPerimetro}m');
               print('📍 Timestamp: ${wsMessage.timestamp}');
               print('🎯 ==========================================');
+
+              // Envia notificação se o pet saiu da área segura
+              _checkAndNotifySafeZone(wsMessage);
             } else if (wsMessage is HeartrateUpdate) {
               _heartrateController.add(wsMessage);
               print('💓 ===== BATIMENTO RECEBIDO VIA STOMP =====');
@@ -316,10 +373,37 @@ class WebSocketService {
 
   void _scheduleReconnect() {
     _reconnectTimer?.cancel();
-    _reconnectTimer = Timer(const Duration(seconds: 5), () {
+
+    if (_reconnectAttempts >= _maxReconnectAttempts) {
+      print('❌ Máximo de tentativas de reconexão atingido');
+      return;
+    }
+
+    final delay = Duration(
+      seconds: (_baseReconnectDelay.inSeconds * (1 << _reconnectAttempts)).clamp(2, 300),
+    );
+
+    print('🔄 Agendando reconexão em ${delay.inSeconds}s (tentativa ${_reconnectAttempts + 1}/$_maxReconnectAttempts)');
+
+    _reconnectTimer = Timer(delay, () {
       if (!_isConnected && _currentAnimalId != null) {
-        print('🔄 Tentando reconectar...');
+        _reconnectAttempts++;
+        print('🔄 Tentando reconectar... (tentativa $_reconnectAttempts/$_maxReconnectAttempts)');
         connect(_currentAnimalId!);
+      }
+    });
+  }
+
+  void _startHeartbeat() {
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      if (_isConnected && _channel != null) {
+        try {
+          _channel!.sink.add('PING');
+        } catch (e) {
+          print('❌ Erro ao enviar heartbeat: $e');
+          _handleDisconnection();
+        }
       }
     });
   }
@@ -327,6 +411,8 @@ class WebSocketService {
   void disconnect() {
     _reconnectTimer?.cancel();
     _reconnectTimer = null;
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = null;
 
     if (_channel != null) {
       _channel!.sink.close();
@@ -340,6 +426,7 @@ class WebSocketService {
     }
 
     _currentAnimalId = null;
+    _reconnectAttempts = 0;
   }
 
   void dispose() {
@@ -347,5 +434,34 @@ class WebSocketService {
     _locationController.close();
     _heartrateController.close();
     _connectionController.close();
+  }
+
+  void resetReconnectionAttempts() {
+    _reconnectAttempts = 0;
+  }
+
+  /// Verifica se o pet saiu da área segura e envia notificação
+  void _checkAndNotifySafeZone(LocationUpdate locationUpdate) {
+    print('🔍 [WebSocketService] _checkAndNotifySafeZone chamado:');
+    print('   - isOutsideSafeZone: ${locationUpdate.isOutsideSafeZone}');
+    print('   - distanciaDoPerimetro: ${locationUpdate.distanciaDoPerimetro}m');
+    print('   - _currentPetName: $_currentPetName');
+
+    if (locationUpdate.isOutsideSafeZone) {
+      print('🚨 [WebSocketService] Pet FORA da área segura! Chamando NotificationService...');
+      _notificationService.sendSafeZoneAlert(
+        petName: _currentPetName ?? 'Seu pet',
+        isOutside: true,
+      );
+      print('✅ [WebSocketService] NotificationService.sendSafeZoneAlert chamado (isOutside: true)');
+    } else {
+      print('✅ [WebSocketService] Pet DENTRO da área segura, resetando flag...');
+      // Pet voltou para área segura - reseta o estado de notificação
+      _notificationService.sendSafeZoneAlert(
+        petName: _currentPetName ?? 'Seu pet',
+        isOutside: false,
+      );
+      print('✅ [WebSocketService] NotificationService.sendSafeZoneAlert chamado (isOutside: false)');
+    }
   }
 }
