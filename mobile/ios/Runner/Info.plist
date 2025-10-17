@@ -45,5 +45,19 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Este aplicativo precisa acessar sua localização para mostrar a posição do seu animal de estimação no mapa.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Este aplicativo precisa acessar sua localização para mostrar a posição do seu animal de estimação no mapa.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>background-fetch</string>
+		<string>background-processing</string>
+		<string>remote-notification</string>
+	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.example.mobile.websocket</string>
+	</array>
 </dict>
 </plist>

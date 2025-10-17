@@ -3,10 +3,10 @@ import 'package:PetDex/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class AnimalPin extends StatelessWidget {
-  final String? imageUrl; 
-  final SpeciesEnum especie; 
-  final double size; 
-  static const Color pinColor = AppColors.orange400; 
+  final String? imageUrl;
+  final Species especie;
+  final double size;
+  static const Color pinColor = AppColors.orange400;
 
   const AnimalPin({
     super.key,
@@ -19,11 +19,11 @@ class AnimalPin extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool temImagem = imageUrl != null && imageUrl!.isNotEmpty;
 
-    final String imagemPadrao = especie == SpeciesEnum.cat
-        ? 'assets/imagens/gato_default.png'
-        : 'assets/imagens/cachorro_default.png';
+    final String imagemPadrao = especie == Species.cat
+        ? 'assets/images/gato_default.png'
+        : 'assets/images/cachorro_default.png';
 
-    final double borderWidth = 6.0; 
+    final double borderWidth = 6.0;
 
     return Container(
       width: size + borderWidth * 2,
@@ -35,8 +35,6 @@ class AnimalPin extends StatelessWidget {
       child: ClipOval(
         child: Image.asset(
           temImagem ? imageUrl! : imagemPadrao,
-          width: size,
-          height: size,
           fit: BoxFit.cover,
         ),
       ),
