@@ -6,6 +6,7 @@ import 'package:PetDex/screens/health_screen.dart';
 import 'package:PetDex/screens/location_screen.dart';
 import 'package:PetDex/data/enums/species.dart';
 import 'package:PetDex/services/websocket_service.dart';
+import 'package:PetDex/main.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -21,24 +22,32 @@ class _AppShellState extends State<AppShell> {
   final WebSocketService _webSocketService = WebSocketService();
 
   late final List<Widget> _pages;
+  late final String _animalId;
+  late final String _animalName;
 
   @override
   void initState() {
     super.initState();
 
-    _pages = const [
+    // Obtém o ID do animal do serviço de autenticação
+    _animalId = authService.getAnimalId() ?? "68194120636f719fcd5ee5fd";
+    _animalName = authService.getNome() ?? "Uno";
+
+    print('🐾 AppShell inicializado com animalId: $_animalId');
+
+    _pages = [
       MapScreen(
-        animalId: "68194120636f719fcd5ee5fd",
-        animalName: "Uno",
+        animalId: _animalId,
+        animalName: _animalName,
         animalSpecies: SpeciesEnum.dog,
-        animalImageUrl: "assets/images/uno.png", // ✅ CORREÇÃO: Caminho correto sem 'lib/'
+        animalImageUrl: "assets/images/uno.png",
       ),
       HealthScreen(),
       LocationScreen(
-        animalId: "68194120636f719fcd5ee5fd",
-        animalName: "Uno",
+        animalId: _animalId,
+        animalName: _animalName,
         animalSpecies: SpeciesEnum.dog,
-        animalImageUrl: "assets/images/uno.png", // ✅ CORREÇÃO: Caminho correto sem 'lib/'
+        animalImageUrl: "assets/images/uno.png",
       ),
     ];
 
@@ -82,7 +91,7 @@ class _AppShellState extends State<AppShell> {
             child: BottomNavWithStatus(
               currentIndex: _currentIndex,
               onTap: _onTabTapped,
-              animalId: "68194120636f719fcd5ee5fd", // ID do animal (Uno)
+              animalId: _animalId, // ID do animal obtido do login
               isConnected: _isWebSocketConnected,
             ),
           ),

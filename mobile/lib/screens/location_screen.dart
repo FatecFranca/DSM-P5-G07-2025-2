@@ -146,7 +146,7 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
       _distanceFromPerimeter = locationUpdate.distanciaDoPerimetro;
     });
 
-    // Cria LocationData a partir do LocationUpdate
+    // Cria LocationData a partir do LocationUpdate com os novos campos de área segura
     final newLocation = LocationData(
       id: 'websocket-${DateTime.now().millisecondsSinceEpoch}',
       data: locationUpdate.timestamp,
@@ -154,6 +154,9 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
       longitude: locationUpdate.longitude,
       animal: locationUpdate.animalId,
       coleira: locationUpdate.coleiraId,
+      // Adiciona informações de área segura do WebSocket
+      isOutsideSafeZone: locationUpdate.isOutsideSafeZone,
+      distanciaDoPerimetro: locationUpdate.distanciaDoPerimetro,
     );
 
     // Atualiza a localização usando o método unificado
@@ -229,6 +232,12 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
       final location = await _locationService.getUltimaLocalizacaoAnimal(widget.animalId);
 
       if (location != null) {
+        // Atualiza informações de área segura da API
+        setState(() {
+          _isOutsideSafeZone = location.isOutsideSafeZone;
+          _distanceFromPerimeter = location.distanciaDoPerimetro;
+        });
+
         // Usa o método unificado para atualizar tudo
         await updateAnimalLocation(location, shouldAnimate: true);
       } else {
