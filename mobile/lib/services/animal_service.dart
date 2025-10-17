@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '/models/animal.dart';
 import '/models/heartbeat_data.dart';
+import '/models/latest_heartbeat.dart';
 
 class AnimalService {
   final String _javaApiBaseUrl = "https://petdex-api-java.onrender.com";
@@ -20,6 +21,16 @@ class AnimalService {
       return Animal.fromJson(jsonDecode(decodedBody));
     } else {
       throw Exception('Falha ao carregar informações do animal.');
+    }
+  }
+
+  Future<LatestHeartbeat> getLatestHeartbeat(String animalId) async {
+    final response = await http.get(Uri.parse('$_javaApiBaseUrl/batimentos/animal/$animalId/ultimo'));
+    if (response.statusCode == 200) {
+      final decodedBody = utf8.decode(response.bodyBytes);
+      return LatestHeartbeat.fromJson(jsonDecode(decodedBody));
+    } else {
+      throw Exception('Falha ao carregar o último batimento. Status: ${response.statusCode}');
     }
   }
 
