@@ -3,16 +3,21 @@ import 'package:http/http.dart' as http;
 import '/models/animal.dart';
 import '/models/heartbeat_data.dart';
 import '/models/latest_heartbeat.dart';
+import 'package:PetDex/services/http_client.dart';
 
 class AnimalService {
   final String _javaApiBaseUrl = "https://petdex-api-java.onrender.com";
   final String _pythonApiBaseUrl = "https://petdex-api-python.onrender.com";
 
+  // Cliente HTTP com autenticação automática
+  final http.Client _httpClient = AuthenticatedHttpClient();
+
   static const String unoId = "68194120636f719fcd5ee5fd";
 
   Future<Animal> getAnimalInfo(String animalId) async {
     print(animalId);
-    final response = await http.get(
+    // Usa o cliente HTTP autenticado
+    final response = await _httpClient.get(
       Uri.parse('$_javaApiBaseUrl/animais/$animalId'),
     );
     if (response.statusCode == 200) {
@@ -25,7 +30,8 @@ class AnimalService {
   }
 
   Future<LatestHeartbeat> getLatestHeartbeat(String animalId) async {
-    final response = await http.get(Uri.parse('$_javaApiBaseUrl/batimentos/animal/$animalId/ultimo'));
+    // Usa o cliente HTTP autenticado
+    final response = await _httpClient.get(Uri.parse('$_javaApiBaseUrl/batimentos/animal/$animalId/ultimo'));
     if (response.statusCode == 200) {
       final decodedBody = utf8.decode(response.bodyBytes);
       return LatestHeartbeat.fromJson(jsonDecode(decodedBody));
@@ -35,6 +41,7 @@ class AnimalService {
   }
 
   Future<List<HeartbeatData>> getHeartbeatHistory(String animalId) async {
+    // Usa cliente HTTP padrão para API Python (não requer autenticação)
     final response = await http.get(
       Uri.parse(
         '$_pythonApiBaseUrl/batimentos/animal/$animalId/media-ultimos-5-dias',

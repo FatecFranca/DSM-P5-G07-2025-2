@@ -1,15 +1,20 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:PetDex/models/location_model.dart';
+import 'package:PetDex/services/http_client.dart';
 
 class LocationService {
   static const String _javaApiBaseUrl = "https://petdex-api-java.onrender.com";
+
+  // Cliente HTTP com autenticação automática
+  final http.Client _httpClient = AuthenticatedHttpClient();
 
   Future<LocationData?> getUltimaLocalizacaoAnimal(String idAnimal) async {
     final endpoint = '$_javaApiBaseUrl/localizacoes/animal/$idAnimal/ultima';
 
     try {
-      final response = await http.get(Uri.parse(endpoint));
+      // Usa o cliente HTTP autenticado
+      final response = await _httpClient.get(Uri.parse(endpoint));
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
