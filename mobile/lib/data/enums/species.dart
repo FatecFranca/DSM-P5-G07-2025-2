@@ -1,4 +1,4 @@
-enum Species {
+enum SpeciesEnum {
   dog,
   cat,
 }

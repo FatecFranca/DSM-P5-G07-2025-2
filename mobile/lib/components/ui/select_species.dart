@@ -4,7 +4,7 @@ import '../../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class SpeciesCard extends StatelessWidget {
-  final Species species;
+  final SpeciesEnum species;
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -18,8 +18,8 @@ class SpeciesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imagePath =
-        species == Species.dog ? 'imagens/cao-dex.png' : 'imagens/gato-dex.png';
-    final text = species == Species.dog ? 'Um Aumigo' : 'Um Miaugo';
+        species == SpeciesEnum.dog ? 'imagens/cao-dex.png' : 'imagens/gato-dex.png';
+    final text = species == SpeciesEnum.dog ? 'Um Aumigo' : 'Um Miaugo';
     final iconSize = 105.0;
 
     Widget imageWidget = Image.asset(
@@ -30,7 +30,7 @@ class SpeciesCard extends StatelessWidget {
       colorBlendMode: BlendMode.srcIn,
     );
 
-    if (species == Species.cat) {
+    if (species == SpeciesEnum.cat) {
       imageWidget = Transform.scale(scaleX: -1, child: imageWidget);
     }
 
@@ -66,13 +66,13 @@ class SpeciesCard extends StatelessWidget {
 }
 
 class SelectSpecies extends StatefulWidget {
-  final Species initialValue;
-  final Function(Species) onChanged;
+  final SpeciesEnum initialValue;
+  final Function(SpeciesEnum) onChanged;
 
   const SelectSpecies({
     super.key,
     required this.onChanged,
-    this.initialValue = Species.dog,
+    this.initialValue = SpeciesEnum.dog,
   });
 
   @override
@@ -80,7 +80,7 @@ class SelectSpecies extends StatefulWidget {
 }
 
 class _SelectSpeciesState extends State<SelectSpecies> {
-  late Species _selectedSpecies;
+  late SpeciesEnum _selectedSpecies;
 
   @override
   void initState() {
@@ -88,7 +88,7 @@ class _SelectSpeciesState extends State<SelectSpecies> {
     _selectedSpecies = widget.initialValue;
   }
 
-  void _selectSpecies(Species species) {
+  void _selectSpecies(SpeciesEnum species) {
     setState(() {
       _selectedSpecies = species;
     });
@@ -107,15 +107,15 @@ class _SelectSpeciesState extends State<SelectSpecies> {
         ),
         const SizedBox(height: 8),
         SpeciesCard(
-          species: Species.dog,
-          isSelected: _selectedSpecies == Species.dog,
-          onTap: () => _selectSpecies(Species.dog),
+          species: SpeciesEnum.dog,
+          isSelected: _selectedSpecies == SpeciesEnum.dog,
+          onTap: () => _selectSpecies(SpeciesEnum.dog),
         ),
         const SizedBox(height: 16),
         SpeciesCard(
-          species: Species.cat,
-          isSelected: _selectedSpecies == Species.cat,
-          onTap: () => _selectSpecies(Species.cat),
+          species: SpeciesEnum.cat,
+          isSelected: _selectedSpecies == SpeciesEnum.cat,
+          onTap: () => _selectSpecies(SpeciesEnum.cat),
         ),
       ],
     );
