@@ -56,7 +56,12 @@ class WebSocketService {
   }
 
   Future<void> initializeBackgroundService() async {
-    await BackgroundWebSocketService.initialize();
+    try {
+      await BackgroundWebSocketService.initialize();
+    } catch (e) {
+      print('❌ Erro ao inicializar background service: $e');
+      // Não propaga o erro para evitar crash do app
+    }
   }
 
   /// Inicializa o serviço de notificações

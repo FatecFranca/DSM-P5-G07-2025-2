@@ -48,6 +48,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
   String? _errorMessage;
   StreamSubscription<LocationUpdate>? _locationSubscription;
   bool _isInBackground = false;
+  bool _isInitialized = false; // Flag para evitar inicializações duplicadas
 
   // Informações de área segura
   bool? _isOutsideSafeZone;
@@ -67,16 +68,34 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
   }
 
   Future<void> _initializeApp() async {
-    await _loadAnimalLocation();
-    _initializeWebSocket();
-    _initializeBackgroundService();
-    _initializeNotifications();
+    // Evita inicializações duplicadas
+    if (_isInitialized) {
+      debugPrint('⚠️ MapScreen já foi inicializado, pulando inicialização');
+      return;
+    }
+
+    try {
+      debugPrint('🚀 Inicializando MapScreen...');
+      await _loadAnimalLocation();
+      _initializeWebSocket();
+      await _initializeNotifications();
+      // Inicializa background service por último, de forma não-bloqueante
+      _initializeBackgroundService();
+      _isInitialized = true;
+      debugPrint('✅ MapScreen inicializado com sucesso');
+    } catch (e) {
+      debugPrint('❌ Erro ao inicializar app: $e');
+    }
   }
 
   /// Inicializa o serviço de notificações
   Future<void> _initializeNotifications() async {
-    await _webSocketService.initializeNotifications(petName: widget.animalName);
-    debugPrint('🔔 Notificações inicializadas para ${widget.animalName}');
+    try {
+      await _webSocketService.initializeNotifications(petName: widget.animalName);
+      debugPrint('🔔 Notificações inicializadas para ${widget.animalName}');
+    } catch (e) {
+      debugPrint('❌ Erro ao inicializar notificações: $e');
+    }
   }
 
   Future<void> _loadAnimalLocation() async {
@@ -219,8 +238,19 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
   }
 
   void _initializeWebSocket() {
-    _locationSubscription = _webSocket_service_locationStreamListener();
-    _webSocketService.connect(widget.animalId);
+    try {
+      debugPrint('🔌 Inicializando WebSocket para animal: ${widget.animalId}');
+
+      // Cancela subscription anterior se existir
+      _locationSubscription?.cancel();
+
+      _locationSubscription = _webSocket_service_locationStreamListener();
+      _webSocketService.connect(widget.animalId);
+
+      debugPrint('✅ WebSocket inicializado');
+    } catch (e) {
+      debugPrint('❌ Erro ao inicializar WebSocket: $e');
+    }
   }
 
   StreamSubscription<LocationUpdate>? _webSocket_service_locationStreamListener() {
@@ -284,7 +314,14 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
   }
 
   Future<void> _initializeBackgroundService() async {
-    await _webSocketService.initializeBackgroundService();
+    try {
+      debugPrint('🚀 Inicializando background service...');
+      await _webSocketService.initializeBackgroundService();
+      debugPrint('✅ Background service inicializado com sucesso');
+    } catch (e) {
+      debugPrint('❌ Erro ao inicializar background service: $e');
+      // Não propaga o erro para evitar crash do app
+    }
   }
 
   @override
@@ -412,10 +449,10 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
               ),
             ),
 
-          // Botão de centralização - Canto inferior direito, acima da NavBar
+          // Botão de centralização - Bem acima do StatusBar
           if (_currentLocation != null)
             Positioned(
-              bottom: 100, // Acima da NavBar (altura da NavBar é ~85)
+              bottom: 250, // 20 pixels acima da posição anterior (230 + 20)
               right: 16,
               child: FloatingActionButton(
                 onPressed: _centerOnAnimalLocation,

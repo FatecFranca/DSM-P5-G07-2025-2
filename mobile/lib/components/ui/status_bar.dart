@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '/models/animal.dart';
@@ -32,9 +33,13 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
   LatestHeartbeat? _latestHeartbeat;
   List<HeartbeatData>? _heartbeatHistory;
   bool _isLoading = true;
+  int _retryCount = 0;
+  Timer? _retryTimer;
 
   static const double _collapsedHeight = 150.0;
   static const double _expandedHeight = 420.0;
+  static const int _maxRetries = 5; // Máximo de tentativas
+  static const int _retryDelaySeconds = 3; // Delay inicial entre tentativas
 
   @override
   void initState() {
@@ -49,25 +54,85 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
     _fetchData();
   }
 
+  @override
+  void didUpdateWidget(StatusBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Atualiza a UI quando o status de conexão mudar
+    if (oldWidget.isConnected != widget.isConnected) {
+      debugPrint('🔄 Status de conexão mudou: ${widget.isConnected ? "Conectado" : "Desconectado"}');
+      setState(() {
+        // Força rebuild para atualizar o indicador de conexão
+      });
+    }
+  }
+
+  /// Busca os dados do StatusBar com retry automático
   Future<void> _fetchData() async {
+    if (!mounted) return;
+
     try {
-      final results = await Future.wait([
+      debugPrint('📡 Tentativa ${_retryCount + 1}/$_maxRetries de buscar dados do StatusBar...');
+
+      // Adiciona timeout para evitar travamentos
+      final results = await Future.wait<dynamic>([
         _animalService.getAnimalInfo(widget.animalId),
         _animalService.getLatestHeartbeat(widget.animalId),
         _animalService.getHeartbeatHistory(widget.animalId),
-      ]);
-      if (mounted) {
-        setState(() {
-          _animalInfo = results[0] as Animal;
-          _latestHeartbeat = results[1] as LatestHeartbeat;
-          _heartbeatHistory = results[2] as List<HeartbeatData>;
-          _isLoading = false;
-        });
-      }
+      ]).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          debugPrint('⚠️ Timeout ao buscar dados do StatusBar');
+          throw TimeoutException('Timeout ao buscar dados');
+        },
+      );
+
+      if (!mounted) return;
+
+      // ✅ Sucesso! Cancela qualquer retry pendente
+      _retryTimer?.cancel();
+      _retryCount = 0;
+
+      setState(() {
+        _animalInfo = results[0] as Animal?;
+        _latestHeartbeat = results[1] as LatestHeartbeat?;
+        _heartbeatHistory = results[2] as List<HeartbeatData>?;
+        _isLoading = false;
+      });
+
+      debugPrint('✅ Dados do StatusBar carregados com sucesso!');
     } catch (e) {
-      print("Erro ao buscar dados do StatusBar: $e");
-      if (mounted) setState(() => _isLoading = false);
+      debugPrint("❌ Erro ao buscar dados do StatusBar (tentativa ${_retryCount + 1}/$_maxRetries): $e");
+
+      if (!mounted) return;
+
+      // Se ainda não atingiu o máximo de tentativas, agenda retry
+      if (_retryCount < _maxRetries) {
+        _scheduleRetry();
+      } else {
+        // Atingiu o máximo de tentativas, para de tentar
+        debugPrint('❌ Máximo de tentativas atingido. Parando retry.');
+        setState(() => _isLoading = false);
+      }
     }
+  }
+
+  /// Agenda uma nova tentativa de buscar dados com backoff exponencial
+  void _scheduleRetry() {
+    if (!mounted) return;
+
+    _retryCount++;
+
+    // Backoff exponencial: 3s, 6s, 12s, 24s, 48s
+    final delaySeconds = _retryDelaySeconds * (1 << (_retryCount - 1));
+
+    debugPrint('🔄 Agendando nova tentativa em ${delaySeconds}s...');
+
+    _retryTimer?.cancel();
+    _retryTimer = Timer(Duration(seconds: delaySeconds), () {
+      if (mounted) {
+        _fetchData();
+      }
+    });
   }
 
   void _toggleExpand() {
@@ -85,6 +150,7 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
   
   @override
   void dispose() {
+    _retryTimer?.cancel(); // Cancela retry pendente
     _animationController.dispose();
     super.dispose();
   }
@@ -117,13 +183,60 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
 
   Widget _buildContent() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.orange));
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(color: AppColors.orange),
+            const SizedBox(height: 16),
+            Text(
+              _retryCount > 0
+                ? 'Tentando reconectar... (${_retryCount}/$_maxRetries)'
+                : 'Carregando dados do pet...',
+              style: GoogleFonts.poppins(
+                color: AppColors.black400,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      );
     }
     if (_animalInfo == null) {
       return Center(
-        child: Text(
-          'Não foi possível carregar os dados do pet.',
-          style: GoogleFonts.poppins(color: AppColors.black400),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.error_outline,
+              color: AppColors.orange,
+              size: 48,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Não foi possível carregar os dados do pet.',
+              style: GoogleFonts.poppins(
+                color: AppColors.black400,
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            TextButton.icon(
+              onPressed: () {
+                setState(() {
+                  _isLoading = true;
+                  _retryCount = 0;
+                });
+                _fetchData();
+              },
+              icon: const Icon(Icons.refresh, color: AppColors.orange),
+              label: Text(
+                'Tentar novamente',
+                style: GoogleFonts.poppins(color: AppColors.orange),
+              ),
+            ),
+          ],
         ),
       );
     }
