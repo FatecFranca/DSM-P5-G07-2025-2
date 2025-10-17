@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class AnimalPin extends StatelessWidget {
   final String? imageUrl;
-  final Species especie;
+  final SpeciesEnum especie;
   final double size;
   static const Color pinColor = AppColors.orange400;
 
@@ -19,7 +19,7 @@ class AnimalPin extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool temImagem = imageUrl != null && imageUrl!.isNotEmpty;
 
-    final String imagemPadrao = especie == Species.cat
+    final String imagemPadrao = especie == SpeciesEnum.cat
         ? 'assets/images/gato_default.png'
         : 'assets/images/cachorro_default.png';
 

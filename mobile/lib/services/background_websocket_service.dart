@@ -8,6 +8,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'notification_service.dart';
 
+@pragma('vm:entry-point')
 class BackgroundWebSocketService {
   static const String _taskName = 'websocket_background_task';
   static const String _notificationChannelId = 'petdex_websocket';

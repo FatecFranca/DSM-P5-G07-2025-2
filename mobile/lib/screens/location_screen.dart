@@ -26,7 +26,7 @@ import 'package:PetDex/screens/define_safe_area_screen.dart';
 class LocationScreen extends StatefulWidget {
   final String animalId;
   final String animalName;
-  final Species animalSpecies;
+  final SpeciesEnum animalSpecies;
   final String? animalImageUrl;
 
   const LocationScreen({
@@ -262,7 +262,7 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
 
       final String imagePath = temImagem
           ? widget.animalImageUrl!
-          : (widget.animalSpecies == Species.cat
+          : (widget.animalSpecies == SpeciesEnum.cat
               ? 'assets/images/gato_default.png'
               : 'assets/images/cachorro_default.png');
 

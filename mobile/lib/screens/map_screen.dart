@@ -20,7 +20,7 @@ import 'package:PetDex/components/ui/animal_pin.dart';
 class MapScreen extends StatefulWidget {
   final String animalId;
   final String animalName;
-  final Species animalSpecies;
+  final SpeciesEnum animalSpecies;
   final String? animalImageUrl;
 
   const MapScreen({
@@ -47,8 +47,6 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
   bool _isLoading = true;
   String? _errorMessage;
   StreamSubscription<LocationUpdate>? _locationSubscription;
-  StreamSubscription<bool>? _connectionSubscription;
-  bool _isWebSocketConnected = false;
   bool _isInBackground = false;
 
   // Informações de área segura
@@ -221,18 +219,8 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
   }
 
   void _initializeWebSocket() {
-    _connectionSubscription = _webSocket_service_connectionStreamListener();
     _locationSubscription = _webSocket_service_locationStreamListener();
     _webSocketService.connect(widget.animalId);
-  }
-
-  // small helpers to avoid long lines and make code searchable
-  StreamSubscription<bool>? _webSocket_service_connectionStreamListener() {
-    return _webSocketService.connectionStream.listen((isConnected) {
-      setState(() {
-        _isWebSocketConnected = isConnected;
-      });
-    });
   }
 
   StreamSubscription<LocationUpdate>? _webSocket_service_locationStreamListener() {
@@ -303,15 +291,10 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _locationSubscription?.cancel();
-    _connection_subscription_cancel();
     _webSocketService.setBackgroundMode(false);
     _webSocketService.disconnect();
     _mapController?.dispose();
     super.dispose();
-  }
-
-  void _connection_subscription_cancel() {
-    _connectionSubscription?.cancel();
   }
 
   @override
@@ -428,45 +411,6 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
                 ),
               ),
             ),
-
-          // Status de conexão WebSocket - Canto superior direito
-          Positioned(
-            top: _isOutsideSafeZone == true ? 115 : 50, // Ajusta posição se alerta estiver visível
-            right: 16,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: _isWebSocketConnected ? Colors.green : Colors.red,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    _isWebSocketConnected ? Icons.wifi : Icons.wifi_off,
-                    color: Colors.white,
-                    size: 16,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    _isWebSocketConnected ? 'Conectado' : 'Desconectado',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
 
           // Botão de centralização - Canto inferior direito, acima da NavBar
           if (_currentLocation != null)
