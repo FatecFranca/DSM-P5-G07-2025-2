@@ -11,6 +11,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:PetDex/services/location_service.dart';
 import 'package:PetDex/services/websocket_service.dart';
+import 'package:PetDex/services/animal_service.dart';
+import 'package:PetDex/services/safe_area_service.dart' as safe_area;
 import 'package:PetDex/data/enums/species.dart';
 import 'package:PetDex/theme/app_theme.dart';
 import 'package:PetDex/models/location_model.dart';
@@ -48,17 +50,23 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
   GoogleMapController? _mapController;
   final LocationService _locationService = LocationService();
   final WebSocketService _webSocketService = WebSocketService();
+  final AnimalService _animalService = AnimalService();
+  final safe_area.SafeAreaService _safeAreaService = safe_area.SafeAreaService();
 
   LocationData? _currentLocation;
   Set<Marker> _markers = {};
+  Set<Circle> _circles = {}; // Círculos para visualizar a área segura
   bool _isLoading = true;
   String? _errorMessage;
   String? _address; // Endereço formatado
   bool _isInitialized = false; // Flag para evitar inicializações duplicadas
+  String? _animalName; // Nome do animal (buscado da API)
 
   // Informações de área segura
   bool? _isOutsideSafeZone;
   double? _distanceFromPerimeter;
+  double? _safeZoneRadius; // Raio da área segura em metros
+  safe_area.SafeArea? _safeArea; // Área segura do animal (buscada da API)
 
   // Subscriptions do WebSocket
   StreamSubscription<LocationUpdate>? _locationSubscription;
@@ -80,27 +88,43 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
   Future<void> _initializeApp() async {
     // Evita inicializações duplicadas
     if (_isInitialized) {
-      debugPrint('⚠️ LocationScreen já foi inicializado, pulando inicialização');
       return;
     }
 
     try {
-      debugPrint('🚀 Inicializando LocationScreen...');
+      await _loadAnimalName(); // Busca o nome do animal da API
       await _loadAnimalLocation();
       await _initializeNotifications(); // ✅ CRÍTICO: Inicializa notificações
       _initializeWebSocket();
       _isInitialized = true;
-      debugPrint('✅ LocationScreen inicializado com sucesso');
     } catch (e) {
       debugPrint('❌ Erro ao inicializar LocationScreen: $e');
     }
   }
 
+  /// Carrega o nome do animal da API
+  Future<void> _loadAnimalName() async {
+    try {
+      final animal = await _animalService.getAnimalInfo(widget.animalId);
+      if (mounted) {
+        setState(() {
+          _animalName = animal.nome;
+        });
+      }
+    } catch (e) {
+      debugPrint('❌ Erro ao carregar nome do animal: $e');
+      // Fallback para o nome passado como parâmetro
+      if (mounted) {
+        setState(() {
+          _animalName = widget.animalName;
+        });
+      }
+    }
+  }
+
   /// Inicializa o serviço de notificações
   Future<void> _initializeNotifications() async {
-    debugPrint('🔔 [LocationScreen] Inicializando notificações para ${widget.animalName}...');
     await _webSocketService.initializeNotifications(petName: widget.animalName);
-    debugPrint('✅ [LocationScreen] Notificações inicializadas!');
   }
 
   /// Inicializa o WebSocket e seus listeners
@@ -159,6 +183,9 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
       distanciaDoPerimetro: locationUpdate.distanciaDoPerimetro,
     );
 
+    // Atualiza o círculo de área segura
+    _updateSafeZoneCircle(newLocation);
+
     // Atualiza a localização usando o método unificado
     // CORREÇÃO: shouldAnimate = true para recentralizar automaticamente
     updateAnimalLocation(newLocation, shouldAnimate: true);
@@ -168,11 +195,11 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
   /// Atualiza a posição do animal no mapa e o endereço exibido
   /// Chamado tanto pelo botão de centralização quanto pelo WebSocket
   Future<void> updateAnimalLocation(LocationData newLocation, {bool shouldAnimate = true}) async {
-    debugPrint('🔄 Atualizando localização do animal...');
-
-    // Atualiza a localização atual
+    // Atualiza a localização atual e informações de área segura
     setState(() {
       _currentLocation = newLocation;
+      _isOutsideSafeZone = newLocation.isOutsideSafeZone;
+      _distanceFromPerimeter = newLocation.distanciaDoPerimetro;
     });
 
     // Atualiza o marcador no mapa
@@ -202,7 +229,6 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
             _address = address ?? 'Endereço não disponível';
           });
         }
-        debugPrint('📍 Endereço atualizado: $_address');
       } else {
         if (mounted) {
           setState(() {
@@ -220,12 +246,47 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
     }
   }
 
+  /// Atualiza o círculo de área segura no mapa
+  /// Desenha um círculo azul representando a área segura do animal
+  /// Usa os dados da área segura buscados da API
+  void _updateSafeZoneCircle(LocationData location) {
+    // Se não há área segura configurada, não desenha o círculo
+    if (_safeArea == null) {
+      setState(() {
+        _circles = {};
+      });
+      return;
+    }
+
+    // Usa o raio e centro da área segura da API
+    setState(() {
+      _safeZoneRadius = _safeArea!.raio;
+      _circles = {
+        Circle(
+          circleId: const CircleId('safe_zone_circle'),
+          center: LatLng(_safeArea!.latitude, _safeArea!.longitude),
+          radius: _safeArea!.raio,
+          // Sempre azul na LocationScreen
+          fillColor: Colors.blue.withValues(alpha: 0.15),
+          strokeColor: Colors.blue.withValues(alpha: 0.7),
+          strokeWidth: 2,
+        ),
+      };
+    });
+  }
+
   /// Carrega a última localização do animal (chamado apenas no initState)
   Future<void> _loadAnimalLocation() async {
     try {
       setState(() {
         _isLoading = true;
         _errorMessage = null;
+      });
+
+      // Busca a área segura do animal da API
+      final safeArea = await _safeAreaService.getSafeAreaByAnimalId(widget.animalId);
+      setState(() {
+        _safeArea = safeArea;
       });
 
       // Busca a última localização do animal
@@ -238,7 +299,9 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
           _distanceFromPerimeter = location.distanciaDoPerimetro;
         });
 
-        // Usa o método unificado para atualizar tudo
+        // Atualiza o círculo de área segura
+        _updateSafeZoneCircle(location);
+
         await updateAnimalLocation(location, shouldAnimate: true);
       } else {
         setState(() {
@@ -246,7 +309,6 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
         });
       }
     } catch (e) {
-      debugPrint('Erro ao carregar localização: $e');
       setState(() {
         _errorMessage = 'Erro ao carregar localização';
       });
@@ -286,7 +348,7 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
         _markers = {marker};
       });
     } catch (e) {
-      debugPrint('Erro ao criar marcador: $e');
+      // Erro ao criar marcador
     }
   }
 
@@ -304,9 +366,7 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
 
       // Pré-carrega a imagem
       await precacheImage(AssetImage(imagePath), context);
-      debugPrint('✅ Imagem do marcador pré-carregada: $imagePath');
     } catch (e) {
-      debugPrint('⚠️ Erro ao pré-carregar imagem: $e');
       // Continua mesmo se falhar - o marcador será criado com imagem padrão
     }
   }
@@ -348,9 +408,7 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
         throw Exception('Erro ao capturar RenderRepaintBoundary');
       }
 
-      // ✅ OTIMIZAÇÃO: Usa pixelRatio menor para reduzir o tamanho da imagem
-      // Isso reduz drasticamente o uso de memória e evita o erro de decodificação
-      final ui.Image image = await boundary.toImage(pixelRatio: 2.0);
+       final ui.Image image = await boundary.toImage(pixelRatio: 2.0);
       final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final bytes = byteData!.buffer.asUint8List();
 
@@ -358,7 +416,6 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
       return bytes;
     } catch (e) {
       entry.remove();
-      debugPrint('❌ Erro ao criar marcador: $e');
       rethrow;
     }
   }
@@ -373,19 +430,27 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
   }
 
   /// Centraliza o mapa na localização atual do animal
-  /// Também recarrega o endereço (útil se o usuário moveu o mapa)
+  /// Também recarrega a localização, endereço e área segura (útil se o usuário moveu o mapa)
   Future<void> _centerOnAnimalLocation() async {
     if (_currentLocation != null) {
-      debugPrint('🎯 Botão de centralização pressionado');
       // Recarrega a localização mais recente da API
       try {
         final location = await _locationService.getUltimaLocalizacaoAnimal(widget.animalId);
         if (location != null) {
+          // Recarrega a área segura
+          final safeArea = await _locationService.getSafeArea(widget.animalId);
+          if (safeArea != null) {
+            setState(() {
+              _safeArea = safeArea;
+            });
+            // Atualiza o círculo de área segura
+            _updateSafeZoneCircle(location);
+          }
+
           // Usa o método unificado para atualizar posição e endereço
           await updateAnimalLocation(location, shouldAnimate: true);
         }
       } catch (e) {
-        debugPrint('❌ Erro ao recarregar localização: $e');
         // Se falhar, apenas centraliza na última posição conhecida
         _animateToLocation(_currentLocation!.latitude, _currentLocation!.longitude);
       }
@@ -393,7 +458,8 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
   }
 
   /// Navega para a tela de definição de área segura
-  void _navigateToDefineSafeArea() {
+  /// Ao retornar, recarrega a área segura e atualiza o círculo
+  Future<void> _navigateToDefineSafeArea() async {
     if (_currentLocation == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -407,7 +473,7 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
       return;
     }
 
-    Navigator.of(context).push(
+    final result = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => DefineSafeAreaScreen(
           animalId: widget.animalId,
@@ -416,6 +482,22 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
         ),
       ),
     );
+
+    // Se a área segura foi salva com sucesso, recarrega os dados
+    if (result == true && mounted) {
+      try {
+        final safeArea = await _locationService.getSafeArea(widget.animalId);
+        if (safeArea != null) {
+          setState(() {
+            _safeArea = safeArea;
+          });
+          // Atualiza o círculo de área segura
+          _updateSafeZoneCircle(_currentLocation!);
+        }
+      } catch (e) {
+        debugPrint('Erro ao recarregar área segura: $e');
+      }
+    }
   }
 
   @override
@@ -449,6 +531,7 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
                   )
                 : _defaultPosition,
             markers: _markers,
+            circles: _circles, // Adiciona os círculos de área segura
             mapType: MapType.normal,
             myLocationEnabled: false,
             myLocationButtonEnabled: false,
@@ -464,7 +547,7 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
           // Indicador de carregamento
           if (_isLoading)
             Container(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               child: const Center(
                 child: CircularProgressIndicator(color: AppColors.orange400),
               ),
@@ -508,7 +591,7 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
               left: 16,
               right: 16,
               child: PetAddressCard(
-                petName: widget.animalName,
+                petName: _animalName ?? widget.animalName,
                 address: _address!,
                 isOutsideSafeZone: _isOutsideSafeZone,
                 distanceFromPerimeter: _distanceFromPerimeter,

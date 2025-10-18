@@ -44,17 +44,11 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
 
   LocationData? _currentLocation;
   Set<Marker> _markers = {};
-  Set<Circle> _circles = {}; // Círculos para visualizar a área segura
   bool _isLoading = true;
   String? _errorMessage;
   StreamSubscription<LocationUpdate>? _locationSubscription;
   bool _isInBackground = false;
   bool _isInitialized = false; // Flag para evitar inicializações duplicadas
-
-  // Informações de área segura
-  bool? _isOutsideSafeZone;
-  double? _distanceFromPerimeter;
-  double? _safeZoneRadius; // Raio da área segura em metros
 
   static const CameraPosition _defaultPosition = CameraPosition(
     target: LatLng(-23.5505, -46.6333),
@@ -72,19 +66,16 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
   Future<void> _initializeApp() async {
     // Evita inicializações duplicadas
     if (_isInitialized) {
-      debugPrint('⚠️ MapScreen já foi inicializado, pulando inicialização');
       return;
     }
 
     try {
-      debugPrint('🚀 Inicializando MapScreen...');
       await _loadAnimalLocation();
       _initializeWebSocket();
       await _initializeNotifications();
       // Inicializa background service por último, de forma não-bloqueante
       _initializeBackgroundService();
       _isInitialized = true;
-      debugPrint('✅ MapScreen inicializado com sucesso');
     } catch (e) {
       debugPrint('❌ Erro ao inicializar app: $e');
     }
@@ -94,7 +85,6 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
   Future<void> _initializeNotifications() async {
     try {
       await _webSocketService.initializeNotifications(petName: widget.animalName);
-      debugPrint('🔔 Notificações inicializadas para ${widget.animalName}');
     } catch (e) {
       debugPrint('❌ Erro ao inicializar notificações: $e');
     }
@@ -112,12 +102,8 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
       if (location != null) {
         setState(() {
           _currentLocation = location;
-          // Atualiza informações de área segura
-          _isOutsideSafeZone = location.isOutsideSafeZone;
-          _distanceFromPerimeter = location.distanciaDoPerimetro;
         });
         await _createMarker(location);
-        _updateSafeZoneCircle(location);
 
         // Aguarda o mapa ser criado antes de animar
         if (_mapController != null) {
@@ -135,7 +121,6 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
         });
       }
     } catch (e) {
-      debugPrint('Erro ao carregar localização: $e');
       setState(() {
         _errorMessage = 'Erro ao carregar localização';
       });
@@ -144,53 +129,6 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
         _isLoading = false;
       });
     }
-  }
-
-  /// Atualiza o círculo de área segura no mapa
-  /// Calcula o raio baseado na distância do perímetro se o animal estiver fora
-  void _updateSafeZoneCircle(LocationData location) {
-    // Se não há informação de área segura, não desenha o círculo
-    if (location.isOutsideSafeZone == null) {
-      setState(() {
-        _circles = {};
-      });
-      return;
-    }
-
-    // Calcula o raio da área segura
-    // Se o animal está fora, o raio é a distância do perímetro
-    // Se está dentro, usamos uma estimativa baseada na distância
-    double calculatedRadius = 50.0; // Raio padrão em metros
-
-    if (location.distanciaDoPerimetro != null && location.distanciaDoPerimetro! > 0) {
-      // Se está fora da zona segura, a distância é a distância até o perímetro
-      if (location.isOutsideSafeZone == true) {
-        // Estimamos o raio como a distância do perímetro + uma margem
-        calculatedRadius = location.distanciaDoPerimetro! + 20;
-      } else {
-        // Se está dentro, usamos a distância como referência
-        calculatedRadius = location.distanciaDoPerimetro! + 50;
-      }
-    }
-
-    setState(() {
-      _safeZoneRadius = calculatedRadius;
-      _circles = {
-        Circle(
-          circleId: const CircleId('safe_zone_circle'),
-          center: LatLng(location.latitude, location.longitude),
-          radius: calculatedRadius,
-          // Cor vermelha se fora, azul se dentro
-          fillColor: location.isOutsideSafeZone == true
-              ? Colors.red.withValues(alpha: 0.15)
-              : Colors.blue.withValues(alpha: 0.15),
-          strokeColor: location.isOutsideSafeZone == true
-              ? Colors.red.withValues(alpha: 0.7)
-              : Colors.blue.withValues(alpha: 0.7),
-          strokeWidth: 2,
-        ),
-      };
-    });
   }
 
   /// Cria o marcador com o AnimalPin convertido para BitmapDescriptor
@@ -220,7 +158,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
         _markers = {marker};
       });
     } catch (e) {
-      debugPrint('Erro ao criar marcador: $e');
+      // Erro ao criar marcador
     }
   }
 
@@ -332,12 +270,9 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
 
       setState(() {
         _currentLocation = newLocation;
-        _isOutsideSafeZone = locationUpdate.isOutsideSafeZone;
-        _distanceFromPerimeter = locationUpdate.distanciaDoPerimetro;
       });
 
       _createMarker(newLocation);
-      _updateSafeZoneCircle(newLocation); // Atualiza o círculo de área segura
       _animateToLocation(locationUpdate.latitude, locationUpdate.longitude);
     }
   }
@@ -373,9 +308,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
 
   Future<void> _initializeBackgroundService() async {
     try {
-      debugPrint('🚀 Inicializando background service...');
       await _webSocketService.initializeBackgroundService();
-      debugPrint('✅ Background service inicializado com sucesso');
     } catch (e) {
       debugPrint('❌ Erro ao inicializar background service: $e');
       // Não propaga o erro para evitar crash do app
@@ -412,7 +345,6 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
                   )
                 : _defaultPosition,
             markers: _markers,
-            circles: _circles, // Adiciona os círculos de área segura
             mapType: MapType.normal,
             myLocationEnabled: false,
             myLocationButtonEnabled: false,
@@ -456,113 +388,6 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
                           color: Colors.red.shade700,
                           fontSize: 14,
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-          // Alerta de área segura - Aparece quando animal está fora
-          if (_isOutsideSafeZone == true && !_isLoading)
-            Positioned(
-              top: 50,
-              left: 16,
-              right: 16,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                decoration: BoxDecoration(
-                  color: Colors.red.shade50,
-                  borderRadius: BorderRadius.circular(15),
-                  border: Border.all(
-                    color: Colors.red.shade200,
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.warning_rounded,
-                          color: Colors.red.shade700,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Pet fora da área segura',
-                          style: GoogleFonts.poppins(
-                            color: Colors.red.shade700,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    // Mostra a distância do perímetro se disponível
-                    if (_distanceFromPerimeter != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Text(
-                          'Distância do perímetro: ${_distanceFromPerimeter!.toStringAsFixed(1)}m',
-                          style: GoogleFonts.poppins(
-                            color: Colors.red.shade600,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-
-          // Painel de informações de área segura - Aparece quando animal está dentro
-          if (_isOutsideSafeZone == false && !_isLoading && _distanceFromPerimeter != null)
-            Positioned(
-              top: 50,
-              left: 16,
-              right: 16,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade50,
-                  borderRadius: BorderRadius.circular(15),
-                  border: Border.all(
-                    color: Colors.green.shade200,
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.check_circle_rounded,
-                      color: Colors.green.shade700,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Pet na área segura • ${_distanceFromPerimeter!.toStringAsFixed(1)}m do perímetro',
-                      style: GoogleFonts.poppins(
-                        color: Colors.green.shade700,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],

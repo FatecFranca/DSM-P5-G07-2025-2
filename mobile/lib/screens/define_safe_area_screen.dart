@@ -145,7 +145,7 @@ class _DefineSafeAreaScreenState extends State<DefineSafeAreaScreen> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(); // Fecha o dialog
-              Navigator.of(context).pop(); // Volta para LocationScreen
+              Navigator.of(context).pop(true); // Volta para LocationScreen com resultado true
             },
             child: Text(
               'OK',
