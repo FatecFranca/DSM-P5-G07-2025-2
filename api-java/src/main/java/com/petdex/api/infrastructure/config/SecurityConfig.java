@@ -62,6 +62,7 @@ public class SecurityConfig {
                 .requestMatchers("/v3/api-docs/**").permitAll()
                 .requestMatchers("/swagger-resources/**").permitAll()
                 .requestMatchers("/webjars/**").permitAll()
+                .requestMatchers("/swagger/**").permitAll()
 
                 // Rota de health check e página inicial
                 .requestMatchers("/health").permitAll()
