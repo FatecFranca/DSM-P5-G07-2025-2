@@ -8,6 +8,7 @@ import com.petdex.api.domain.contracts.dto.auth.LoginReqDTO;
 import com.petdex.api.domain.contracts.dto.auth.LoginResDTO;
 import com.petdex.api.infrastructure.mongodb.AnimalRepository;
 import com.petdex.api.infrastructure.mongodb.UsuarioRepository;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +45,7 @@ public class AuthService implements IAuthService {
                 .orElseThrow(() -> new RuntimeException("Credenciais inválidas"));
 
         // Valida a senha
+
         if (!passwordService.validatePassword(loginReqDTO.getSenha(), usuario.getSenha())) {
             throw new RuntimeException("Credenciais inválidas");
         }
@@ -52,7 +54,9 @@ public class AuthService implements IAuthService {
         String token = jwtService.generateToken(usuario.getId(), usuario.getEmail());
 
         // Busca o animal vinculado ao usuário (se existir)
-        Optional<Animal> animalOpt = animalRepository.findFirstByUsuario(usuario.getId());
+        // Converte String para ObjectId
+        ObjectId usuarioObjectId = new ObjectId(usuario.getId());
+        Optional<Animal> animalOpt = animalRepository.findByUsuario(usuarioObjectId);
         String animalId = animalOpt.map(Animal::getId).orElse(null);
 
         // Cria e retorna a resposta do login
