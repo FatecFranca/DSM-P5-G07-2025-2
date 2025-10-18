@@ -22,7 +22,8 @@ class AnimalStatsService {
 
     final endpoint = '/batimentos/media-ultimos-5-dias';
     try {
-      final response = await http.get(Uri.parse('$_pythonApiBaseUrl$endpoint'));
+      // Usa o cliente HTTP autenticado para API Python
+      final response = await _httpClient.get(Uri.parse('$_pythonApiBaseUrl$endpoint'));
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
