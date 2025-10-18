@@ -1,5 +1,6 @@
 package com.petdex.api.application.services.usuario;
 
+import com.petdex.api.application.services.security.PasswordService;
 import com.petdex.api.domain.collections.Usuario;
 import com.petdex.api.domain.contracts.dto.PageDTO;
 import com.petdex.api.domain.contracts.dto.usuario.UsuarioReqDTO;
@@ -21,6 +22,9 @@ public class UsuarioService implements IUsuarioService {
     @Autowired
     UsuarioRepository usuarioRepository;
 
+    @Autowired
+    PasswordService passwordService;
+
     @Override
     public UsuarioResDTO findById(String id) {
         return mapper.map(usuarioRepository.findById(id), UsuarioResDTO.class);
@@ -40,7 +44,11 @@ public class UsuarioService implements IUsuarioService {
 
     @Override
     public UsuarioResDTO create(UsuarioReqDTO usuarioReqDTO) {
-        return mapper.map(usuarioRepository.save(mapper.map(usuarioReqDTO, Usuario.class)), UsuarioResDTO.class);
+        // Criptografa a senha antes de salvar
+        Usuario usuario = mapper.map(usuarioReqDTO, Usuario.class);
+        usuario.setSenha(passwordService.hashPassword(usuarioReqDTO.getSenha()));
+
+        return mapper.map(usuarioRepository.save(usuario), UsuarioResDTO.class);
     }
 
     @Override
@@ -50,7 +58,8 @@ public class UsuarioService implements IUsuarioService {
 
         if (usuarioReqDTO.getCpf() != null) usuarioUpdate.setCpf(usuarioReqDTO.getCpf());
         if (usuarioReqDTO.getEmail() != null) usuarioUpdate.setEmail(usuarioReqDTO.getEmail());
-        if (usuarioReqDTO.getSenha() != null) usuarioUpdate.setSenha(usuarioReqDTO.getSenha());
+        // Criptografa a senha antes de atualizar
+        if (usuarioReqDTO.getSenha() != null) usuarioUpdate.setSenha(passwordService.hashPassword(usuarioReqDTO.getSenha()));
         if (usuarioReqDTO.getNome() != null) usuarioUpdate.setNome(usuarioReqDTO.getNome());
         if (usuarioReqDTO.getWhatsApp() != null) usuarioUpdate.setWhatsApp(usuarioReqDTO.getWhatsApp());
 

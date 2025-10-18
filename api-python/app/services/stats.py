@@ -65,7 +65,7 @@ def media_por_intervalo(dados: List[dict], inicio: date, fim: date) -> Dict:
     if df_filtrado.empty:
         return {"media": None, "mensagem": "Nenhum dado encontrado para o intervalo fornecido."}
 
-    media = df_filtrado['frequenciaMedia'].mean().round(2)
+    media = int(round(float(df_filtrado['frequenciaMedia'].mean())))
     return {"media": media}
 
 
@@ -83,8 +83,8 @@ def calcular_probabilidade(valor: int, dados: list):
     if valor < 20 or valor > 250:
         return {
             "valor_informado": valor,
-            "media_registrada": round(media, 2),
-            "desvio_padrao": round(desvio, 2),
+            "media_registrada": int(round(media)),
+            "desvio_padrao": int(round(desvio)),
             "titulo": "Valor fora da faixa ❌",
             "avaliacao": "O valor informado está fora da faixa fisiológica plausível para cães e gatos (20 a 200 BPM)."
         }
@@ -123,8 +123,8 @@ def calcular_probabilidade(valor: int, dados: list):
 
     return {
         "valor_informado": valor,
-        "media_registrada": round(media, 2),
-        "desvio_padrao": round(desvio, 2),
+        "media_registrada": int(round(media)),
+        "desvio_padrao": int(round(desvio)),
         "probabilidade_percentual": round(prob, 2),
         "classificacao": classificacao,
         "titulo": titulo,
@@ -147,10 +147,10 @@ def calcular_probabilidade_ultimo_batimento(valor: int, dados: list):
     if valor < 20 or valor > 250:
         return {
             "valor_informado": valor,
-            "media_registrada": round(media, 2),
-            "desvio_padrao": round(desvio, 2),
+            "media_registrada": int(round(media)),
+            "desvio_padrao": int(round(desvio)),
             "titulo": "Último batimento fora da faixa ❌",
-            "batimento_analisado": "({valor} BPM)",
+            "batimento_analisado": f"{valor} BPM",
             "interpretacao": "O último batimento coletado está fora da faixa fisiológica plausível para cães e gatos (20 a 200 BPM). Provavelmente ocorreu um erro com a coleira durante a coleta."
         }
 
@@ -187,13 +187,13 @@ def calcular_probabilidade_ultimo_batimento(valor: int, dados: list):
 
     return {
         "valor_informado": valor,
-        "media_registrada": round(media, 2),
-        "desvio_padrao": round(desvio, 2),
+        "media_registrada": int(round(media)),
+        "desvio_padrao": int(round(desvio)),
         "probabilidade_percentual": round(prob, 2),
         "classificacao": classificacao,
         "titulo": titulo,
         "interpretacao": interpretacao,
-        "batimento_analisado": "({valor} BPM)",
+        "batimento_analisado": f"{valor} BPM",
         "avaliacao": interpretacao
     }
 
@@ -209,11 +209,13 @@ def media_ultimos_5_dias_validos(dados: List[dict]) -> dict:
 
     df = df.dropna(subset=['data', 'frequenciaMedia'])
 
-    medias_por_dia = df.groupby('data')['frequenciaMedia'].mean().round(2)
+    medias_por_dia = df.groupby('data')['frequenciaMedia'].mean()
 
     ultimos_5_dias = medias_por_dia.sort_index(ascending=False).head(5)
 
-    return ultimos_5_dias.sort_index().to_dict()
+    # Converter para inteiro arredondado para garantir consistência
+    resultado = {str(data): int(round(float(media))) for data, media in ultimos_5_dias.sort_index().items()}
+    return resultado
 
 def media_ultimas_5_horas_registradas(dados: List[dict]) -> dict:
     df = pd.DataFrame(dados)
@@ -243,10 +245,10 @@ def media_ultimas_5_horas_registradas(dados: List[dict]) -> dict:
 
     # Calcular média por hora
     medias_por_hora = df_filtrado.groupby("hora")["frequenciaMedia"].mean().sort_index()
-    medias_formatadas = {str(hora): round(media, 2) for hora, media in medias_por_hora.items()}
+    medias_formatadas = {str(hora): int(round(float(media))) for hora, media in medias_por_hora.items()}
 
     # Corrigindo a média geral (média das médias por hora)
-    media_geral = round(medias_por_hora.mean(), 2)
+    media_geral = int(round(float(medias_por_hora.mean())))
 
     return {
         "media": media_geral,
@@ -292,7 +294,7 @@ def executar_regressao(batimentos: List[dict], movimentos: List[dict]) -> Dict:
     media_movimentos_pad = X_scaled[-10:].mean(axis=0).reshape(1, -1)
     predicoes = [modelo.predict(media_movimentos_pad)[0] for _ in range(5)]
     segundos_futuros = [(df['data'].max() + timedelta(seconds=i+1)).isoformat() for i in range(5)]
-    projecao = dict(zip(segundos_futuros, np.round(predicoes, 2)))
+    projecao = dict(zip(segundos_futuros, [int(round(p)) for p in predicoes]))
 
     # Exporta estatísticas da padronização para reuso na predição
     scaler_info = {

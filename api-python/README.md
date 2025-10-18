@@ -60,6 +60,24 @@ A API está documentada e acessível para testes através da plataforma Render:
 
 🔗 **[Documentação Interativa (Swagger): https://api-petdex-estatistica.onrender.com/docs](https://api-petdex-estatistica.onrender.com/docs)**
 
+### 🔐 Autenticação JWT
+
+Todos os endpoints (exceto `/health`) requerem autenticação via **JWT (JSON Web Tokens)**.
+
+**Como usar no Swagger:**
+
+1. Obtenha um token JWT da API Java (endpoint de login)
+2. Clique no botão **"Authorize"** (cadeado) no topo do Swagger
+3. Cole o token no campo de texto (apenas o token, sem "Bearer")
+4. Clique em **"Authorize"**
+5. Todos os seus requests incluirão automaticamente o header `Authorization: Bearer <token>`
+
+Para mais detalhes, consulte:
+
+* 📖 **[SWAGGER_JWT_GUIDE.md](./SWAGGER_JWT_GUIDE.md)** - Guia rápido de autenticação JWT
+* 📚 **[SWAGGER_EXAMPLES.md](./SWAGGER_EXAMPLES.md)** - Exemplos práticos de requisições
+* 📝 **[SWAGGER_DOCUMENTATION.md](./SWAGGER_DOCUMENTATION.md)** - Documentação técnica completa
+
 Cada endpoint abaixo tem um propósito claro, alimentando uma parte específica da interface do usuário. Por exemplo, os dados estatísticos e as médias diárias são consolidados no dashboard principal de saúde do aplicativo:
 
 <p align="center">
