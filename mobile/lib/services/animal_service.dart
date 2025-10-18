@@ -40,8 +40,8 @@ class AnimalService {
   }
 
   Future<List<HeartbeatData>> getHeartbeatHistory(String animalId) async {
-    // Usa cliente HTTP padrão para API Python (não requer autenticação)
-    final response = await http.get(
+    // Usa o cliente HTTP autenticado para API Python
+    final response = await _httpClient.get(
       Uri.parse(
         '$_pythonApiBaseUrl/batimentos/animal/$animalId/media-ultimos-5-dias',
       ),

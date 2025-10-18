@@ -245,21 +245,6 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
-            TextButton.icon(
-              onPressed: () {
-                setState(() {
-                  _isLoading = true;
-                  _retryCount = 0;
-                });
-                _fetchData();
-              },
-              icon: const Icon(Icons.refresh, color: AppColors.orange),
-              label: Text(
-                'Tentar novamente',
-                style: GoogleFonts.poppins(color: AppColors.orange),
-              ),
-            ),
           ],
         ),
       );
