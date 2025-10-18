@@ -483,19 +483,46 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
       ),
     );
 
-    // Se a área segura foi salva com sucesso, recarrega os dados
-    if (result == true && mounted) {
+    // Se a área segura foi salva com sucesso, processa o resultado
+    if (result != null && mounted) {
       try {
-        final safeArea = await _locationService.getSafeArea(widget.animalId);
-        if (safeArea != null) {
+        // Se o resultado é uma LocationData, usa-a diretamente
+        if (result is LocationData) {
+          final updatedLocation = result;
+
+          // Atualiza a localização e status da área segura
           setState(() {
-            _safeArea = safeArea;
+            _currentLocation = updatedLocation;
+            _isOutsideSafeZone = updatedLocation.isOutsideSafeZone;
+            _distanceFromPerimeter = updatedLocation.distanciaDoPerimetro;
           });
-          // Atualiza o círculo de área segura
-          _updateSafeZoneCircle(_currentLocation!);
+
+          // Recarrega a área segura
+          final safeArea = await _locationService.getSafeArea(widget.animalId);
+          if (safeArea != null) {
+            setState(() {
+              _safeArea = safeArea;
+            });
+            // Atualiza o círculo de área segura
+            _updateSafeZoneCircle(updatedLocation);
+          }
+
+          final statusText = updatedLocation.isOutsideSafeZone ?? false ? "FORA" : "DENTRO";
+          final distanceText = updatedLocation.distanciaDoPerimetro?.toStringAsFixed(2) ?? "N/A";
+          debugPrint('✅ Área segura definida! Status: $statusText - Distância: ${distanceText}m');
+        } else if (result == true) {
+          // Fallback: se apenas true foi retornado, recarrega os dados
+          final safeArea = await _locationService.getSafeArea(widget.animalId);
+          if (safeArea != null) {
+            setState(() {
+              _safeArea = safeArea;
+            });
+            // Atualiza o círculo de área segura
+            _updateSafeZoneCircle(_currentLocation!);
+          }
         }
       } catch (e) {
-        debugPrint('Erro ao recarregar área segura: $e');
+        debugPrint('Erro ao processar resultado da área segura: $e');
       }
     }
   }
@@ -527,7 +554,7 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
             initialCameraPosition: _currentLocation != null
                 ? CameraPosition(
                     target: LatLng(_currentLocation!.latitude, _currentLocation!.longitude),
-                    zoom: 16.0,
+                    zoom: 20.0,
                   )
                 : _defaultPosition,
             markers: _markers,
@@ -617,7 +644,7 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
               left: 16,
               child: FloatingActionButton.extended(
                 onPressed: _navigateToDefineSafeArea,
-                backgroundColor: Colors.blue.shade600,
+                backgroundColor: Colors.blue.shade700,
                 icon: const Icon(Icons.shield_outlined, color: Colors.white),
                 label: Text(
                   'Definir área segura',

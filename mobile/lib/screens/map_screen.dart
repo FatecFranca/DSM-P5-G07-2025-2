@@ -134,7 +134,9 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
   /// Cria o marcador com o AnimalPin convertido para BitmapDescriptor
   Future<void> _createMarker(LocationData location) async {
     try {
-      // Gera bytes do widget AnimalPin usando overlay capture
+      // CORREÇÃO: Pré-carrega a imagem antes de criar o marcador
+      await _precacheAnimalImage();
+
       final Uint8List markerBytes = await _createMarkerFromWidget(
         AnimalPin(
           imageUrl: widget.animalImageUrl,
@@ -162,8 +164,26 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
     }
   }
 
-  /// Converte um widget (AnimalPin) para Uint8List usando um OverlayEntry e RepaintBoundary.
-  /// O widget é inserido off-screen, aguardamos o frame e capturamos a imagem.
+  /// Pré-carrega a imagem do animal para garantir que esteja disponível
+  Future<void> _precacheAnimalImage() async {
+    try {
+      final bool temImagem = widget.animalImageUrl != null && widget.animalImageUrl!.isNotEmpty;
+
+      // ✅ CORREÇÃO: Usar os nomes corretos das imagens que existem
+      final String imagePath = temImagem
+          ? widget.animalImageUrl!
+          : (widget.animalSpecies == SpeciesEnum.cat
+              ? 'assets/images/gato-dex.png'
+              : 'assets/images/cao-dex.png');
+
+      // Pré-carrega a imagem
+      await precacheImage(AssetImage(imagePath), context);
+    } catch (e) {
+      // Continua mesmo se falhar - o marcador será criado com imagem padrão
+    }
+  }
+
+  /// Converte um widget (AnimalPin) para Uint8List usando OverlayEntry
   Future<Uint8List> _createMarkerFromWidget(Widget widget, Size size) async {
     final overlayState = Overlay.of(context);
     if (overlayState == null) {
@@ -173,7 +193,6 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
     final key = GlobalKey();
     final entry = OverlayEntry(
       builder: (context) => Positioned(
-        // posicionar off-screen para não interferir na UI
         left: -1000,
         top: -1000,
         child: Material(
@@ -188,9 +207,12 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
 
     overlayState.insert(entry);
 
-    // aguarda um frame para garantir que o widget foi renderizado
-    await Future.delayed(const Duration(milliseconds: 50));
+    // CORREÇÃO: Aumenta o delay para garantir que a imagem seja carregada
+    await Future.delayed(const Duration(milliseconds: 150));
     await WidgetsBinding.instance.endOfFrame;
+
+    // Aguarda mais um frame para garantir renderização completa
+    await Future.delayed(const Duration(milliseconds: 50));
 
     try {
       final boundary = key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
@@ -198,17 +220,13 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
         throw Exception('Erro ao capturar RenderRepaintBoundary');
       }
 
-      // ✅ OTIMIZAÇÃO: Usa pixelRatio menor para reduzir o tamanho da imagem
-      // Isso reduz drasticamente o uso de memória e evita o erro de decodificação
       final ui.Image image = await boundary.toImage(pixelRatio: 2.0);
       final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final bytes = byteData!.buffer.asUint8List();
 
-      // remove o overlay
       entry.remove();
       return bytes;
     } catch (e) {
-      // garante remoção do overlay em caso de erro
       entry.remove();
       rethrow;
     }
@@ -236,7 +254,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
       // Cancela subscription anterior se existir
       _locationSubscription?.cancel();
 
-      _locationSubscription = _webSocket_service_locationStreamListener();
+      _locationSubscription = _webSocketServiceLocationStreamListener();
       _webSocketService.connect(widget.animalId);
 
       debugPrint('✅ WebSocket inicializado');
@@ -245,7 +263,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
     }
   }
 
-  StreamSubscription<LocationUpdate>? _webSocket_service_locationStreamListener() {
+  StreamSubscription<LocationUpdate>? _webSocketServiceLocationStreamListener() {
     return _webSocketService.locationStream.listen((locationUpdate) {
       _handleWebSocketLocationUpdate(locationUpdate);
     });
@@ -359,7 +377,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
 
           if (_isLoading)
             Container(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               child: const Center(
                 child: CircularProgressIndicator(color: AppColors.orange400),
               ),

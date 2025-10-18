@@ -113,6 +113,11 @@ class AuthService {
     return _currentAuthResponse?.email ?? _authStorage.getEmail();
   }
 
+  /// Retorna o nome do pet autenticado
+  String? getPetName() {
+    return _currentAuthResponse?.petName ?? _authStorage.getPetName();
+  }
+
   /// Retorna a resposta de autenticação completa
   AuthResponse? getAuthResponse() {
     return _currentAuthResponse ?? _authStorage.getAuthResponse();

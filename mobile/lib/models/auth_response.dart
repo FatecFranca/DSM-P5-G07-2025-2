@@ -6,6 +6,7 @@ class AuthResponse {
   final String userId;
   final String nome;
   final String email;
+  final String? petName;
 
   AuthResponse({
     required this.token,
@@ -13,6 +14,7 @@ class AuthResponse {
     required this.userId,
     required this.nome,
     required this.email,
+    this.petName,
   });
 
   /// Factory para criar AuthResponse a partir de JSON
@@ -24,6 +26,7 @@ class AuthResponse {
       userId: json['userId'] as String? ?? json['user_id'] as String? ?? json['id'] as String? ?? '',
       nome: json['nome'] as String? ?? json['name'] as String? ?? json['username'] as String? ?? '',
       email: json['email'] as String? ?? json['mail'] as String? ?? '',
+      petName: json['petName'] as String? ?? json['pet_name'] as String?,
     );
   }
 
@@ -35,6 +38,7 @@ class AuthResponse {
       'userId': userId,
       'nome': nome,
       'email': email,
+      'petName': petName,
     };
   }
 }
