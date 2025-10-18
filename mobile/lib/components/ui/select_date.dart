@@ -5,7 +5,6 @@ import '/theme/app_theme.dart';
 
 class SelectDate extends StatefulWidget {
   final Function(DateTime) onDateSelected;
-
   final DateTime? initialDate;
 
   const SelectDate({
@@ -50,9 +49,9 @@ class _SelectDateState extends State<SelectDate> {
     return GestureDetector(
       onTap: () => _pickDate(context),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 9),
         decoration: BoxDecoration(
-          color: AppColors.sand,
+          color: AppColors.sand1000,
           borderRadius: BorderRadius.circular(30.0),
         ),
         child: Text(
