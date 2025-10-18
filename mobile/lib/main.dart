@@ -7,7 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 // Instância global do serviço de autenticação
 final authService = AuthService();
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Carrega variáveis de ambiente
@@ -26,27 +26,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'PetDex Component Test',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const ComponentTestScreen(),
-    );
-  }
-}
-
-class ComponentTestScreen extends StatelessWidget {
-  const ComponentTestScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Teste do HeartDateCard')),
-      body: const Center(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: HeartDateCard(),
-        ),
-      ),
+      home: const AppShell(),
     );
   }
 }
