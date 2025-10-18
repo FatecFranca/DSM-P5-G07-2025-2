@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Date;
 
@@ -26,6 +27,7 @@ public class Animal {
     @NotBlank(message = "Castrado não pode ser nulo ou vazio")
     private Boolean castrado;
     @NotBlank(message = "usuarioId não pode ser nulo ou vazio")
+    @Field("usuario")
     private String usuario;
     @NotBlank(message = "racaId não pode ser nulo ou vazio")
     private String raca;
