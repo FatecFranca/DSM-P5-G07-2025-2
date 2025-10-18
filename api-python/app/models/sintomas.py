@@ -1,0 +1,43 @@
+from pydantic import BaseModel
+from typing import Optional
+
+class SintomasInput(BaseModel):
+    tipo_do_animal: Optional[str] = None
+    raca: Optional[str] = None
+    idade: Optional[float] = None
+    genero: Optional[str] = None
+    peso: Optional[float] = None
+    duracao: Optional[float] = None
+    perda_de_apetite: Optional[str] = None
+    vomito: Optional[str] = None
+    diarreia: Optional[str] = None
+    tosse: Optional[str] = None
+    dificuldade_para_respirar: Optional[str] = None
+    dificuldade_para_locomover: Optional[str] = None
+    problemas_na_pele: Optional[str] = None
+    secrecao_nasal: Optional[str] = None
+    secrecao_ocular: Optional[str] = None
+    batimento_cardiaco: Optional[float] = None
+    agitacao: Optional[str] = None
+    andar_em_circulos: Optional[str] = None
+    aumento_apetite: Optional[str] = None
+    cera_excessiva_nas_orelhas: Optional[str] = None
+    coceira: Optional[str] = None
+    desidratacao: Optional[str] = None
+    desmaio: Optional[str] = None
+    dificuldade_para_urinar: Optional[str] = None
+    dor: Optional[str] = None
+    espamos_musculares: Optional[str] = None
+    espirros: Optional[str] = None
+    febre: Optional[str] = None
+    fraqueza: Optional[str] = None
+    inchaco: Optional[str] = None
+    lambedura: Optional[str] = None
+    letargia: Optional[str] = None
+    lingua_azulada: Optional[str] = None
+    perda_de_pelos: Optional[str] = None
+    perda_de_peso: Optional[str] = None
+    ranger_de_dentes: Optional[str] = None
+    ronco: Optional[str] = None
+    salivacao: Optional[str] = None
+    suor_alterado: Optional[str] = None

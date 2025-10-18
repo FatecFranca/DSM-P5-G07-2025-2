@@ -1,8 +1,12 @@
 from fastapi import FastAPI, Query, HTTPException, APIRouter
 from app.clients import java_api
 from app.services import stats
-#from app.services import pmml_predictor
+from app.services import pmml_predictor
+from app.models.sintomas import SintomasInput
 from datetime import date
+from pydantic import BaseModel
+from typing import Optional
+import math
 import os
 
 app = FastAPI(
@@ -19,8 +23,20 @@ async def health_check():
 
 
 # --------------------- IA (PMML) ---------------------
+""" @app.post("/ia/animal/{id_animal}", tags=["IA"])
+async def analisar_animal(id_animal: str, sintomas: SintomasInput):
+  
+    #Recebe sintomas e retorna a predição de problema/doença via PMML.
+    
+    response = await java_api.buscar_dados_animal(id_animal)
+    if not response:
+        raise HTTPException(status_code=404, detail="Animal não encontrado na API Java")
+    
+    resultado = pmml_predictor.predict_with_pmml(response, sintomas.dict())
+    return {"animalId": id_animal, "resultado": resultado} """
+
 @app.post("/ia/animal/{id_animal}", tags=["IA"])
-async def analisar_animal(id_animal: int, sintomas: dict):
+async def analisar_animal(id_animal: str, sintomas: SintomasInput):
     """
     Recebe sintomas e retorna a predição de problema/doença via PMML.
     """
@@ -28,13 +44,12 @@ async def analisar_animal(id_animal: int, sintomas: dict):
     if not response:
         raise HTTPException(status_code=404, detail="Animal não encontrado na API Java")
     
-    # Faz a predição (carrega o modelo só quando for usado)
-    try:
-        resultado = pmml_predictor.predict({**response, **sintomas})
-        return {"animalId": id_animal, "resultado": resultado}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro ao processar PMML: {str(e)}")
-
+    resultado = pmml_predictor.predict_with_pmml(response, sintomas.dict())
+    
+    # Substitui todos os nan por None
+    resultado_sanitizado = {k: (None if isinstance(v, float) and math.isnan(v) else v) for k, v in resultado.items()}
+    
+    return {"animalId": id_animal, "resultado": resultado_sanitizado}
 
 
 # --------------------- Batimentos - Estatísticas ---------------------
