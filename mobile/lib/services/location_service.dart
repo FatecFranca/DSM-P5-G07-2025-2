@@ -1,15 +1,22 @@
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:PetDex/models/location_model.dart';
+import 'package:PetDex/services/http_client.dart';
+import 'package:PetDex/services/safe_area_service.dart';
 
 class LocationService {
-  static const String _javaApiBaseUrl = "https://petdex-api-java.onrender.com";
+  String get _javaApiBaseUrl => dotenv.env['API_JAVA_URL']!;
+
+  // Cliente HTTP com autenticação automática
+  final http.Client _httpClient = AuthenticatedHttpClient();
 
   Future<LocationData?> getUltimaLocalizacaoAnimal(String idAnimal) async {
     final endpoint = '$_javaApiBaseUrl/localizacoes/animal/$idAnimal/ultima';
 
     try {
-      final response = await http.get(Uri.parse(endpoint));
+      // Usa o cliente HTTP autenticado
+      final response = await _httpClient.get(Uri.parse(endpoint));
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
@@ -26,7 +33,7 @@ class LocationService {
   Future<String?> getEnderecoFromCoordinates(double latitude, double longitude, String googleMapsApiKey) async {
     try {
       final url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&key=$googleMapsApiKey&language=pt-BR';
-      
+
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
@@ -39,5 +46,12 @@ class LocationService {
     } catch (e) {
       throw Exception('Erro ao obter endereço: $e');
     }
+  }
+
+  /// Busca a área segura do animal
+  /// Retorna a área segura ou null se não existir
+  Future<SafeArea?> getSafeArea(String animalId) async {
+    final safeAreaService = SafeAreaService();
+    return await safeAreaService.getSafeAreaByAnimalId(animalId);
   }
 }

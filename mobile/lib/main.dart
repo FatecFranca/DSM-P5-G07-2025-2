@@ -1,11 +1,22 @@
+import 'package:PetDex/screens/app_shell.dart';
+import 'package:PetDex/theme/app_theme.dart';
+import 'package:PetDex/services/auth_service.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import '/components/ui/heart_date_card.dart';
-import '/theme/app_theme.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+// Instância global do serviço de autenticação
+final authService = AuthService();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('pt_BR', null);
+
+  // Carrega variáveis de ambiente
+  await dotenv.load(fileName: ".env");
+
+  // Inicializa o serviço de autenticação (realiza login automático)
+  // O AuthService já trata erros internamente e permite que o app continue
+  await authService.init();
+
   runApp(const MyApp());
 }
 
