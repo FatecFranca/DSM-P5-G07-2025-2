@@ -4,6 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:PetDex/theme/app_theme.dart';
 import 'package:PetDex/services/safe_area_service.dart';
+import 'package:PetDex/services/location_service.dart';
 import 'package:PetDex/models/location_model.dart';
 
 class DefineSafeAreaScreen extends StatefulWidget {
@@ -25,6 +26,7 @@ class DefineSafeAreaScreen extends StatefulWidget {
 class _DefineSafeAreaScreenState extends State<DefineSafeAreaScreen> {
   GoogleMapController? _mapController;
   final SafeAreaService _safeAreaService = SafeAreaService();
+  final LocationService _locationService = LocationService();
 
   LatLng? _selectedLocation;
   double _radius = 50.0; // Raio inicial em metros
@@ -53,7 +55,9 @@ class _DefineSafeAreaScreenState extends State<DefineSafeAreaScreen> {
         Marker(
           markerId: const MarkerId('safe_area_center'),
           position: _selectedLocation!,
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueOrange,
+          ),
           infoWindow: InfoWindow(
             title: 'Centro da área segura',
             snippet: 'Raio: ${_radius.toStringAsFixed(0)}m',
@@ -103,7 +107,19 @@ class _DefineSafeAreaScreenState extends State<DefineSafeAreaScreen> {
       );
 
       if (success && mounted) {
-        _showSuccessDialog();
+        // Consulta a última localização do animal para obter os novos status
+        try {
+          final updatedLocation = await _locationService.getUltimaLocalizacaoAnimal(widget.animalId);
+          if (mounted) {
+            _showSuccessDialog(updatedLocation);
+          }
+        } catch (e) {
+          if (mounted) {
+            debugPrint('Erro ao consultar localização atualizada: $e');
+            // Mesmo com erro, mostra o dialog de sucesso sem a localização
+            _showSuccessDialog(null);
+          }
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -118,7 +134,7 @@ class _DefineSafeAreaScreenState extends State<DefineSafeAreaScreen> {
     }
   }
 
-  void _showSuccessDialog() {
+  void _showSuccessDialog(LocationData? updatedLocation) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -145,7 +161,8 @@ class _DefineSafeAreaScreenState extends State<DefineSafeAreaScreen> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(); // Fecha o dialog
-              Navigator.of(context).pop(true); // Volta para LocationScreen com resultado true
+              // Volta para LocationScreen com a localização atualizada
+              Navigator.of(context).pop(updatedLocation ?? true);
             },
             child: Text(
               'OK',
@@ -178,10 +195,7 @@ class _DefineSafeAreaScreenState extends State<DefineSafeAreaScreen> {
             ),
           ],
         ),
-        content: Text(
-          message,
-          style: GoogleFonts.poppins(fontSize: 15),
-        ),
+        content: Text(message, style: GoogleFonts.poppins(fontSize: 15)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -213,6 +227,7 @@ class _DefineSafeAreaScreenState extends State<DefineSafeAreaScreen> {
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
             fontSize: 18,
+            color: AppColors.sand100,
           ),
         ),
         backgroundColor: AppColors.orange400,
@@ -249,7 +264,7 @@ class _DefineSafeAreaScreenState extends State<DefineSafeAreaScreen> {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.sand100,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(24),
                   topRight: Radius.circular(24),
@@ -265,6 +280,7 @@ class _DefineSafeAreaScreenState extends State<DefineSafeAreaScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
+
                 children: [
                   // Título
                   Text(
@@ -288,8 +304,9 @@ class _DefineSafeAreaScreenState extends State<DefineSafeAreaScreen> {
                   // Slider de raio
                   Row(
                     children: [
-                      Icon(Icons.radio_button_unchecked, 
-                        color: AppColors.orange400, 
+                      Icon(
+                        Icons.radio_button_unchecked,
+                        color: AppColors.orange400,
                         size: 20,
                       ),
                       const SizedBox(width: 8),
@@ -349,6 +366,7 @@ class _DefineSafeAreaScreenState extends State<DefineSafeAreaScreen> {
                               style: GoogleFonts.poppins(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
+                                color: AppColors.sand100,
                               ),
                             ),
                     ),
@@ -366,7 +384,7 @@ class _DefineSafeAreaScreenState extends State<DefineSafeAreaScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.sand100,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
@@ -378,7 +396,11 @@ class _DefineSafeAreaScreenState extends State<DefineSafeAreaScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.info_outline, color: AppColors.orange400, size: 20),
+                  Icon(
+                    Icons.info_outline,
+                    color: AppColors.orange400,
+                    size: 20,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -398,4 +420,3 @@ class _DefineSafeAreaScreenState extends State<DefineSafeAreaScreen> {
     );
   }
 }
-

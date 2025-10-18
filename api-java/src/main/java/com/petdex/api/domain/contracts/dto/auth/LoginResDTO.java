@@ -10,6 +10,7 @@ public class LoginResDTO {
     private String userId;
     private String nome;
     private String email;
+    private String petName;
 
     public LoginResDTO() {
     }
@@ -20,6 +21,15 @@ public class LoginResDTO {
         this.userId = userId;
         this.nome = nome;
         this.email = email;
+    }
+
+    public LoginResDTO(String token, String animalId, String userId, String nome, String email, String petName) {
+        this.token = token;
+        this.animalId = animalId;
+        this.userId = userId;
+        this.nome = nome;
+        this.email = email;
+        this.petName = petName;
     }
 
     public String getToken() {
@@ -60,6 +70,14 @@ public class LoginResDTO {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPetName() {
+        return petName;
+    }
+
+    public void setPetName(String petName) {
+        this.petName = petName;
     }
 }
 

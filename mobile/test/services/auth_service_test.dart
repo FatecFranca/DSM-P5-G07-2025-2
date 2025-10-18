@@ -10,6 +10,7 @@ void main() {
         userId: '68f01b12a7cdce64abaf3c17',
         nome: 'Gabriel',
         email: 'grspirlandelli@gmail.com',
+        petName: 'Uno',
       );
 
       expect(authResponse.token, isNotEmpty);
@@ -17,6 +18,7 @@ void main() {
       expect(authResponse.userId, '68f01b12a7cdce64abaf3c17');
       expect(authResponse.nome, 'Gabriel');
       expect(authResponse.email, 'grspirlandelli@gmail.com');
+      expect(authResponse.petName, 'Uno');
     });
 
     test('Deve fazer parse de JSON com todos os campos', () {
@@ -26,6 +28,7 @@ void main() {
         'userId': '68f01b12a7cdce64abaf3c17',
         'nome': 'Gabriel',
         'email': 'grspirlandelli@gmail.com',
+        'petName': 'Uno',
       };
 
       final authResponse = AuthResponse.fromJson(json);
@@ -35,6 +38,7 @@ void main() {
       expect(authResponse.userId, '68f01b12a7cdce64abaf3c17');
       expect(authResponse.nome, 'Gabriel');
       expect(authResponse.email, 'grspirlandelli@gmail.com');
+      expect(authResponse.petName, 'Uno');
     });
 
     test('Deve fazer parse de JSON com animalId nulo', () {
@@ -60,6 +64,7 @@ void main() {
         userId: '68f01b12a7cdce64abaf3c17',
         nome: 'Gabriel',
         email: 'grspirlandelli@gmail.com',
+        petName: 'Uno',
       );
 
       final json = authResponse.toJson();
@@ -69,6 +74,7 @@ void main() {
       expect(json['userId'], '68f01b12a7cdce64abaf3c17');
       expect(json['nome'], 'Gabriel');
       expect(json['email'], 'grspirlandelli@gmail.com');
+      expect(json['petName'], 'Uno');
     });
 
     test('Deve fazer round-trip JSON corretamente', () {
@@ -78,6 +84,7 @@ void main() {
         userId: '68f01b12a7cdce64abaf3c17',
         nome: 'Gabriel',
         email: 'grspirlandelli@gmail.com',
+        petName: 'Uno',
       );
 
       final json = original.toJson();
@@ -88,6 +95,7 @@ void main() {
       expect(restored.userId, original.userId);
       expect(restored.nome, original.nome);
       expect(restored.email, original.email);
+      expect(restored.petName, original.petName);
     });
   });
 }

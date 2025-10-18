@@ -5,7 +5,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/websocket_message.dart';
 import 'background_websocket_service.dart';
 import 'notification_service.dart';
-import 'package:PetDex/main.dart';
 
 class WebSocketService {
   static final WebSocketService _instance = WebSocketService._internal();
@@ -18,13 +17,11 @@ class WebSocketService {
   bool _isConnected = false;
   Timer? _reconnectTimer;
   Timer? _heartbeatTimer;
-  Timer? _connectionCheckTimer;
   String? _currentAnimalId;
   int _reconnectAttempts = 0;
   static const int _maxReconnectAttempts = 10;
   static const Duration _baseReconnectDelay = Duration(seconds: 2);
   DateTime? _lastSuccessfulConnection;
-  DateTime? _lastMessageReceived;
 
   final StreamController<LocationUpdate> _locationController = StreamController<LocationUpdate>.broadcast();
   final StreamController<HeartrateUpdate> _heartrateController = StreamController<HeartrateUpdate>.broadcast();
@@ -77,49 +74,28 @@ class WebSocketService {
     _currentPetName = petName;
   }
 
-
-
-  String get _javaApiBaseUrl => dotenv.env['API_JAVA_URL']!;
-
   Future<void> connect(String animalId) async {
     if (_isConnected) {
-      print('⚠️ Já conectado ao WebSocket, ignorando nova tentativa');
       return;
-    }
-
-    // Verifica se o token está disponível
-    final token = authService.getToken();
-    if (token == null || token.isEmpty) {
-      print('❌ ERRO CRÍTICO: Token não disponível!');
-      print('   Tentando fazer novo login...');
-      try {
-        await authService.relogin();
-        final newToken = authService.getToken();
-        if (newToken == null || newToken.isEmpty) {
-          print('❌ Falha ao obter novo token após relogin');
-          _scheduleReconnect();
-          return;
-        }
-        print('✅ Novo token obtido com sucesso');
-      } catch (e) {
-        print('❌ Erro ao fazer relogin: $e');
-        _scheduleReconnect();
-        return;
-      }
     }
 
     _currentAnimalId = animalId;
     _reconnectAttempts = 0;
 
-    final baseUrl = '$_javaApiBaseUrl/ws-petdex';
-    print('🔌 Iniciando conexão WebSocket');
-    print('📍 Base URL: $baseUrl');
-    print('🐾 Animal ID: $animalId');
-    print('🔐 Token disponível: ${token!.substring(0, 20)}...');
+    try {
+      await dotenv.load(fileName: ".env");
+    } catch (e) {
+      // Silencioso
+    }
+
+    final baseUrl = '${dotenv.env['API_JAVA_URL']!}/ws-petdex';
 
     // Lista de endpoints para tentar
     final endpoints = [
+      '$baseUrl/websocket',
       baseUrl,
+      '$baseUrl/ws',
+      '$baseUrl/sockjs/websocket',
     ];
 
     for (String endpoint in endpoints) {
@@ -127,52 +103,17 @@ class WebSocketService {
 
       try {
         String wsUrl = endpoint.trim();
-        print('🔗 URL original: $wsUrl');
-
-        // Parse a URL original para extrair componentes
-        final uri = Uri.parse(wsUrl);
-        print('🔗 URI parseada - scheme: ${uri.scheme}, host: ${uri.host}, path: ${uri.path}');
-
-        // Determina o scheme correto para WebSocket
-        String wsScheme = 'ws';
-        if (uri.scheme == 'https') {
-          wsScheme = 'wss';
+        if (wsUrl.startsWith('https://')) {
+          wsUrl = wsUrl.replaceFirst('https://', 'wss://');
+        } else if (wsUrl.startsWith('http://')) {
+          wsUrl = wsUrl.replaceFirst('http://', 'ws://');
         }
-
-        // Reconstrói a URL com o scheme correto
-        final wsUri = Uri(
-          scheme: wsScheme,
-          host: uri.host,
-          port: uri.port == 0 ? null : uri.port, // Ignora porta 0
-          path: uri.path,
-        );
-
-        print('🔗 URL WebSocket: ${wsUri.toString()}');
-
-        // Obtém o token JWT do serviço de autenticação
-        final token = authService.getToken();
-
-        if (token == null || token.isEmpty) {
-          print('❌ ERRO: Token é null ou vazio!');
-          print('   Tentando recuperar do armazenamento...');
-          continue;
-        }
-
-        print('🔐 Token obtido: ${token.substring(0, 20)}...');
-
-        // Adiciona o token como query parameter na URL do WebSocket
-        final wsUrlWithAuth = wsUri.replace(
-          queryParameters: {
-            ...wsUri.queryParameters,
-            'token': token,
-          },
-        );
-
-        print('🔗 URL com autenticação: ${wsUrlWithAuth.toString().substring(0, 80)}...');
 
         print('🔌 Tentando conectar ao WebSocket...');
+        print('🔗 URL: $wsUrl');
+
         _channel = WebSocketChannel.connect(
-          wsUrlWithAuth,
+          Uri.parse(wsUrl),
           protocols: ['v12.stomp', 'v11.stomp', 'v10.stomp'],
         );
 
@@ -184,13 +125,12 @@ class WebSocketService {
             _handleMessage(message);
           },
           onError: (error) {
-            print('❌ Erro no stream WebSocket: $error');
             if (!_isConnected) {
               _handleDisconnection();
             }
           },
           onDone: () {
-            print('🔌 Stream WebSocket finalizado');
+            print('🔌 Desconectado do WebSocket');
             _handleDisconnection();
           },
         );
@@ -198,13 +138,11 @@ class WebSocketService {
         _isConnected = true;
         _reconnectAttempts = 0;
         _lastSuccessfulConnection = DateTime.now();
-        _lastMessageReceived = DateTime.now();
         _connectionController.add(true);
-        print('✅ Conectado ao WebSocket com sucesso!');
+        print('✅ Conectado ao WebSocket');
 
         _sendConnectCommand();
         _startHeartbeat();
-        _startConnectionHealthCheck();
 
         Future.delayed(const Duration(seconds: 1), () {
           _subscribeToTopic(animalId);
@@ -213,48 +151,27 @@ class WebSocketService {
         break;
 
       } catch (e) {
-        print('❌ Erro ao conectar: $e');
-        print('   Stack trace: ${StackTrace.current}');
         continue;
       }
     }
 
     if (!_isConnected) {
-      print('❌ Falha ao conectar em todos os endpoints');
       _scheduleReconnect();
     }
   }
 
   void _sendConnectCommand() {
     if (_channel != null) {
-      // Obtém o token JWT do serviço de autenticação
-      final token = authService.getToken();
-
-      if (token == null || token.isEmpty) {
-        print('❌ ERRO: Token é null ou vazio ao enviar CONNECT!');
-        return;
-      }
-
-      // Monta o comando CONNECT com o token JWT no header Authorization
-      String connectCommand = 'CONNECT\n'
+      final connectCommand = 'CONNECT\n'
           'accept-version:1.0,1.1,1.2\n'
-          'heart-beat:10000,10000\n';
-
-      // Adiciona o header Authorization se houver token
-      connectCommand += 'Authorization:Bearer $token\n';
-      connectCommand += '\n\x00';
+          'heart-beat:10000,10000\n'
+          '\n\x00';
 
       try {
         _channel!.sink.add(connectCommand);
-        print('🔐 CONNECT enviado com autenticação JWT');
-        print('   Token: ${token.substring(0, 20)}...');
       } catch (e) {
-        print('❌ Erro ao enviar CONNECT: $e');
-        print('   Stack trace: ${StackTrace.current}');
-        _handleDisconnection();
+        // Silencioso
       }
-    } else {
-      print('❌ ERRO: _channel é null ao tentar enviar CONNECT!');
     }
   }
 
@@ -312,10 +229,9 @@ class WebSocketService {
     }
   }
 
-  void _handleMessage(dynamic message) {
-    // Atualiza timestamp da última mensagem recebida
-    _lastMessageReceived = DateTime.now();
 
+
+  void _handleMessage(dynamic message) {
     if (message is String && message.trim().isNotEmpty) {
       // Verificar se é uma mensagem STOMP
       if (message.startsWith('CONNECTED') ||
@@ -350,7 +266,7 @@ class WebSocketService {
     final command = lines[0];
 
     if (command == 'CONNECTED') {
-      print('✅ Conectado ao WebSocket');
+      // Silencioso
     } else if (command == 'MESSAGE') {
       // Extrair o corpo da mensagem (após linha vazia)
       int bodyStartIndex = -1;
@@ -395,26 +311,15 @@ class WebSocketService {
   }
 
   void _handleDisconnection() {
-    if (_isConnected) {
-      _isConnected = false;
-      _connectionController.add(false);
-      print('🔌 Desconectado do WebSocket');
-    }
-
+    _isConnected = false;
+    _connectionController.add(false);
     _channel = null;
-
-    // Agenda reconexão automática se não estiver em background
-    if (!_isInBackground && _currentAnimalId != null) {
-      print('🔄 Agendando reconexão automática...');
-      _scheduleReconnect();
-    }
   }
 
   void _scheduleReconnect() {
     _reconnectTimer?.cancel();
 
     if (_reconnectAttempts >= _maxReconnectAttempts) {
-      print('❌ Máximo de tentativas de reconexão atingido ($_maxReconnectAttempts)');
       return;
     }
 
@@ -422,18 +327,10 @@ class WebSocketService {
       seconds: (_baseReconnectDelay.inSeconds * (1 << _reconnectAttempts)).clamp(2, 300),
     );
 
-    _reconnectAttempts++;
-    print('🔄 Agendando reconexão #$_reconnectAttempts em ${delay.inSeconds}s');
-    print('   Tentativas restantes: ${_maxReconnectAttempts - _reconnectAttempts}');
-
     _reconnectTimer = Timer(delay, () {
       if (!_isConnected && _currentAnimalId != null) {
-        print('🔄 Tentando reconectar (tentativa $_reconnectAttempts/$_maxReconnectAttempts)...');
+        _reconnectAttempts++;
         connect(_currentAnimalId!);
-      } else if (_isConnected) {
-        print('✅ Já conectado, cancelando reconexão');
-      } else {
-        print('⚠️ Animal ID é null, não é possível reconectar');
       }
     });
   }
@@ -443,45 +340,21 @@ class WebSocketService {
     _heartbeatTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       if (_isConnected && _channel != null) {
         try {
-          // Envia heartbeat no formato STOMP
-          _channel!.sink.add('\n');
-          print('💓 Heartbeat enviado');
+          _channel!.sink.add('PING');
         } catch (e) {
-          print('❌ Erro ao enviar heartbeat: $e');
           _handleDisconnection();
         }
-      } else {
-        // Se não está conectado, cancela o timer
-        timer.cancel();
       }
     });
   }
 
-  void _startConnectionHealthCheck() {
-    _connectionCheckTimer?.cancel();
-    _connectionCheckTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
-      if (_isConnected && _lastMessageReceived != null) {
-        final timeSinceLastMessage = DateTime.now().difference(_lastMessageReceived!);
 
-        // Se não recebeu mensagens há mais de 2 minutos, considera a conexão morta
-        if (timeSinceLastMessage.inSeconds > 120) {
-          print('⚠️ Conexão inativa há ${timeSinceLastMessage.inSeconds}s - reconectando...');
-          _handleDisconnection();
-        }
-      } else if (!_isConnected) {
-        // Se não está conectado, cancela o timer
-        timer.cancel();
-      }
-    });
-  }
 
   void disconnect() {
     _reconnectTimer?.cancel();
     _reconnectTimer = null;
     _heartbeatTimer?.cancel();
     _heartbeatTimer = null;
-    _connectionCheckTimer?.cancel();
-    _connectionCheckTimer = null;
 
     if (_channel != null) {
       _channel!.sink.close();
@@ -491,7 +364,6 @@ class WebSocketService {
     if (_isConnected) {
       _isConnected = false;
       _connectionController.add(false);
-      print('🔌 Desconectado do WebSocket');
     }
 
     _currentAnimalId = null;

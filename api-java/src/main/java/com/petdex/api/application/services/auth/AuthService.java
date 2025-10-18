@@ -58,6 +58,7 @@ public class AuthService implements IAuthService {
         ObjectId usuarioObjectId = new ObjectId(usuario.getId());
         Optional<Animal> animalOpt = animalRepository.findByUsuario(usuarioObjectId);
         String animalId = animalOpt.map(Animal::getId).orElse(null);
+        String petName = animalOpt.map(Animal::getNome).orElse(null);
 
         // Cria e retorna a resposta do login
         return new LoginResDTO(
@@ -65,7 +66,8 @@ public class AuthService implements IAuthService {
                 animalId,
                 usuario.getId(),
                 usuario.getNome(),
-                usuario.getEmail()
+                usuario.getEmail(),
+                petName
         );
     }
 }
