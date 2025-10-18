@@ -96,7 +96,7 @@ class AnimalStatsService {
     ).replace(queryParameters: {'inicio': formattedDate, 'fim': formattedDate});
 
     try {
-      final response = await http.get(uri);
+      final response = await _httpClient.get(uri);
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);

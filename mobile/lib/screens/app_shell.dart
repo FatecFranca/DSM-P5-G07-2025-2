@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:PetDex/screens/checkup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:PetDex/components/ui/bottom_nav_with_status.dart';
 import 'package:PetDex/screens/map_screen.dart';
@@ -43,7 +44,7 @@ class _AppShellState extends State<AppShell> {
         animalImageUrl: "assets/images/uno.png",
       ),
       HealthScreen(),
-      HealthScreen(),
+      CheckupScreen(),
       LocationScreen(
         animalId: _animalId,
         animalName: _animalName,
