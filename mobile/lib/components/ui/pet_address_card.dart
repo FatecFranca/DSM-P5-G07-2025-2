@@ -52,12 +52,15 @@ class PetAddressCard extends StatelessWidget {
                     size: 22,
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    '${petName.toUpperCase()} ESTÁ EM:',
-                    style: GoogleFonts.poppins(
-                      color: AppColors.orange200,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                  Flexible(
+                    child: Text(
+                      '${petName.toUpperCase()} ESTÁ EM:',
+                      style: GoogleFonts.poppins(
+                        color: AppColors.orange200,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
@@ -94,33 +97,38 @@ class PetAddressCard extends StatelessWidget {
                       width: 1.5,
                     ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        isInSafeZone
-                            ? Icons.check_circle
-                            : Icons.warning_rounded,
-                        color: isInSafeZone
-                            ? Colors.green.shade700
-                            : Colors.red.shade700,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          isInSafeZone
-                              ? 'Pet dentro da área segura'
-                              : 'Pet fora da área segura',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.poppins(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            isInSafeZone
+                                ? Icons.check_circle
+                                : Icons.warning_rounded,
                             color: isInSafeZone
                                 ? Colors.green.shade700
                                 : Colors.red.shade700,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
+                            size: 20,
                           ),
-                        ),
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              isInSafeZone
+                                  ? 'Pet dentro da área segura'
+                                  : 'Pet fora da área segura',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.poppins(
+                                color: isInSafeZone
+                                    ? Colors.green.shade700
+                                    : Colors.red.shade700,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

@@ -6,20 +6,14 @@ class NavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
-  const NavBar({
-    super.key,
-    required this.currentIndex,
-    required this.onTap,
-  });
+  const NavBar({super.key, required this.currentIndex, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 85,
       padding: const EdgeInsets.fromLTRB(8, 4, 8, 12),
-      decoration: const BoxDecoration(
-        color: AppColors.sand900,
-      ),
+      decoration: const BoxDecoration(color: AppColors.sand900),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -34,9 +28,14 @@ class NavBar extends StatelessWidget {
             index: 1,
           ),
           _buildNavItem(
+            icon: FontAwesomeIcons.stethoscope,
+            label: "Checkup",
+            index: 2,
+          ),
+          _buildNavItem(
             icon: FontAwesomeIcons.locationDot,
             label: "Localização",
-            index: 2,
+            index: 3,
           ),
         ],
       ),
