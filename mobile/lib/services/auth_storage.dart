@@ -41,10 +41,7 @@ class AuthStorage {
 
       // Salva a resposta completa em JSON para referência
       await _prefs.setString(_authResponseKey, jsonEncode(authResponse.toJson()));
-
-      debugPrint('✅ Dados de autenticação salvos com sucesso');
     } catch (e) {
-      debugPrint('❌ Erro ao salvar dados de autenticação: $e');
       rethrow;
     }
   }
@@ -88,7 +85,6 @@ class AuthStorage {
       final json = jsonDecode(jsonString) as Map<String, dynamic>;
       return AuthResponse.fromJson(json);
     } catch (e) {
-      debugPrint('❌ Erro ao recuperar resposta de autenticação: $e');
       return null;
     }
   }
@@ -109,10 +105,7 @@ class AuthStorage {
       await _prefs.remove(_emailKey);
       await _prefs.remove(_petNameKey);
       await _prefs.remove(_authResponseKey);
-
-      debugPrint('✅ Dados de autenticação limpos com sucesso');
     } catch (e) {
-      debugPrint('❌ Erro ao limpar dados de autenticação: $e');
       rethrow;
     }
   }

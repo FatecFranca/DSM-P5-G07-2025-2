@@ -42,12 +42,10 @@ class WebSocketService {
     _isInBackground = isBackground;
 
     if (isBackground) {
-      print('🔄 App entrou em background - iniciando serviço de background');
       if (_currentAnimalId != null) {
         BackgroundWebSocketService.startBackgroundService(_currentAnimalId!);
       }
     } else {
-      print('🔄 App voltou para foreground - parando serviço de background');
       BackgroundWebSocketService.stopBackgroundService();
       if (!_isConnected && _currentAnimalId != null) {
         connect(_currentAnimalId!);

@@ -65,9 +65,6 @@ class AuthService {
         await _authStorage.saveAuthData(_currentAuthResponse!);
 
         debugPrint('✅ Login automático realizado com sucesso');
-        debugPrint('👤 Usuário: ${_currentAuthResponse!.nome}');
-        debugPrint('🐾 Animal ID: ${_currentAuthResponse!.animalId}');
-        debugPrint('🔑 Token: ${_currentAuthResponse!.token.substring(0, 20)}...');
       } else {
         throw Exception(
           'Falha no login automático. Status: ${response.statusCode}. '
@@ -84,11 +81,6 @@ class AuthService {
   /// Deve ser usado em todas as requisições HTTP
   String? getToken() {
     final token = _currentAuthResponse?.token ?? _authStorage.getToken();
-    if (token == null || token.isEmpty) {
-      debugPrint('⚠️ getToken() retornou null ou vazio!');
-      debugPrint('_currentAuthResponse: $_currentAuthResponse');
-      debugPrint('_authStorage.getToken(): ${_authStorage.getToken()}');
-    }
     return token;
   }
 
