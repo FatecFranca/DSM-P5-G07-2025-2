@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/intl.dart';
 import '/models/heartbeat_data.dart';
 
 class AnimalStatsService {
-
   String get _pythonApiBaseUrl => dotenv.env['API_PYTHON_URL']!;
   String get _javaApiBaseUrl => dotenv.env['API_JAVA_URL']!;
 
@@ -33,7 +33,8 @@ class AnimalStatsService {
 
         return mediasList;
       } else {
-        throw Exception('Falha ao carregar dados da API: Status ${response.statusCode}');
+        throw Exception(
+            'Falha ao carregar dados da API: Status ${response.statusCode}');
       }
     } catch (e) {
       print('Erro em getMediaUltimos5Dias: $e');
@@ -41,7 +42,8 @@ class AnimalStatsService {
     }
   }
 
-  Future<Map<String, dynamic>?> getUltimaLocalizacaoAnimal(String idAnimal) async {
+  Future<Map<String, dynamic>?> getUltimaLocalizacaoAnimal(
+      String idAnimal) async {
     final endpoint = '$_javaApiBaseUrl/localizacoes/animal/$idAnimal/ultima';
 
     try {
@@ -65,6 +67,35 @@ class AnimalStatsService {
     } catch (e) {
       print('Erro em getUltimaLocalizacaoAnimal: $e');
       throw Exception('Erro ao consultar última localização do animal.');
+    }
+  }
+
+  Future<double?> getMediaPorData(String animalId, DateTime date) async {
+    final formattedDate = DateFormat('yyyy-MM-dd').format(date);
+
+    final uri = Uri.parse(
+            '$_pythonApiBaseUrl/batimentos/animal/$animalId/media-por-data')
+        .replace(queryParameters: {
+      'inicio': formattedDate,
+      'fim': formattedDate,
+    });
+
+    try {
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        if (data.containsKey('media') && data['media'] != null) {
+          return (data['media'] as num).toDouble();
+        }
+        return null;
+      } else {
+        throw Exception(
+            'Falha ao carregar dados da API: Status ${response.statusCode}, Body: ${response.body}');
+      }
+    } catch (e) {
+      print('Erro em getMediaPorData: $e');
+      throw Exception('Erro de conexão ao buscar média por data.');
     }
   }
 }

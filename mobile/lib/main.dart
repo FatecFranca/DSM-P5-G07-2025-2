@@ -1,13 +1,11 @@
-import 'package:PetDex/screens/app_shell.dart';
-import 'package:PetDex/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import '/components/ui/heart_date_card.dart';
+import '/theme/app_theme.dart';
 
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await dotenv.load(fileName: ".env");
-
+  await initializeDateFormatting('pt_BR', null);
   runApp(const MyApp());
 }
 
@@ -17,9 +15,27 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'PetDex Component Test',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const AppShell(),
+      home: const ComponentTestScreen(),
+    );
+  }
+}
+
+class ComponentTestScreen extends StatelessWidget {
+  const ComponentTestScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Teste do HeartDateCard')),
+      body: const Center(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: HeartDateCard(),
+        ),
+      ),
     );
   }
 }
