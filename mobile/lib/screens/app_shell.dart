@@ -43,6 +43,7 @@ class _AppShellState extends State<AppShell> {
         animalImageUrl: "assets/images/uno.png",
       ),
       HealthScreen(),
+      HealthScreen(),
       LocationScreen(
         animalId: _animalId,
         animalName: _animalName,
@@ -52,7 +53,9 @@ class _AppShellState extends State<AppShell> {
     ];
 
     // Escuta mudanças no estado de conexão WebSocket
-    _connectionSubscription = _webSocketService.connectionStream.listen((isConnected) {
+    _connectionSubscription = _webSocketService.connectionStream.listen((
+      isConnected,
+    ) {
       if (mounted) {
         setState(() {
           _isWebSocketConnected = isConnected;
@@ -79,10 +82,7 @@ class _AppShellState extends State<AppShell> {
       body: Stack(
         children: [
           // Conteúdo das páginas (ocupa toda a tela)
-          IndexedStack(
-            index: _currentIndex,
-            children: _pages,
-          ),
+          IndexedStack(index: _currentIndex, children: _pages),
           // Overlay do BottomNavWithStatus (posicionado na parte inferior)
           Positioned(
             left: 0,
@@ -100,4 +100,3 @@ class _AppShellState extends State<AppShell> {
     );
   }
 }
-

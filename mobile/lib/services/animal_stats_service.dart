@@ -17,7 +17,7 @@ class AnimalStatsService {
     try {
       await dotenv.load(fileName: ".env");
     } catch (e) {
-      print('Arquivo .env não encontrado, usando valores padrão');
+      // .env already loaded in main.dart
     }
 
     final endpoint = '/batimentos/media-ultimos-5-dias';
@@ -40,7 +40,6 @@ class AnimalStatsService {
         throw Exception('Falha ao carregar dados da API: Status ${response.statusCode}');
       }
     } catch (e) {
-      print('Erro em getMediaUltimos5Dias: $e');
       throw Exception('Erro de conexão ao buscar médias dos últimos 5 dias.');
     }
   }
@@ -72,7 +71,6 @@ class AnimalStatsService {
             'Falha ao buscar localização: Status ${response.statusCode}');
       }
     } catch (e) {
-      print('Erro em getUltimaLocalizacaoAnimal: $e');
       throw Exception('Erro ao consultar última localização do animal.');
     }
   }

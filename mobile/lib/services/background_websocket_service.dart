@@ -107,8 +107,6 @@ class BackgroundWebSocketService {
 
   static Future<void> startBackgroundService(String animalId) async {
     try {
-      print('🔄 Mudando para WebSocket em background');
-
       if (!_isInitialized) {
         await initialize();
       }
@@ -147,8 +145,6 @@ class BackgroundWebSocketService {
 
   static Future<void> stopBackgroundService() async {
     try {
-      print('🔄 Mudando para WebSocket em foreground');
-
       final service = FlutterBackgroundService();
 
       // Verifica se o serviço está rodando antes de tentar parar
@@ -256,7 +252,7 @@ class BackgroundWebSocketService {
               // Silencioso
             },
             onDone: () {
-              print('🔌 Desconectado do WebSocket (background)');
+              // WebSocket disconnected
             },
           );
 
@@ -289,7 +285,6 @@ class BackgroundWebSocketService {
             }
           });
 
-          print('✅ Conectado ao WebSocket (background)');
           return channel;
         } catch (e) {
           continue;
