@@ -53,6 +53,9 @@ public class SecurityConfig {
                 // Rota de cadastro de usuário (APENAS POST - sem autenticação)
                 .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
 
+                // Rotas do WebSocket (autenticação feita pelo WebSocketAuthInterceptor)
+                .requestMatchers("/ws-petdex/**").permitAll()
+
                 // Rotas do Swagger/OpenAPI
                 .requestMatchers("/swagger-ui/**").permitAll()
                 .requestMatchers("/swagger-ui.html").permitAll()
