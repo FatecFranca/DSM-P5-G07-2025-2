@@ -219,11 +219,13 @@ class BackgroundWebSocketService {
 
   static Future<WebSocketChannel?> _connectWebSocket(String animalId, ServiceInstance service) async {
     try {
-      await dotenv.load(fileName: ".env");
-
-      final baseUrl = '${dotenv.env['API_JAVA_URL']!}/ws-petdex';
+      final javaApiBaseUrl = dotenv.env['API_JAVA_URL']!;
+      final baseUrl = '$javaApiBaseUrl/ws-petdex';
       var wsUrl = baseUrl.replaceFirst('https://', 'wss://').replaceFirst('http://', 'ws://');
 
+      // Nota: No background service, não temos acesso ao authService
+      // O token deveria ser passado como parâmetro ou armazenado localmente
+      // Por enquanto, a conexão é feita sem autenticação
       final channel = WebSocketChannel.connect(Uri.parse('$wsUrl/websocket'));
 
       await channel.ready;

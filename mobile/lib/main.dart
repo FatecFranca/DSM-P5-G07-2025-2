@@ -14,12 +14,8 @@ Future<void> main() async {
   await dotenv.load(fileName: ".env");
 
   // Inicializa o serviço de autenticação (realiza login automático)
-  try {
-    await authService.init();
-  } catch (e) {
-    print('❌ Erro ao inicializar autenticação: $e');
-    // Continua mesmo se o login falhar para permitir debug
-  }
+  // O AuthService já trata erros internamente e permite que o app continue
+  await authService.init();
 
   runApp(const MyApp());
 }

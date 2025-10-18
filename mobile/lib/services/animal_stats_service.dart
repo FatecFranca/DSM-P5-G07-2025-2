@@ -2,11 +2,15 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '/models/heartbeat_data.dart';
+import 'package:PetDex/services/http_client.dart';
 
 class AnimalStatsService {
 
   String get _pythonApiBaseUrl => dotenv.env['API_PYTHON_URL']!;
   String get _javaApiBaseUrl => dotenv.env['API_JAVA_URL']!;
+
+  // Cliente HTTP com autenticação automática para API Java
+  final http.Client _httpClient = AuthenticatedHttpClient();
 
   /// Busca a média de batimentos dos últimos 5 dias na API Python.
   Future<List<HeartbeatData>> getMediaUltimos5Dias() async {
@@ -45,7 +49,8 @@ class AnimalStatsService {
     final endpoint = '$_javaApiBaseUrl/localizacoes/animal/$idAnimal/ultima';
 
     try {
-      final response = await http.get(Uri.parse(endpoint));
+      // Usa o cliente HTTP autenticado para API Java
+      final response = await _httpClient.get(Uri.parse(endpoint));
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
@@ -57,6 +62,10 @@ class AnimalStatsService {
           'longitude': (data['longitude'] as num).toDouble(),
           'animal': data['animal'],
           'coleira': data['coleira'],
+          'isOutsideSafeZone': data['isOutsideSafeZone'],
+          'distanciaDoPerimetro': data['distanciaDoPerimetro'] != null
+              ? (data['distanciaDoPerimetro'] as num).toDouble()
+              : null
         };
       } else {
         throw Exception(

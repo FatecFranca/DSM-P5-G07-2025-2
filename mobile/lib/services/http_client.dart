@@ -12,6 +12,9 @@ class AuthenticatedHttpClient extends http.BaseClient {
     final token = authService.getToken();
     if (token != null && token.isNotEmpty) {
       request.headers['Authorization'] = 'Bearer $token';
+      print('[HttpClient] ✅ Token adicionado ao header Authorization');
+    } else {
+      print('[HttpClient] ⚠️ Nenhum token disponível - requisição será feita sem autenticação');
     }
 
     // Adiciona header Content-Type se não estiver presente

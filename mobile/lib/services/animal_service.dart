@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import '/models/animal.dart';
 import '/models/heartbeat_data.dart';
@@ -6,13 +7,11 @@ import '/models/latest_heartbeat.dart';
 import 'package:PetDex/services/http_client.dart';
 
 class AnimalService {
-  final String _javaApiBaseUrl = "https://petdex-api-java.onrender.com";
-  final String _pythonApiBaseUrl = "https://petdex-api-python.onrender.com";
+  String get _javaApiBaseUrl => dotenv.env['API_JAVA_URL']!;
+  String get _pythonApiBaseUrl => dotenv.env['API_PYTHON_URL']!;
 
   // Cliente HTTP com autenticação automática
   final http.Client _httpClient = AuthenticatedHttpClient();
-
-  static const String unoId = "68194120636f719fcd5ee5fd";
 
   Future<Animal> getAnimalInfo(String animalId) async {
     print(animalId);
