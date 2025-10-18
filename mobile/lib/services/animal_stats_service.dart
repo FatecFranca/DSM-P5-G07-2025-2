@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/intl.dart';
 import '/models/heartbeat_data.dart';
 import 'package:PetDex/services/http_client.dart';
+import 'package:flutter/material.dart';
 
 class AnimalStatsService {
-
   String get _pythonApiBaseUrl => dotenv.env['API_PYTHON_URL']!;
   String get _javaApiBaseUrl => dotenv.env['API_JAVA_URL']!;
 
@@ -38,14 +39,18 @@ class AnimalStatsService {
 
         return mediasList;
       } else {
-        throw Exception('Falha ao carregar dados da API: Status ${response.statusCode}');
+        throw Exception(
+          'Falha ao carregar dados da API: Status ${response.statusCode}',
+        );
       }
     } catch (e) {
       throw Exception('Erro de conexão ao buscar médias dos últimos 5 dias.');
     }
   }
 
-  Future<Map<String, dynamic>?> getUltimaLocalizacaoAnimal(String idAnimal) async {
+  Future<Map<String, dynamic>?> getUltimaLocalizacaoAnimal(
+    String idAnimal,
+  ) async {
     final endpoint = '$_javaApiBaseUrl/localizacoes/animal/$idAnimal/ultima';
 
     try {
@@ -69,10 +74,44 @@ class AnimalStatsService {
         };
       } else {
         throw Exception(
-            'Falha ao buscar localização: Status ${response.statusCode}');
+          'Falha ao buscar localização: Status ${response.statusCode}',
+        );
       }
     } catch (e) {
       throw Exception('Erro ao consultar última localização do animal.');
+    }
+  }
+
+  Future<double?> getMediaPorData(String animalId, DateTime date) async {
+    try {
+      await dotenv.load(fileName: ".env");
+    } catch (e) {
+      print('Arquivo .env não encontrado, usando valores padrão');
+    }
+
+    final formattedDate = DateFormat('yyyy-MM-dd').format(date);
+
+    final uri = Uri.parse(
+      '$_pythonApiBaseUrl/batimentos/animal/$animalId/batimentos/media-por-data',
+    ).replace(queryParameters: {'inicio': formattedDate, 'fim': formattedDate});
+
+    try {
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        if (data.containsKey('media') && data['media'] != null) {
+          final media = (data['media'] as num).toDouble();
+          return media;
+        }
+        return null;
+      } else {
+        throw Exception(
+          'Falha ao carregar dados da API: Status ${response.statusCode}, Body: ${response.body}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Erro de conexão ao buscar média por data.');
     }
   }
 }
