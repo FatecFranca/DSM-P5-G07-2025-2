@@ -107,8 +107,6 @@ class BackgroundWebSocketService {
 
   static Future<void> startBackgroundService(String animalId) async {
     try {
-      print('🔄 Mudando para WebSocket em background');
-
       if (!_isInitialized) {
         await initialize();
       }
@@ -147,8 +145,6 @@ class BackgroundWebSocketService {
 
   static Future<void> stopBackgroundService() async {
     try {
-      print('🔄 Mudando para WebSocket em foreground');
-
       final service = FlutterBackgroundService();
 
       // Verifica se o serviço está rodando antes de tentar parar
@@ -222,67 +218,195 @@ class BackgroundWebSocketService {
       await dotenv.load(fileName: ".env");
 
       final baseUrl = '${dotenv.env['API_JAVA_URL']!}/ws-petdex';
-      var wsUrl = baseUrl.replaceFirst('https://', 'wss://').replaceFirst('http://', 'ws://');
 
-      final channel = WebSocketChannel.connect(Uri.parse('$wsUrl/websocket'));
+      // Lista de endpoints para tentar
+      final endpoints = [
+        '$baseUrl/websocket',
+        baseUrl,
+        '$baseUrl/ws',
+        '$baseUrl/sockjs/websocket',
+      ];
 
-      await channel.ready;
+      for (String endpoint in endpoints) {
+        try {
+          String wsUrl = endpoint.trim();
+          if (wsUrl.startsWith('https://')) {
+            wsUrl = wsUrl.replaceFirst('https://', 'wss://');
+          } else if (wsUrl.startsWith('http://')) {
+            wsUrl = wsUrl.replaceFirst('http://', 'ws://');
+          }
 
-      print('✅ Conectado ao WebSocket (background)');
+          final channel = WebSocketChannel.connect(
+            Uri.parse(wsUrl),
+            protocols: ['v12.stomp', 'v11.stomp', 'v10.stomp'],
+          );
 
-      channel.sink.add('CONNECT\naccept-version:1.2,1.1,1.0\nheart-beat:30000,30000\n\n\x00');
+          // Aguardar um pouco para ver se a conexão é estabelecida
+          await Future.delayed(const Duration(seconds: 2));
 
-      channel.stream.listen(
-        (message) {
-          _handleBackgroundMessage(message, animalId, service);
-        },
-        onError: (error) {
-          // Silencioso
-        },
-        onDone: () {
-          print('🔌 Desconectado do WebSocket (background)');
-        },
-      );
+          channel.stream.listen(
+            (message) {
+              _handleBackgroundMessage(message, animalId, service);
+            },
+            onError: (error) {
+              // Silencioso
+            },
+            onDone: () {
+              // WebSocket disconnected
+            },
+          );
 
-      Timer.periodic(const Duration(seconds: 30), (timer) {
-        if (channel.closeCode == null) {
-          channel.sink.add('\n');
-        } else {
-          timer.cancel();
+          // Enviar comando STOMP CONNECT
+          final connectCommand = 'CONNECT\n'
+              'accept-version:1.0,1.1,1.2\n'
+              'heart-beat:10000,10000\n'
+              '\n\x00';
+
+          try {
+            channel.sink.add(connectCommand);
+          } catch (e) {
+            // Silencioso
+          }
+
+          // Aguardar um pouco e depois se inscrever
+          await Future.delayed(const Duration(seconds: 1));
+          _subscribeToTopicBackground(channel, animalId);
+
+          // Iniciar heartbeat
+          Timer.periodic(const Duration(seconds: 30), (timer) {
+            if (channel.closeCode == null) {
+              try {
+                channel.sink.add('PING');
+              } catch (e) {
+                timer.cancel();
+              }
+            } else {
+              timer.cancel();
+            }
+          });
+
+          return channel;
+        } catch (e) {
+          continue;
         }
-      });
+      }
 
-      return channel;
+      return null;
     } catch (e) {
       return null;
     }
   }
 
-  static void _handleBackgroundMessage(dynamic message, String animalId, ServiceInstance service) {
+  static void _subscribeToTopicBackground(WebSocketChannel channel, String animalId) {
     try {
-      final messageStr = message.toString();
+      // Formato 1: STOMP SUBSCRIBE
+      final stompSubscribe = 'SUBSCRIBE\n'
+          'id:sub-0\n'
+          'destination:/topic/animal/$animalId\n'
+          '\n\x00';
 
-      if (messageStr.startsWith('CONNECTED')) {
-        final subscribeMessage = 'SUBSCRIBE\nid:sub-$animalId\ndestination:/topic/animal/$animalId\n\n\x00';
-        service.invoke('websocket_send', {'message': subscribeMessage});
-        return;
+      // Formato 2: JSON simples
+      final jsonSubscribe = json.encode({
+        'command': 'SUBSCRIBE',
+        'id': 'sub-0',
+        'destination': '/topic/animal/$animalId',
+      });
+
+      // Formato 3: Mensagem direta
+      final directMessage = json.encode({
+        'id': 'sub-0',
+        'destination': '/topic/animal/$animalId',
+      });
+
+      // Tentar formato STOMP primeiro
+      try {
+        channel.sink.add(stompSubscribe);
+      } catch (e) {
+        // Silencioso
       }
 
-      if (messageStr.startsWith('MESSAGE')) {
-        final lines = messageStr.split('\n');
-        final bodyIndex = lines.indexWhere((line) => line.isEmpty);
+      // Aguardar um pouco e tentar JSON
+      Future.delayed(const Duration(seconds: 1), () {
+        try {
+          channel.sink.add(jsonSubscribe);
+        } catch (e) {
+          // Silencioso
+        }
+      });
 
-        if (bodyIndex != -1 && bodyIndex + 1 < lines.length) {
-          final jsonBody = lines.sublist(bodyIndex + 1).join('\n').replaceAll('\x00', '');
+      // Aguardar mais um pouco e tentar formato direto
+      Future.delayed(const Duration(seconds: 2), () {
+        try {
+          channel.sink.add(directMessage);
+        } catch (e) {
+          // Silencioso
+        }
+      });
+    } catch (e) {
+      // Silencioso
+    }
+  }
 
-          if (jsonBody.isNotEmpty) {
-            final data = json.decode(jsonBody);
+  static void _handleBackgroundMessage(dynamic message, String animalId, ServiceInstance service) {
+    if (message is String && message.trim().isNotEmpty) {
+      // Verificar se é uma mensagem STOMP
+      if (message.startsWith('CONNECTED') ||
+          message.startsWith('MESSAGE') ||
+          message.startsWith('ERROR') ||
+          message.startsWith('RECEIPT')) {
+        _handleStompMessageBackground(message);
+      } else {
+        // Tentar processar como JSON
+        try {
+          final Map<String, dynamic> data = json.decode(message);
+          _checkAndNotifySafeZone(data);
+        } catch (e) {
+          // Silencioso
+        }
+      }
+    }
+  }
+
+  static void _handleStompMessageBackground(String message) {
+    final lines = message.split('\n');
+    if (lines.isEmpty) return;
+
+    final command = lines[0];
+
+    if (command == 'CONNECTED') {
+      // Silencioso
+    } else if (command == 'MESSAGE') {
+      // Extrair o corpo da mensagem (após linha vazia)
+      int bodyStartIndex = -1;
+      for (int i = 0; i < lines.length; i++) {
+        if (lines[i].trim().isEmpty) {
+          bodyStartIndex = i + 1;
+          break;
+        }
+      }
+
+      if (bodyStartIndex > 0 && bodyStartIndex < lines.length) {
+        final body = lines.sublist(bodyStartIndex).join('\n').trim();
+        if (body.isNotEmpty && body != '\x00') {
+          try {
+            // Limpar caracteres especiais e null bytes
+            String cleanBody = body.replaceAll('\x00', '').replaceAll('\n', '').trim();
+
+            // Verificar se termina com }
+            if (!cleanBody.endsWith('}')) {
+              int lastBrace = cleanBody.lastIndexOf('}');
+              if (lastBrace > 0) {
+                cleanBody = cleanBody.substring(0, lastBrace + 1);
+              }
+            }
+
+            final Map<String, dynamic> data = json.decode(cleanBody);
             _checkAndNotifySafeZone(data);
+          } catch (e) {
+            // Silencioso
           }
         }
       }
-    } catch (e) {
-      // Silencioso
     }
   }
 

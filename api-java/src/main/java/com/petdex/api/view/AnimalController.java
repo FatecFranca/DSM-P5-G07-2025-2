@@ -5,6 +5,7 @@ import com.petdex.api.domain.contracts.dto.PageDTO;
 import com.petdex.api.domain.contracts.dto.animal.AnimalReqDTO;
 import com.petdex.api.domain.contracts.dto.animal.AnimalResDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/animais")
@@ -35,6 +38,20 @@ public class AnimalController {
                 animalService.findAll(pageDTO),
                 HttpStatus.OK
         );
+    }
+
+    @Operation(
+            summary = "Buscar animal pelo ID do usuário",
+            parameters = {
+                    @Parameter(name = "usuarioId", description = "ID do usuário", required = true)
+            }
+    )
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<AnimalResDTO> findByUsuarioId(@PathVariable String usuarioId) {
+        Optional<AnimalResDTO> animal = animalService.findByUsuarioId(usuarioId);
+        return animal
+                .map(a -> new ResponseEntity<>(a, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @Operation(summary = "Cadastrar um animal")
