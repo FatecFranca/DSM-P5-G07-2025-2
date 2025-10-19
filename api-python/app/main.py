@@ -37,9 +37,9 @@ async def analisar_animal(id_animal: str, sintomas: SintomasInput):
 
 @app.post("/ia/animal/{id_animal}", tags=["IA"])
 async def analisar_animal(id_animal: str, sintomas: SintomasInput):
-    """
-    Recebe sintomas e retorna a predição de problema/doença via PMML.
-    """
+    
+    #Recebe sintomas e retorna a predição de problema/doença via PMML.
+    
     response = await java_api.buscar_dados_animal(id_animal)
     if not response:
         raise HTTPException(status_code=404, detail="Animal não encontrado na API Java")
