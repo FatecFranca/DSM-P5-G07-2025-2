@@ -3,10 +3,14 @@ import 'package:google_fonts/google_fonts.dart';
 import '/components/ui/select_date.dart';
 import '/services/animal_stats_service.dart';
 import '/theme/app_theme.dart';
-import '/services/animal_service.dart'; 
 
 class HeartDateCard extends StatefulWidget {
-  const HeartDateCard({super.key});
+  final String animalId;
+
+  const HeartDateCard({
+    super.key,
+    required this.animalId,
+  });
 
   @override
   State<HeartDateCard> createState() => _HeartDateCardState();
@@ -14,7 +18,7 @@ class HeartDateCard extends StatefulWidget {
 
 class _HeartDateCardState extends State<HeartDateCard> {
   final AnimalStatsService _statsService = AnimalStatsService();
-  
+
   DateTime _selectedDate = DateTime.now();
   double? _mediaDoDia;
   bool _isLoading = false;
@@ -23,7 +27,6 @@ class _HeartDateCardState extends State<HeartDateCard> {
   @override
   void initState() {
     super.initState();
-    // Busca os dados para a data de hoje ao iniciar
     _fetchMediaData(_selectedDate);
   }
 
@@ -35,7 +38,8 @@ class _HeartDateCardState extends State<HeartDateCard> {
     });
 
     try {
-      final media = await _statsService.getMediaPorData(AnimalService.unoId, date);
+      final media = await _statsService.getMediaPorData(widget.animalId, date);
+
       setState(() {
         _mediaDoDia = media;
       });
@@ -62,9 +66,9 @@ class _HeartDateCardState extends State<HeartDateCard> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildTitle('Média de batimento Cardíaco por data'),
+          _buildTitle('Média de Batimento Cardíaco por Data'),
           const SizedBox(height: 16),
-          _buildTitle('Insira uma data:'),
+          _buildTitle('Selecione uma Data:'),
           const SizedBox(height: 8),
           SelectDate(
             initialDate: _selectedDate,
@@ -76,7 +80,7 @@ class _HeartDateCardState extends State<HeartDateCard> {
             },
           ),
           const SizedBox(height: 16),
-          _buildTitle('A média do dia é igual a:'),
+          _buildTitle('Resultado:'),
           const SizedBox(height: 8),
           _buildResult(),
         ],
@@ -84,7 +88,6 @@ class _HeartDateCardState extends State<HeartDateCard> {
     );
   }
 
-  // Widget auxiliar para os títulos
   Widget _buildTitle(String text) {
     return Text(
       text,
@@ -96,7 +99,6 @@ class _HeartDateCardState extends State<HeartDateCard> {
     );
   }
 
-  // Widget para exibir o resultado da API (ou loading/erro)
   Widget _buildResult() {
     if (_isLoading) {
       return const SizedBox(
@@ -113,7 +115,7 @@ class _HeartDateCardState extends State<HeartDateCard> {
     }
     if (_mediaDoDia != null) {
       return Text(
-        _mediaDoDia!.toStringAsFixed(2),
+        '${_mediaDoDia!.toStringAsFixed(2)} BPM',
         style: GoogleFonts.poppins(
           color: AppColors.black400,
           fontSize: 32,
