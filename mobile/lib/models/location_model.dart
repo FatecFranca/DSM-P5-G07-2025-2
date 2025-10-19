@@ -20,6 +20,9 @@ class LocationData {
   final double longitude;
   final String animal;
   final String coleira;
+  // Novos campos para área segura
+  final bool? isOutsideSafeZone;
+  final double? distanciaDoPerimetro;
 
   LocationData({
     required this.id,
@@ -28,6 +31,8 @@ class LocationData {
     required this.longitude,
     required this.animal,
     required this.coleira,
+    this.isOutsideSafeZone,
+    this.distanciaDoPerimetro,
   });
 
   factory LocationData.fromJson(Map<String, dynamic> json) {
@@ -38,6 +43,11 @@ class LocationData {
       longitude: (json['longitude'] as num).toDouble(),
       animal: json['animal'],
       coleira: json['coleira'],
+      // Novos campos da API
+      isOutsideSafeZone: json['isOutsideSafeZone'] as bool?,
+      distanciaDoPerimetro: json['distanciaDoPerimetro'] != null
+          ? (json['distanciaDoPerimetro'] as num).toDouble()
+          : null,
     );
   }
 }

@@ -91,7 +91,6 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
     super.didUpdateWidget(oldWidget);
     // Atualiza a UI quando o status de conexão mudar
     if (oldWidget.isConnected != widget.isConnected) {
-      debugPrint('🔄 Status de conexão mudou: ${widget.isConnected ? "Conectado" : "Desconectado"}');
       setState(() {
         // Força rebuild para atualizar o indicador de conexão
       });
@@ -103,8 +102,6 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
     if (!mounted) return;
 
     try {
-      debugPrint('📡 Tentativa ${_retryCount + 1}/$_maxRetries de buscar dados do StatusBar...');
-
       // Adiciona timeout para evitar travamentos
       final results = await Future.wait<dynamic>([
         _animalService.getAnimalInfo(widget.animalId),
@@ -113,7 +110,6 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
       ]).timeout(
         const Duration(seconds: 10),
         onTimeout: () {
-          debugPrint('⚠️ Timeout ao buscar dados do StatusBar');
           throw TimeoutException('Timeout ao buscar dados');
         },
       );
@@ -130,8 +126,6 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
         _heartbeatHistory = results[2] as List<HeartbeatData>?;
         _isLoading = false;
       });
-
-      debugPrint('✅ Dados do StatusBar carregados com sucesso!');
     } catch (e) {
       debugPrint("❌ Erro ao buscar dados do StatusBar (tentativa ${_retryCount + 1}/$_maxRetries): $e");
 
@@ -142,7 +136,6 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
         _scheduleRetry();
       } else {
         // Atingiu o máximo de tentativas, para de tentar
-        debugPrint('❌ Máximo de tentativas atingido. Parando retry.');
         setState(() => _isLoading = false);
       }
     }
@@ -156,8 +149,6 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
 
     // Backoff exponencial: 3s, 6s, 12s, 24s, 48s
     final delaySeconds = _retryDelaySeconds * (1 << (_retryCount - 1));
-
-    debugPrint('🔄 Agendando nova tentativa em ${delaySeconds}s...');
 
     _retryTimer?.cancel();
     _retryTimer = Timer(Duration(seconds: delaySeconds), () {
@@ -253,21 +244,6 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
                 fontSize: 14,
               ),
               textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            TextButton.icon(
-              onPressed: () {
-                setState(() {
-                  _isLoading = true;
-                  _retryCount = 0;
-                });
-                _fetchData();
-              },
-              icon: const Icon(Icons.refresh, color: AppColors.orange),
-              label: Text(
-                'Tentar novamente',
-                style: GoogleFonts.poppins(color: AppColors.orange),
-              ),
             ),
           ],
         ),

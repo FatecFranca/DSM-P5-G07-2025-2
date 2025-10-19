@@ -25,6 +25,12 @@ public class LocalizacaoResDTO {
     @Schema(description = "ID da coleira que fez a coleta da localização do animal", example = "")
     private String coleira;
 
+    @Schema(description = "Indica se o animal está fora da área segura", example = "false")
+    private Boolean isOutsideSafeZone;
+
+    @Schema(description = "Distância em metros do perímetro da área segura (positivo se fora, negativo se dentro)", example = "")
+    private Double distanciaDoPerimetro;
+
     public LocalizacaoResDTO() {
     }
 
@@ -35,6 +41,18 @@ public class LocalizacaoResDTO {
         this.longitude = longitude;
         this.animal = animal;
         this.coleira = coleira;
+    }
+
+    public LocalizacaoResDTO(String id, Date data, Double latitude, Double longitude, String animal, String coleira,
+                             Boolean isOutsideSafeZone, Double distanciaDoPerimetro) {
+        this.id = id;
+        this.data = data;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.animal = animal;
+        this.coleira = coleira;
+        this.isOutsideSafeZone = isOutsideSafeZone;
+        this.distanciaDoPerimetro = distanciaDoPerimetro;
     }
 
     public String getId() {
@@ -83,5 +101,21 @@ public class LocalizacaoResDTO {
 
     public void setColeira(String coleira) {
         this.coleira = coleira;
+    }
+
+    public Boolean getIsOutsideSafeZone() {
+        return isOutsideSafeZone;
+    }
+
+    public void setIsOutsideSafeZone(Boolean isOutsideSafeZone) {
+        this.isOutsideSafeZone = isOutsideSafeZone;
+    }
+
+    public Double getDistanciaDoPerimetro() {
+        return distanciaDoPerimetro;
+    }
+
+    public void setDistanciaDoPerimetro(Double distanciaDoPerimetro) {
+        this.distanciaDoPerimetro = distanciaDoPerimetro;
     }
 }

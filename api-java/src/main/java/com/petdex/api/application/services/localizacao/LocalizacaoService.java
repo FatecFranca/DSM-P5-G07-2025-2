@@ -77,6 +77,10 @@ public class LocalizacaoService implements ILocalizacaoService {
             distanciaDoPerimetro = distanciaTotal - areaSegura.getRaio();
         }
 
+        // Define os dados de área segura na resposta
+        localizacaoResDTO.setIsOutsideSafeZone(isForaDaAreaSegura);
+        localizacaoResDTO.setDistanciaDoPerimetro(distanciaDoPerimetro);
+
         // Cria o DTO para envio via WebSocket
         LocalizacaoWebSocketDTO webSocketDTO = new LocalizacaoWebSocketDTO(
                 localizacaoReq.getAnimal(),
@@ -98,7 +102,37 @@ public class LocalizacaoService implements ILocalizacaoService {
     }
 
     public LocalizacaoResDTO fidById(String localizacaoId) {
-        return mapper.map(localizacaoRepository.findById(localizacaoId), LocalizacaoResDTO.class);
+        Optional<Localizacao> localizacaoOpt = localizacaoRepository.findById(localizacaoId);
+
+        return localizacaoOpt.map(localizacao -> {
+            LocalizacaoResDTO localizacaoResDTO = mapper.map(localizacao, LocalizacaoResDTO.class);
+
+            // Verifica se o animal está fora da área segura
+            boolean isForaDaAreaSegura = areaSeguraService.isForaDaAreaSegura(
+                    localizacao.getAnimal(),
+                    localizacao.getLatitude(),
+                    localizacao.getLongitude()
+            );
+            localizacaoResDTO.setIsOutsideSafeZone(isForaDaAreaSegura);
+
+            // Calcula a distância do perímetro (se houver área segura configurada)
+            Double distanciaDoPerimetro = null;
+            Optional<AreaSeguraResDTO> areaSeguraOpt = areaSeguraService.findByAnimalId(localizacao.getAnimal());
+            if (areaSeguraOpt.isPresent()) {
+                AreaSeguraResDTO areaSegura = areaSeguraOpt.get();
+                double distanciaTotal = areaSeguraService.calcularDistanciaEmMetros(
+                        areaSegura.getLatitude(),
+                        areaSegura.getLongitude(),
+                        localizacao.getLatitude(),
+                        localizacao.getLongitude()
+                );
+                // Distância do perímetro = distância total - raio (positivo se fora, negativo se dentro)
+                distanciaDoPerimetro = distanciaTotal - areaSegura.getRaio();
+            }
+            localizacaoResDTO.setDistanciaDoPerimetro(distanciaDoPerimetro);
+
+            return localizacaoResDTO;
+        }).orElse(null);
     }
 
     public Page<LocalizacaoResDTO> findAllByAnimalId(String animalId, PageDTO pageDTO) {
@@ -106,7 +140,35 @@ public class LocalizacaoService implements ILocalizacaoService {
         Page<Localizacao> localizacaosPage = localizacaoRepository.findAllByAnimal(animalId, pageDTO.mapPage());
 
         List<LocalizacaoResDTO> dtoList = localizacaosPage.getContent().stream()
-                .map(b -> mapper.map(b, LocalizacaoResDTO.class))
+                .map(localizacao -> {
+                    LocalizacaoResDTO localizacaoResDTO = mapper.map(localizacao, LocalizacaoResDTO.class);
+
+                    // Verifica se o animal está fora da área segura
+                    boolean isForaDaAreaSegura = areaSeguraService.isForaDaAreaSegura(
+                            animalId,
+                            localizacao.getLatitude(),
+                            localizacao.getLongitude()
+                    );
+                    localizacaoResDTO.setIsOutsideSafeZone(isForaDaAreaSegura);
+
+                    // Calcula a distância do perímetro (se houver área segura configurada)
+                    Double distanciaDoPerimetro = null;
+                    Optional<AreaSeguraResDTO> areaSeguraOpt = areaSeguraService.findByAnimalId(animalId);
+                    if (areaSeguraOpt.isPresent()) {
+                        AreaSeguraResDTO areaSegura = areaSeguraOpt.get();
+                        double distanciaTotal = areaSeguraService.calcularDistanciaEmMetros(
+                                areaSegura.getLatitude(),
+                                areaSegura.getLongitude(),
+                                localizacao.getLatitude(),
+                                localizacao.getLongitude()
+                        );
+                        // Distância do perímetro = distância total - raio (positivo se fora, negativo se dentro)
+                        distanciaDoPerimetro = distanciaTotal - areaSegura.getRaio();
+                    }
+                    localizacaoResDTO.setDistanciaDoPerimetro(distanciaDoPerimetro);
+
+                    return localizacaoResDTO;
+                })
                 .toList();
 
         return new PageImpl<LocalizacaoResDTO>(dtoList, pageDTO.mapPage(), localizacaosPage.getTotalElements());
@@ -117,7 +179,35 @@ public class LocalizacaoService implements ILocalizacaoService {
         Page<Localizacao> localizacaosPage = localizacaoRepository.findAllByColeira(coleiraId, pageDTO.mapPage());
 
         List<LocalizacaoResDTO> dtoList = localizacaosPage.getContent().stream()
-                .map(b -> mapper.map(b, LocalizacaoResDTO.class))
+                .map(localizacao -> {
+                    LocalizacaoResDTO localizacaoResDTO = mapper.map(localizacao, LocalizacaoResDTO.class);
+
+                    // Verifica se o animal está fora da área segura
+                    boolean isForaDaAreaSegura = areaSeguraService.isForaDaAreaSegura(
+                            localizacao.getAnimal(),
+                            localizacao.getLatitude(),
+                            localizacao.getLongitude()
+                    );
+                    localizacaoResDTO.setIsOutsideSafeZone(isForaDaAreaSegura);
+
+                    // Calcula a distância do perímetro (se houver área segura configurada)
+                    Double distanciaDoPerimetro = null;
+                    Optional<AreaSeguraResDTO> areaSeguraOpt = areaSeguraService.findByAnimalId(localizacao.getAnimal());
+                    if (areaSeguraOpt.isPresent()) {
+                        AreaSeguraResDTO areaSegura = areaSeguraOpt.get();
+                        double distanciaTotal = areaSeguraService.calcularDistanciaEmMetros(
+                                areaSegura.getLatitude(),
+                                areaSegura.getLongitude(),
+                                localizacao.getLatitude(),
+                                localizacao.getLongitude()
+                        );
+                        // Distância do perímetro = distância total - raio (positivo se fora, negativo se dentro)
+                        distanciaDoPerimetro = distanciaTotal - areaSegura.getRaio();
+                    }
+                    localizacaoResDTO.setDistanciaDoPerimetro(distanciaDoPerimetro);
+
+                    return localizacaoResDTO;
+                })
                 .toList();
 
         return new PageImpl<LocalizacaoResDTO>(dtoList, pageDTO.mapPage(), localizacaosPage.getTotalElements());
@@ -126,7 +216,36 @@ public class LocalizacaoService implements ILocalizacaoService {
     @Override
     public Optional<LocalizacaoResDTO> findLastByAnimalId(String animalId) {
         Optional<Localizacao> ultimaLocalizacao = localizacaoRepository.findFirstByAnimalOrderByDataDesc(animalId);
-        return ultimaLocalizacao.map(localizacao -> mapper.map(localizacao, LocalizacaoResDTO.class));
+
+        return ultimaLocalizacao.map(localizacao -> {
+            LocalizacaoResDTO localizacaoResDTO = mapper.map(localizacao, LocalizacaoResDTO.class);
+
+            // Verifica se o animal está fora da área segura
+            boolean isForaDaAreaSegura = areaSeguraService.isForaDaAreaSegura(
+                    animalId,
+                    localizacao.getLatitude(),
+                    localizacao.getLongitude()
+            );
+            localizacaoResDTO.setIsOutsideSafeZone(isForaDaAreaSegura);
+
+            // Calcula a distância do perímetro (se houver área segura configurada)
+            Double distanciaDoPerimetro = null;
+            Optional<AreaSeguraResDTO> areaSeguraOpt = areaSeguraService.findByAnimalId(animalId);
+            if (areaSeguraOpt.isPresent()) {
+                AreaSeguraResDTO areaSegura = areaSeguraOpt.get();
+                double distanciaTotal = areaSeguraService.calcularDistanciaEmMetros(
+                        areaSegura.getLatitude(),
+                        areaSegura.getLongitude(),
+                        localizacao.getLatitude(),
+                        localizacao.getLongitude()
+                );
+                // Distância do perímetro = distância total - raio (positivo se fora, negativo se dentro)
+                distanciaDoPerimetro = distanciaTotal - areaSegura.getRaio();
+            }
+            localizacaoResDTO.setDistanciaDoPerimetro(distanciaDoPerimetro);
+
+            return localizacaoResDTO;
+        });
     }
 
 }
