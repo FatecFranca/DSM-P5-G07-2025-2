@@ -6,26 +6,23 @@ public class UsuarioResDTO {
     private String cpf;
     private String whatsApp;
     private String email;
-    private String senha;
 
     public UsuarioResDTO() {
     }
 
-    public UsuarioResDTO(String nome, String cpf, String whatsApp, String email, String senha) {
+    public UsuarioResDTO(String nome, String cpf, String whatsApp, String email) {
         this.nome = nome;
         this.cpf = cpf;
         this.whatsApp = whatsApp;
         this.email = email;
-        this.senha = senha;
     }
 
-    public UsuarioResDTO(String id, String nome, String cpf, String whatsApp, String email, String senha) {
+    public UsuarioResDTO(String id, String nome, String cpf, String whatsApp, String email) {
         this.id = id;
         this.nome = nome;
         this.cpf = cpf;
         this.whatsApp = whatsApp;
         this.email = email;
-        this.senha = senha;
     }
 
     public String getId() {
@@ -66,13 +63,5 @@ public class UsuarioResDTO {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getSenha() {
-        return senha;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
     }
 }

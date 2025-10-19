@@ -7,6 +7,7 @@ class AppColors {
   static const Color sand300 = Color(0xFFFAEDCB);
   static const Color sand400 = Color(0xFFf9d9aa);
   static const Color sand = Color(0xFFF0D37B);
+  static const Color sand1000 = Color(0xFFeac46f);
   static const Color sand900 = Color(0xFFF0D37B);
   static const Color orange200 = Color(0xFFD89042);
   static const Color orange400 = Color(0xFFF39200);
