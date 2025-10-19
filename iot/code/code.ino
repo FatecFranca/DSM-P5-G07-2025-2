@@ -13,6 +13,9 @@ WiFiManager wm;
 #define GREEN_PIN 12
 #define BLUE_PIN 11
 
+const char* JWT_TOKEN = "your-jwt-token-here";
+// ============================================================
+
 const char* serverName = "https://petdex-api-java.onrender.com";
 const String coleiraId = "6819475baa479949daccea94";
 const String animalId = "68194120636f719fcd5ee5fd";
@@ -284,6 +287,7 @@ void enviarBatimento(int media, String timestamp) {
   Serial.println(jsonData);
   http.begin(endpoint);
   http.addHeader("Content-Type", "application/json");
+  http.addHeader("Authorization", String("Bearer ") + JWT_TOKEN);
   int httpResponseCode = http.POST(jsonData);
   Serial.print("POST status: ");
   Serial.println(httpResponseCode);
@@ -317,6 +321,7 @@ void enviarLocalizacao(double latitude, double longitude, String timestamp) {
   Serial.println(jsonData);
   http.begin(endpoint);
   http.addHeader("Content-Type", "application/json");
+  http.addHeader("Authorization", String("Bearer ") + JWT_TOKEN);
   int httpResponseCode = http.POST(jsonData);
   Serial.print("POST status: ");
   Serial.println(httpResponseCode);
@@ -355,6 +360,7 @@ void enviarMovimento(double accX, double accY, double accZ, double angleX, doubl
   Serial.println(jsonData);
   http.begin(endpoint);
   http.addHeader("Content-Type", "application/json");
+  http.addHeader("Authorization", String("Bearer ") + JWT_TOKEN);
   int httpResponseCode = http.POST(jsonData);
   Serial.print("POST status: ");
   Serial.println(httpResponseCode);

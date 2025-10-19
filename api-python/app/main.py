@@ -1,6 +1,9 @@
-from fastapi import FastAPI, Query, HTTPException, APIRouter
+from fastapi import FastAPI, Query, HTTPException, APIRouter, Depends
+from fastapi.openapi.utils import get_openapi
 from app.clients import java_api
 from app.services import stats
+from app.security import get_current_user
+from typing import Tuple
 from app.services import pmml_predictor
 from app.models.sintomas import SintomasInput
 from datetime import date
@@ -16,9 +19,86 @@ app = FastAPI(
 )
 API_URL = os.getenv("API_URL")
 
+
+def custom_openapi():
+    """
+    Customiza o esquema OpenAPI para incluir a documentação de autenticação JWT.
+    """
+    if app.openapi_schema:
+        return app.openapi_schema
+
+    openapi_schema = get_openapi(
+        title="API PetDex - Estatísticas",
+        version="1.0.0",
+        description="""
+        API para exibir dados e estatísticas dos batimentos cardíacos dos animais monitorados pela coleira inteligente.
+
+        ## Autenticação JWT
+
+        Esta API utiliza **JWT (JSON Web Tokens)** para autenticação. Todos os endpoints (exceto `/health`) requerem um token JWT válido.
+
+        ### Como usar:
+
+        1. **Obtenha um token JWT** da API Java (endpoint de login)
+        2. **Inclua o token** no header `Authorization` com o formato: `Bearer <seu_token_jwt>`
+        3. **Exemplo de requisição:**
+           ```
+           GET /batimentos/animal/123/estatisticas HTTP/1.1
+           Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+           ```
+
+        ### Respostas de erro de autenticação:
+
+        - **401 Unauthorized**: Token ausente, inválido ou expirado
+        - **401 Unauthorized**: Formato de header inválido (use `Bearer <token>`)
+
+        ### Fluxo de autenticação:
+
+        1. Cliente faz requisição com token JWT no header `Authorization`
+        2. Python API valida o token
+        3. Se válido, Python API propaga o mesmo token para a API Java
+        4. Requisição é processada com o contexto de autenticação mantido
+        """,
+        routes=app.routes,
+    )
+
+    # Adiciona a definição de segurança Bearer
+    openapi_schema["components"] = {
+        "securitySchemes": {
+            "Bearer": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "description": "Token JWT obtido da API Java. Formato: Bearer <token>"
+            }
+        }
+    }
+
+    # Aplica a segurança Bearer a todos os endpoints (exceto /health)
+    for path, path_item in openapi_schema["paths"].items():
+        if path != "/health":
+            for method in path_item:
+                if method in ["get", "post", "put", "delete", "patch"]:
+                    if "security" not in path_item[method]:
+                        path_item[method]["security"] = [{"Bearer": []}]
+
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi
+
 # --------------------- Health ---------------------
 @app.get("/health", tags=["Status"])
 async def health_check():
+    """
+    Verifica o status da API.
+
+    **Não requer autenticação.**
+
+    Returns:
+        dict: Status da API
+    """
     return {"status": "Ok"}
 
 
@@ -37,10 +117,26 @@ async def analisar_animal(id_animal: str, sintomas: SintomasInput):
 
 @app.post("/ia/animal/{id_animal}", tags=["IA"])
 async def analisar_animal(id_animal: str, sintomas: SintomasInput):
+async def analisar_animal(id_animal: int, sintomas: dict, credentials: Tuple[str, str] = Depends(get_current_user)):
     """
-    Recebe sintomas e retorna a predição de problema/doença via PMML.
+    Analisa sintomas de um animal e retorna a predição de problema/doença via PMML.
+
+    **Requer autenticação JWT.**
+
+    Args:
+        id_animal: ID do animal a ser analisado
+        sintomas: Dicionário com os sintomas do animal
+
+    Returns:
+        dict: Resultado da predição com o ID do animal e o resultado da análise
+
+    Raises:
+        401: Token JWT ausente, inválido ou expirado
+        404: Animal não encontrado na API Java
+        500: Erro ao processar o modelo PMML
     """
-    response = await java_api.buscar_dados_animal(id_animal)
+    user_id, token = credentials
+    response = await java_api.buscar_dados_animal(id_animal, token)
     if not response:
         raise HTTPException(status_code=404, detail="Animal não encontrado na API Java")
     
@@ -51,11 +147,34 @@ async def analisar_animal(id_animal: str, sintomas: SintomasInput):
     
     return {"animalId": id_animal, "resultado": resultado_sanitizado}
 
+    # Faz a predição (carrega o modelo só quando for usado)
+    try:
+        resultado = pmml_predictor.predict({**response, **sintomas})
+        return {"animalId": id_animal, "resultado": resultado}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao processar PMML: {str(e)}")
+
+
 
 # --------------------- Batimentos - Estatísticas ---------------------
 @app.get("/batimentos/animal/{animalId}/estatisticas", tags=["Batimentos"])
-async def get_estatisticas(animalId: str):
-    dados = await java_api.buscar_todos_batimentos(animalId)
+async def get_estatisticas(animalId: str, credentials: Tuple[str, str] = Depends(get_current_user)):
+    """
+    Obtém estatísticas gerais dos batimentos cardíacos de um animal.
+
+    **Requer autenticação JWT.**
+
+    Args:
+        animalId: ID do animal
+
+    Returns:
+        dict: Estatísticas dos batimentos (média, desvio padrão, mínimo, máximo, etc.)
+
+    Raises:
+        401: Token JWT ausente, inválido ou expirado
+    """
+    user_id, token = credentials
+    dados = await java_api.buscar_todos_batimentos(animalId, token)
     resultado = stats.calcular_estatisticas(dados)
     return resultado
 
@@ -63,15 +182,49 @@ async def get_estatisticas(animalId: str):
 async def media_batimentos_por_data(
     animalId: str,
     inicio: date = Query(..., description="Data de início YYYY-MM-DD"),
-    fim: date = Query(..., description="Data de fim YYYY-MM-DD")
+    fim: date = Query(..., description="Data de fim YYYY-MM-DD"),
+    credentials: Tuple[str, str] = Depends(get_current_user)
 ):
-    dados = await java_api.buscar_todos_batimentos(animalId)
+    """
+    Calcula a média de batimentos por data em um intervalo especificado.
+
+    **Requer autenticação JWT.**
+
+    Args:
+        animalId: ID do animal
+        inicio: Data de início do intervalo (formato: YYYY-MM-DD)
+        fim: Data de fim do intervalo (formato: YYYY-MM-DD)
+
+    Returns:
+        dict: Média de batimentos por data no intervalo especificado
+
+    Raises:
+        401: Token JWT ausente, inválido ou expirado
+    """
+    user_id, token = credentials
+    dados = await java_api.buscar_todos_batimentos(animalId, token)
     resultado = stats.media_por_intervalo(dados, inicio, fim)
     return resultado
 
 @app.get("/batimentos/animal/{animalId}/probabilidade", tags=["Batimentos"])
-async def probabilidade_batimento(animalId: str, valor: int = Query(..., gt=0)):
-    dados = await java_api.buscar_todos_batimentos(animalId)
+async def probabilidade_batimento(animalId: str, valor: int = Query(..., gt=0), credentials: Tuple[str, str] = Depends(get_current_user)):
+    """
+    Calcula a probabilidade de um valor de batimento ocorrer.
+
+    **Requer autenticação JWT.**
+
+    Args:
+        animalId: ID do animal
+        valor: Valor de batimento para calcular a probabilidade (deve ser > 0)
+
+    Returns:
+        dict: Probabilidade do valor de batimento ocorrer
+
+    Raises:
+        401: Token JWT ausente, inválido ou expirado
+    """
+    user_id, token = credentials
+    dados = await java_api.buscar_todos_batimentos(animalId, token)
     valores = [bat["frequenciaMedia"] for bat in dados if isinstance(bat.get("frequenciaMedia"), (int, float))]
     if not valores:
         return {"erro": "Nenhum dado de batimentos disponível."}
@@ -79,9 +232,24 @@ async def probabilidade_batimento(animalId: str, valor: int = Query(..., gt=0)):
     return resultado
 
 @app.get("/batimentos/animal/{animalId}/ultimo/analise", tags=["Batimentos"])
-async def probabilidade_ultimo_batimento(animalId: str):
-    dados = await java_api.buscar_todos_batimentos(animalId)
-    ultimo = await java_api.buscar_ultimo_batimento(animalId)
+async def probabilidade_ultimo_batimento(animalId: str, credentials: Tuple[str, str] = Depends(get_current_user)):
+    """
+    Analisa o último batimento registrado e calcula sua probabilidade.
+
+    **Requer autenticação JWT.**
+
+    Args:
+        animalId: ID do animal
+
+    Returns:
+        dict: Análise do último batimento com sua probabilidade
+
+    Raises:
+        401: Token JWT ausente, inválido ou expirado
+    """
+    user_id, token = credentials
+    dados = await java_api.buscar_todos_batimentos(animalId, token)
+    ultimo = await java_api.buscar_ultimo_batimento(animalId, token)
     ultimo_valor = ultimo.get("frequenciaMedia") if ultimo else None
 
     valores = [bat["frequenciaMedia"] for bat in dados if isinstance(bat.get("frequenciaMedia"), (int, float))]
@@ -94,25 +262,70 @@ async def probabilidade_ultimo_batimento(animalId: str):
     return resultado
 
 @app.get("/batimentos/animal/{animalId}/media-ultimos-5-dias", tags=["Batimentos"])
-async def media_batimentos_ultimos_5_dias(animalId: str):
-    batimentos = await java_api.buscar_todos_batimentos(animalId)
+async def media_batimentos_ultimos_5_dias(animalId: str, credentials: Tuple[str, str] = Depends(get_current_user)):
+    """
+    Calcula a média de batimentos dos últimos 5 dias válidos.
+
+    **Requer autenticação JWT.**
+
+    Args:
+        animalId: ID do animal
+
+    Returns:
+        dict: Dicionário com as médias de batimentos dos últimos 5 dias
+
+    Raises:
+        401: Token JWT ausente, inválido ou expirado
+    """
+    user_id, token = credentials
+    batimentos = await java_api.buscar_todos_batimentos(animalId, token)
     if not batimentos:
         return {"medias": {}}
     medias = stats.media_ultimos_5_dias_validos(batimentos)
     return {"medias": medias}
 
 @app.get("/batimentos/animal/{animalId}/media-ultimas-5-horas-registradas", tags=["Batimentos"])
-async def media_batimentos_ultimas_5_horas(animalId: str):
-    dados = await java_api.buscar_todos_batimentos(animalId)
+async def media_batimentos_ultimas_5_horas(animalId: str, credentials: Tuple[str, str] = Depends(get_current_user)):
+    """
+    Calcula a média de batimentos das últimas 5 horas registradas.
+
+    **Requer autenticação JWT.**
+
+    Args:
+        animalId: ID do animal
+
+    Returns:
+        dict: Média de batimentos das últimas 5 horas registradas
+
+    Raises:
+        401: Token JWT ausente, inválido ou expirado
+    """
+    user_id, token = credentials
+    dados = await java_api.buscar_todos_batimentos(animalId, token)
     resultado = stats.media_ultimas_5_horas_registradas(dados)
     return resultado
 
 
 # --------------------- Batimentos - Regressão ---------------------
 @app.get("/batimentos/animal/{animalId}/regressao", tags=["Batimentos"])
-async def analise_regressao_batimentos(animalId: str):
-    batimentos = await java_api.buscar_todos_batimentos(animalId)
-    movimentos = await java_api.buscar_todos_movimentos(animalId)
+async def analise_regressao_batimentos(animalId: str, credentials: Tuple[str, str] = Depends(get_current_user)):
+    """
+    Realiza análise de regressão entre batimentos e movimentos.
+
+    **Requer autenticação JWT.**
+
+    Args:
+        animalId: ID do animal
+
+    Returns:
+        dict: Resultado da análise de regressão com coeficientes e função utilizada
+
+    Raises:
+        401: Token JWT ausente, inválido ou expirado
+    """
+    user_id, token = credentials
+    batimentos = await java_api.buscar_todos_batimentos(animalId, token)
+    movimentos = await java_api.buscar_todos_movimentos(animalId, token)
     if not batimentos or not movimentos:
         return {"erro": "Dados insuficientes para análise."}
     resultado = stats.executar_regressao(batimentos, movimentos)
@@ -121,12 +334,34 @@ async def analise_regressao_batimentos(animalId: str):
 @app.get("/batimentos/animal/{animalId}/predizer", tags=["Batimentos"])
 async def predizer_batimento(
     animalId: str,
-    acelerometroX: float = Query(...),
-    acelerometroY: float = Query(...),
-    acelerometroZ: float = Query(...)
+    acelerometroX: float = Query(..., description="Valor do acelerômetro no eixo X"),
+    acelerometroY: float = Query(..., description="Valor do acelerômetro no eixo Y"),
+    acelerometroZ: float = Query(..., description="Valor do acelerômetro no eixo Z"),
+    credentials: Tuple[str, str] = Depends(get_current_user)
 ):
-    batimentos = await java_api.buscar_todos_batimentos(animalId)
-    movimentos = await java_api.buscar_todos_movimentos(animalId)
+    """
+    Prediz a frequência de batimentos baseado em valores de aceleração.
+
+    **Requer autenticação JWT.**
+
+    Utiliza um modelo de regressão linear para prever a frequência cardíaca
+    baseado nos valores dos acelerômetros (X, Y, Z).
+
+    Args:
+        animalId: ID do animal
+        acelerometroX: Valor do acelerômetro no eixo X
+        acelerometroY: Valor do acelerômetro no eixo Y
+        acelerometroZ: Valor do acelerômetro no eixo Z
+
+    Returns:
+        dict: Frequência prevista e função de regressão utilizada
+
+    Raises:
+        401: Token JWT ausente, inválido ou expirado
+    """
+    user_id, token = credentials
+    batimentos = await java_api.buscar_todos_batimentos(animalId, token)
+    movimentos = await java_api.buscar_todos_movimentos(animalId, token)
     if not batimentos or not movimentos:
         return {"erro": "Dados insuficientes para gerar o modelo de regressão."}
 
