@@ -9,6 +9,7 @@ import com.petdex.api.domain.contracts.dto.animal.AnimalResDTO;
 import com.petdex.api.infrastructure.mongodb.AnimalRepository;
 import com.petdex.api.infrastructure.mongodb.EspecieRepository;
 import com.petdex.api.infrastructure.mongodb.RacaRepository;
+import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AnimalService implements IAnimalService{
@@ -96,5 +98,26 @@ public class AnimalService implements IAnimalService{
     @Override
     public void delete(String id) {
         animalRepository.deleteById(id);
+    }
+
+    @Override
+    public Optional<AnimalResDTO> findByUsuarioId(String usuarioId) {
+        // Converte String para ObjectId
+        ObjectId usuarioObjectId = new ObjectId(usuarioId);
+        Optional<Animal> animalOpt = animalRepository.findByUsuario(usuarioObjectId);
+
+        return animalOpt.map(animal -> {
+            Raca raca = racaRepository.findById(animal.getRaca())
+                    .orElseThrow(() -> new RuntimeException("Não foi possível encontrar a raça do animal: " + animal.getRaca()));
+
+            Especie especie = especieRepository.findById(raca.getEspecie())
+                    .orElseThrow(() -> new RuntimeException("Não foi possível encontrar a espécie do animal: " + raca.getEspecie()));
+
+            AnimalResDTO animalResDTO = mapper.map(animal, AnimalResDTO.class);
+            animalResDTO.setEspecieNome(especie.getNome());
+            animalResDTO.setRacaNome(raca.getNome());
+
+            return animalResDTO;
+        });
     }
 }

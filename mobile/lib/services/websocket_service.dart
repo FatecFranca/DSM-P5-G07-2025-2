@@ -42,12 +42,10 @@ class WebSocketService {
     _isInBackground = isBackground;
 
     if (isBackground) {
-      print('🔄 App entrou em background - iniciando serviço de background');
       if (_currentAnimalId != null) {
         BackgroundWebSocketService.startBackgroundService(_currentAnimalId!);
       }
     } else {
-      print('🔄 App voltou para foreground - parando serviço de background');
       BackgroundWebSocketService.stopBackgroundService();
       if (!_isConnected && _currentAnimalId != null) {
         connect(_currentAnimalId!);
@@ -73,8 +71,6 @@ class WebSocketService {
   void setPetName(String petName) {
     _currentPetName = petName;
   }
-
-
 
   Future<void> connect(String animalId) async {
     if (_isConnected) {
@@ -110,6 +106,9 @@ class WebSocketService {
         } else if (wsUrl.startsWith('http://')) {
           wsUrl = wsUrl.replaceFirst('http://', 'ws://');
         }
+
+        print('🔌 Tentando conectar ao WebSocket...');
+        print('🔗 URL: $wsUrl');
 
         _channel = WebSocketChannel.connect(
           Uri.parse(wsUrl),
@@ -228,6 +227,8 @@ class WebSocketService {
     }
   }
 
+
+
   void _handleMessage(dynamic message) {
     if (message is String && message.trim().isNotEmpty) {
       // Verificar se é uma mensagem STOMP
@@ -263,7 +264,7 @@ class WebSocketService {
     final command = lines[0];
 
     if (command == 'CONNECTED') {
-      print('✅ Conectado ao WebSocket');
+      // Silencioso
     } else if (command == 'MESSAGE') {
       // Extrair o corpo da mensagem (após linha vazia)
       int bodyStartIndex = -1;
@@ -345,6 +346,8 @@ class WebSocketService {
     });
   }
 
+
+
   void disconnect() {
     _reconnectTimer?.cancel();
     _reconnectTimer = null;
@@ -359,7 +362,6 @@ class WebSocketService {
     if (_isConnected) {
       _isConnected = false;
       _connectionController.add(false);
-      print('🔌 Desconectado do WebSocket');
     }
 
     _currentAnimalId = null;

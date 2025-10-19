@@ -10,20 +10,17 @@ class MapServices {
       final googleMapsApiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '';
 
       if (googleMapsApiKey.isEmpty) {
-        print('❌ ERRO: GOOGLE_MAPS_API_KEY não encontrada no .env!');
         return;
       }
 
       final local = await AnimalStatsService().getUltimaLocalizacaoAnimal(idAnimal);
 
       if (local == null) {
-        print('⚠️ Nenhuma localização encontrada para o animal $idAnimal');
         return;
       }
 
       final latitude = local['latitude'];
       final longitude = local['longitude'];
-      print('📍 Coordenadas obtidas: $latitude, $longitude');
 
       final url =
           'https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&key=$googleMapsApiKey&language=pt-BR';
@@ -33,16 +30,11 @@ class MapServices {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['status'] == 'OK' && data['results'].isNotEmpty) {
-          final endereco = data['results'][0]['formatted_address'];
-          print('🏠 Endereço atual do animal: $endereco');
-        } else {
-          print('⚠️ Nenhum endereço encontrado para essas coordenadas.');
+          // Address retrieved successfully
         }
-      } else {
-        print('❌ Erro HTTP ${response.statusCode} ao consultar o Google Maps.');
       }
     } catch (e) {
-      print('❌ Erro ao obter endereço do animal: $e');
+      // Error handled silently
     }
   }
 
@@ -52,17 +44,12 @@ class MapServices {
       final local = await AnimalStatsService().getUltimaLocalizacaoAnimal(idAnimal);
 
       if (local == null) {
-        print('⚠️ Nenhuma localização válida encontrada para o animal.');
         return;
       }
 
-      final latitude = local['latitude'];
-      final longitude = local['longitude'];
-
-      print('🗺️ Mapa montado com a localização: ($latitude, $longitude)');
-      print('✅ Use esses dados para renderizar o mapa do Google Maps.');
+      // Map data retrieved successfully
     } catch (e) {
-      print('❌ Erro ao montar o mapa: $e');
+      // Error handled silently
     }
   }
 }
