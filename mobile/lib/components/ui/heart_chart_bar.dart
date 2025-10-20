@@ -17,6 +17,18 @@ class HeartChartBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24.0),
+      decoration: BoxDecoration(
+        color: AppColors.sand,
+        borderRadius: BorderRadius.circular(24.0),
+      ),
+      child: _buildChartContent(),
+    );
+  }
+
+  Widget _buildChartContent() {
     if (data.isEmpty) {
       return const Center(child: Text("Sem dados para exibir."));
     }
@@ -32,7 +44,7 @@ class HeartChartBar extends StatelessWidget {
           Text(
             title,
             style: GoogleFonts.poppins(
-              color: AppColors.orange900, 
+              color: AppColors.orange900,
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
@@ -67,8 +79,8 @@ class HeartChartBar extends StatelessWidget {
                         if (value == minY || value == maxY) return const SizedBox();
                         return Text(
                           value.toInt().toString(),
-                            style: GoogleFonts.poppins(
-                            color: AppColors.orange400, 
+                          style: GoogleFonts.poppins(
+                            color: AppColors.orange400,
                             fontSize: 12
                           ),
                         );
@@ -84,7 +96,7 @@ class HeartChartBar extends StatelessWidget {
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
                         if (index >= data.length) return const SizedBox();
-                        
+
                         final date = DateTime.parse(data[index].date);
                         final formattedDate = DateFormat('dd/MM').format(date);
 
@@ -109,7 +121,7 @@ class HeartChartBar extends StatelessWidget {
                       BarChartRodData(
                         toY: item.value,
                         color: AppColors.orange400,
-                        width: 40, 
+                        width: 40,
                         borderRadius: const BorderRadius.all(Radius.circular(4)),
                       ),
                     ],
