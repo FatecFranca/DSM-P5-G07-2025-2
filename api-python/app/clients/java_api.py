@@ -39,7 +39,10 @@ async def buscar_todos_batimentos(animalId: str, token: Optional[str] = None):
     pagina = 0
     tamanho = 50  # ou o tamanho padrão da sua API
 
-    async with httpx.AsyncClient() as client:
+    # Configurar timeout de 30 segundos para cada requisição
+    timeout = httpx.Timeout(30.0)
+
+    async with httpx.AsyncClient(timeout=timeout) as client:
         # Primeira chamada para descobrir total de páginas
         response = await client.get(
             f"{API_URL}/batimentos/animal/{animalId}?page={pagina}&size={tamanho}",
@@ -74,7 +77,9 @@ async def buscar_ultimo_batimento(animalId: str, token: Optional[str] = None):
     Returns:
         dict: The last heartbeat record
     """
-    async with httpx.AsyncClient() as client:
+    timeout = httpx.Timeout(30.0)
+
+    async with httpx.AsyncClient(timeout=timeout) as client:
         response = await client.get(
             f"{API_URL}/batimentos/animal/{animalId}/ultimo",
             headers=_get_auth_headers(token)
@@ -99,7 +104,9 @@ async def buscar_todos_movimentos(animalId: str, token: Optional[str] = None):
     pagina = 0
     tamanho = 50  # ajuste conforme necessidade
 
-    async with httpx.AsyncClient() as client:
+    timeout = httpx.Timeout(30.0)
+
+    async with httpx.AsyncClient(timeout=timeout) as client:
         response = await client.get(
             f"{API_URL}/movimentos/animal/{animalId}?page={pagina}&size={tamanho}",
             headers=_get_auth_headers(token)
@@ -132,7 +139,9 @@ async def buscar_dados_animal(animalId: str, token: Optional[str] = None):
     Returns:
         dict: Animal data with last heartbeat information, or None if not found
     """
-    async with httpx.AsyncClient() as client:
+    timeout = httpx.Timeout(30.0)
+
+    async with httpx.AsyncClient(timeout=timeout) as client:
         response = await client.get(
             f"{API_URL}/animais/{animalId}",
             headers=_get_auth_headers(token)
