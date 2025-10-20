@@ -145,6 +145,7 @@ class _HealthScreenState extends State<HealthScreen> {
                     return HeartChartBar(
                       title: "Média de batimentos dos últimos cinco dias:",
                       data: data,
+                      backgroundColor: AppColors.sand,
                     );
                   },
                 ),
