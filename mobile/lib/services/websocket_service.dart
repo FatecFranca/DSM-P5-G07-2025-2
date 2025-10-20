@@ -379,19 +379,13 @@ class WebSocketService {
     _reconnectAttempts = 0;
   }
 
-  /// Verifica se o pet saiu da área segura e envia notificação
+  /// Verifica se o pet saiu/retornou da área segura e envia notificação apropriada
+  /// Implementa lógica de transição de estado
   void _checkAndNotifySafeZone(LocationUpdate locationUpdate) {
-    if (locationUpdate.isOutsideSafeZone) {
-      _notificationService.sendSafeZoneAlert(
-        petName: _currentPetName ?? 'Seu pet',
-        isOutside: true,
-      );
-    } else {
-      // Pet voltou para área segura - reseta o estado de notificação
-      _notificationService.sendSafeZoneAlert(
-        petName: _currentPetName ?? 'Seu pet',
-        isOutside: false,
-      );
-    }
+    // Envia para o serviço de notificações que detectará transições
+    _notificationService.sendSafeZoneAlert(
+      petName: _currentPetName ?? 'Seu pet',
+      isOutside: locationUpdate.isOutsideSafeZone,
+    );
   }
 }

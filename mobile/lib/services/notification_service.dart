@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/foundation.dart';
@@ -11,7 +12,13 @@ class NotificationService {
 
   final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
   bool _isInitialized = false;
-  bool _lastNotificationWasOutside = false; // Previne notificações duplicadas
+
+  // Rastreamento de estado da área segura
+  bool? _lastKnownSafeZoneState; // null = desconhecido, true = fora, false = dentro
+  DateTime? _lastNotificationTime; // Última vez que uma notificação foi enviada
+  Timer? _repeatingNotificationTimer; // Timer para notificações repetidas
+
+  static const Duration _notificationRepeatInterval = Duration(minutes: 5);
 
   /// Inicializa o serviço de notificações
   Future<void> initialize() async {
@@ -95,8 +102,8 @@ class NotificationService {
     // Aqui você pode navegar para uma tela específica se necessário
   }
 
-  /// Envia notificação de alerta quando o pet sai da área segura
-  /// Previne notificações duplicadas
+  /// Envia notificação de alerta quando o pet sai/retorna da área segura
+  /// Implementa lógica de transição de estado e notificações repetidas
   Future<void> sendSafeZoneAlert({
     required String petName,
     required bool isOutside,
@@ -105,29 +112,52 @@ class NotificationService {
       await initialize();
     }
 
-    // Previne notificações duplicadas
-    if (isOutside && _lastNotificationWasOutside) {
-      return;
+    // Detecta transição de estado
+    final hasStateChanged = _lastKnownSafeZoneState != isOutside;
+
+    // Atualiza o estado conhecido
+    _lastKnownSafeZoneState = isOutside;
+
+    if (isOutside) {
+      // Pet está FORA da área segura
+      if (hasStateChanged) {
+        // TRANSIÇÃO: Pet ACABOU DE SAIR da área segura
+        debugPrint('🚨 Pet saiu da área segura!');
+        await _sendOutsideNotification(petName);
+        _lastNotificationTime = DateTime.now();
+
+        // Inicia timer para notificações repetidas a cada 5 minutos
+        _startRepeatingNotificationTimer(petName);
+      }
+      // Se não houve mudança de estado, o timer já está ativo
+    } else {
+      // Pet está DENTRO da área segura
+      if (hasStateChanged) {
+        // TRANSIÇÃO: Pet RETORNOU à área segura
+        debugPrint('✅ Pet retornou à área segura!');
+
+        // Cancela timer de notificações repetidas
+        _repeatingNotificationTimer?.cancel();
+        _repeatingNotificationTimer = null;
+
+        // Envia notificação de retorno
+        await _sendReturnNotification(petName);
+        _lastNotificationTime = DateTime.now();
+      }
     }
+  }
 
-    // Atualiza o estado
-    _lastNotificationWasOutside = isOutside;
-
-    // Só envia notificação quando sai da área
-    if (!isOutside) {
-      return;
-    }
-
-    // Configurações de notificação para Android
+  /// Envia notificação quando o pet sai da área segura
+  Future<void> _sendOutsideNotification(String petName) async {
     final androidDetails = AndroidNotificationDetails(
-      'safe_zone_alerts', // ID do canal
-      'Alertas de Área Segura', // Nome do canal
+      'safe_zone_alerts',
+      'Alertas de Área Segura',
       channelDescription: 'Notificações quando o pet sai da área segura',
       importance: Importance.max,
       priority: Priority.high,
       playSound: true,
       enableVibration: true,
-      vibrationPattern: Int64List.fromList([0, 500, 250, 500]), // Padrão de vibração
+      vibrationPattern: Int64List.fromList([0, 500, 250, 500]),
       icon: '@mipmap/ic_launcher',
       largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
       styleInformation: const BigTextStyleInformation(
@@ -137,7 +167,6 @@ class NotificationService {
       ),
     );
 
-    // Configurações de notificação para iOS
     const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
@@ -146,24 +175,91 @@ class NotificationService {
       interruptionLevel: InterruptionLevel.timeSensitive,
     );
 
-    // Detalhes gerais da notificação
     final notificationDetails = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
     );
 
-    // Envia a notificação
     try {
       await _notifications.show(
-        0, // ID da notificação (0 = sempre substitui a anterior)
+        1, // ID único para notificações de saída
         '⚠️ Atenção',
-        'Seu pet está fora da área segura!',
+        '$petName está fora da área segura!',
         notificationDetails,
-        payload: 'safe_zone_alert',
+        payload: 'safe_zone_alert_outside',
       );
     } catch (e) {
-      debugPrint('❌ Erro ao enviar notificação: $e');
+      debugPrint('❌ Erro ao enviar notificação de saída: $e');
     }
+  }
+
+  /// Envia notificação quando o pet retorna à área segura
+  Future<void> _sendReturnNotification(String petName) async {
+    final androidDetails = AndroidNotificationDetails(
+      'safe_zone_alerts',
+      'Alertas de Área Segura',
+      channelDescription: 'Notificações quando o pet retorna à área segura',
+      importance: Importance.high,
+      priority: Priority.high,
+      playSound: true,
+      enableVibration: true,
+      vibrationPattern: Int64List.fromList([0, 250, 250, 250]),
+      icon: '@mipmap/ic_launcher',
+      largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+      styleInformation: const BigTextStyleInformation(
+        'Seu pet retornou à área segura!',
+        contentTitle: '✅ Seguro',
+        summaryText: 'PetDex',
+      ),
+    );
+
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+      sound: 'default',
+      interruptionLevel: InterruptionLevel.timeSensitive,
+    );
+
+    final notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+
+    try {
+      await _notifications.show(
+        2, // ID único para notificações de retorno
+        '✅ Seguro',
+        '$petName retornou à área segura!',
+        notificationDetails,
+        payload: 'safe_zone_alert_return',
+      );
+    } catch (e) {
+      debugPrint('❌ Erro ao enviar notificação de retorno: $e');
+    }
+  }
+
+  /// Inicia timer para enviar notificações repetidas a cada 5 minutos
+  void _startRepeatingNotificationTimer(String petName) {
+    // Cancela timer anterior se existir
+    _repeatingNotificationTimer?.cancel();
+
+    // Inicia novo timer
+    _repeatingNotificationTimer = Timer.periodic(
+      _notificationRepeatInterval,
+      (timer) async {
+        // Verifica se o pet ainda está fora (estado não mudou)
+        if (_lastKnownSafeZoneState == true) {
+          debugPrint('🔔 Reenviando notificação de área segura (5 minutos)');
+          await _sendOutsideNotification(petName);
+          _lastNotificationTime = DateTime.now();
+        } else {
+          // Pet retornou, cancela o timer
+          timer.cancel();
+          _repeatingNotificationTimer = null;
+        }
+      },
+    );
   }
 
   /// Cancela todas as notificações
@@ -173,7 +269,16 @@ class NotificationService {
 
   /// Reseta o estado de notificações (útil para testes)
   void resetNotificationState() {
-    _lastNotificationWasOutside = false;
+    _lastKnownSafeZoneState = null;
+    _lastNotificationTime = null;
+    _repeatingNotificationTimer?.cancel();
+    _repeatingNotificationTimer = null;
+  }
+
+  /// Cancela o timer de notificações repetidas
+  void cancelRepeatingNotifications() {
+    _repeatingNotificationTimer?.cancel();
+    _repeatingNotificationTimer = null;
   }
 
   /// Verifica se as permissões estão concedidas
@@ -185,5 +290,10 @@ class NotificationService {
     // iOS sempre retorna true após solicitar permissões
     return true;
   }
+
+  // Getters para testes
+  bool? get lastKnownSafeZoneState => _lastKnownSafeZoneState;
+  DateTime? get lastNotificationTime => _lastNotificationTime;
+  Timer? get repeatingNotificationTimer => _repeatingNotificationTimer;
 }
 
