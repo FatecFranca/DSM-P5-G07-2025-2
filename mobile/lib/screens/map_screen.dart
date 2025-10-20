@@ -266,9 +266,31 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
   }
 
   /// Centraliza o mapa na localização atual do animal
-  void _centerOnAnimalLocation() {
+  /// Também recarrega a localização mais recente da API e atualiza o status de área segura
+  Future<void> _centerOnAnimalLocation() async {
     if (_currentLocation != null) {
-      _animateToLocation(_currentLocation!.latitude, _currentLocation!.longitude);
+      // Recarrega a localização mais recente da API
+      try {
+        final location = await _locationService.getUltimaLocalizacaoAnimal(widget.animalId);
+        if (location != null) {
+          // Atualiza a localização e status da área segura
+          setState(() {
+            _currentLocation = location;
+            _isOutsideSafeZone = location.isOutsideSafeZone;
+            _distanceFromPerimeter = location.distanciaDoPerimetro;
+          });
+
+          // Atualiza o marcador com a nova localização
+          await _createMarker(location);
+
+          // Anima o mapa para a nova localização
+          _animateToLocation(location.latitude, location.longitude);
+
+          LoggerService.success('✅ Localização atualizada - Status: ${location.isOutsideSafeZone ?? false ? "FORA" : "DENTRO"}');
+        }
+      } catch (e) {
+        LoggerService.error('❌ Erro ao atualizar localização: $e', error: e);
+      }
     }
   }
 
