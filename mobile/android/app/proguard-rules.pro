@@ -87,9 +87,27 @@
 -keep class android.app.NotificationChannelGroup { *; }
 -keep class com.google.android.material.notification.** { *; }
 
-# Flutter Local Notifications Plugin
+# Flutter Local Notifications Plugin - CRÍTICO
 -keep class com.dexterous.flutterlocalnotifications.** { *; }
 -keep interface com.dexterous.flutterlocalnotifications.** { *; }
+-keep class com.dexterous.** { *; }
+-keep interface com.dexterous.** { *; }
+
+# AndroidX - Necessário para notificações
+-keep class androidx.** { *; }
+-keep interface androidx.** { *; }
+-keep class androidx.core.** { *; }
+-keep interface androidx.core.** { *; }
+
+# Android Framework - Notificações
+-keep class android.app.** { *; }
+-keep interface android.app.** { *; }
+-keep class android.content.** { *; }
+-keep interface android.content.** { *; }
+
+# Permissões
+-keep class android.permission.** { *; }
+-keep class android.content.pm.** { *; }
 
 # ============================================================================
 # Logging - Manter para debug
@@ -115,4 +133,32 @@
 # ============================================================================
 -keepnames class * { *; }
 -keepnames interface * { *; }
+
+# ============================================================================
+# CRÍTICO: Manter métodos públicos de notificações
+# ============================================================================
+-keepclassmembers class * {
+    public <methods>;
+}
+
+# Manter construtores
+-keepclasseswithmembers class * {
+    public <init>(...);
+}
+
+# Manter métodos de callback
+-keep class * implements android.content.BroadcastReceiver {
+    public <init>(...);
+}
+
+-keep class * implements android.app.Service {
+    public <init>(...);
+}
+
+# ============================================================================
+# Manter classes que usam reflexão
+# ============================================================================
+-keepclasseswithmembers class * {
+    *** *(...);
+}
 

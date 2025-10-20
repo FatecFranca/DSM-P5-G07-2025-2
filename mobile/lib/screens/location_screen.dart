@@ -11,7 +11,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:PetDex/services/location_service.dart';
 import 'package:PetDex/services/websocket_service.dart';
-import 'package:PetDex/services/animal_service.dart';
 import 'package:PetDex/services/safe_area_service.dart' as safe_area;
 import 'package:PetDex/services/logger_service.dart';
 import 'package:PetDex/data/enums/species.dart';
@@ -51,7 +50,6 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
   GoogleMapController? _mapController;
   final LocationService _locationService = LocationService();
   final WebSocketService _webSocketService = WebSocketService();
-  final AnimalService _animalService = AnimalService();
   final safe_area.SafeAreaService _safeAreaService = safe_area.SafeAreaService();
 
   LocationData? _currentLocation;
@@ -66,13 +64,10 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
   // Informações de área segura
   bool? _isOutsideSafeZone;
   double? _distanceFromPerimeter;
-  double? _safeZoneRadius; // Raio da área segura em metros
   safe_area.SafeArea? _safeArea; // Área segura do animal (buscada da API)
 
   // Subscriptions do WebSocket
   StreamSubscription<LocationUpdate>? _locationSubscription;
-  StreamSubscription<bool>? _connectionSubscription;
-  bool _isWebSocketConnected = false;
 
   static const CameraPosition _defaultPosition = CameraPosition(
     target: LatLng(-23.5505, -46.6333),
@@ -86,6 +81,7 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
   }
 
   /// Inicializa a aplicação: carrega localização inicial e conecta WebSocket
+  /// REPLICADO EXATAMENTE DO MapScreen
   Future<void> _initializeApp() async {
     // Evita inicializações duplicadas
     if (_isInitialized) {
@@ -93,65 +89,35 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
     }
 
     try {
-      await _loadAnimalName(); // Busca o nome do animal da API
       await _loadAnimalLocation();
-      await _initializeNotifications(); // ✅ CRÍTICO: Inicializa notificações
       _initializeWebSocket();
+      await _initializeNotifications();
       _isInitialized = true;
     } catch (e) {
       LoggerService.error('❌ Erro ao inicializar LocationScreen: $e', error: e);
     }
   }
 
-  /// Carrega o nome do animal da API
-  Future<void> _loadAnimalName() async {
+  /// Inicializa o serviço de notificações
+  /// REPLICADO EXATAMENTE DO MapScreen
+  Future<void> _initializeNotifications() async {
     try {
-      final animal = await _animalService.getAnimalInfo(widget.animalId);
-      if (mounted) {
-        setState(() {
-          _animalName = animal.nome;
-        });
-      }
+      await _webSocketService.initializeNotifications(petName: widget.animalName);
     } catch (e) {
-      LoggerService.error('❌ Erro ao carregar nome do animal: $e', error: e);
-      // Fallback para o nome passado como parâmetro
-      if (mounted) {
-        setState(() {
-          _animalName = widget.animalName;
-        });
-      }
+      LoggerService.error('❌ Erro ao inicializar notificações: $e', error: e);
     }
   }
 
-  /// Inicializa o serviço de notificações
-  Future<void> _initializeNotifications() async {
-    await _webSocketService.initializeNotifications(petName: widget.animalName);
-  }
-
   /// Inicializa o WebSocket e seus listeners
+  /// REPLICADO EXATAMENTE DO MapScreen
   void _initializeWebSocket() {
     try {
       LoggerService.websocket('🔌 Inicializando WebSocket para animal: ${widget.animalId}');
 
-      // Cancela subscriptions anteriores se existirem
-      _connectionSubscription?.cancel();
+      // Cancela subscription anterior se existir
       _locationSubscription?.cancel();
 
-      // Listener de conexão
-      _connectionSubscription = _webSocketService.connectionStream.listen((isConnected) {
-        if (mounted) {
-          setState(() {
-            _isWebSocketConnected = isConnected;
-          });
-        }
-      });
-
-      // Listener de atualizações de localização
-      _locationSubscription = _webSocketService.locationStream.listen((locationUpdate) {
-        _handleWebSocketLocationUpdate(locationUpdate);
-      });
-
-      // Conecta ao WebSocket
+      _locationSubscription = _webSocketServiceLocationStreamListener();
       _webSocketService.connect(widget.animalId);
 
       LoggerService.success('✅ WebSocket inicializado');
@@ -160,36 +126,43 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
     }
   }
 
-  /// Processa atualizações de localização recebidas via WebSocket
-  void _handleWebSocketLocationUpdate(LocationUpdate locationUpdate) {
-    LoggerService.debug('📍 WebSocket: Nova localização recebida - Lat: ${locationUpdate.latitude}, Lng: ${locationUpdate.longitude}');
-    LoggerService.debug('🔒 Área segura: ${locationUpdate.isOutsideSafeZone ? "FORA" : "DENTRO"} - Distância: ${locationUpdate.distanciaDoPerimetro}m');
-
-    // Atualiza informações de área segura
-    setState(() {
-      _isOutsideSafeZone = locationUpdate.isOutsideSafeZone;
-      _distanceFromPerimeter = locationUpdate.distanciaDoPerimetro;
+  /// Listener do WebSocket para atualizações de localização
+  /// REPLICADO EXATAMENTE DO MapScreen
+  StreamSubscription<LocationUpdate>? _webSocketServiceLocationStreamListener() {
+    return _webSocketService.locationStream.listen((locationUpdate) {
+      _handleWebSocketLocationUpdate(locationUpdate);
     });
+  }
 
-    // Cria LocationData a partir do LocationUpdate com os novos campos de área segura
-    final newLocation = LocationData(
-      id: 'websocket-${DateTime.now().millisecondsSinceEpoch}',
-      data: locationUpdate.timestamp,
-      latitude: locationUpdate.latitude,
-      longitude: locationUpdate.longitude,
-      animal: locationUpdate.animalId,
-      coleira: locationUpdate.coleiraId,
-      // Adiciona informações de área segura do WebSocket
-      isOutsideSafeZone: locationUpdate.isOutsideSafeZone,
-      distanciaDoPerimetro: locationUpdate.distanciaDoPerimetro,
-    );
+  /// Processa atualizações de localização recebidas via WebSocket
+  /// Processa atualizações de localização recebidas via WebSocket
+  /// REPLICADO EXATAMENTE DO MapScreen
+  void _handleWebSocketLocationUpdate(LocationUpdate locationUpdate) {
+    if (locationUpdate.animalId == widget.animalId) {
+      LoggerService.debug('📍 WebSocket: Nova localização recebida - Lat: ${locationUpdate.latitude}, Lng: ${locationUpdate.longitude}');
+      LoggerService.debug('🔒 Área segura: ${locationUpdate.isOutsideSafeZone ? "FORA" : "DENTRO"} - Distância: ${locationUpdate.distanciaDoPerimetro}m');
 
-    // Atualiza o círculo de área segura
-    _updateSafeZoneCircle(newLocation);
+      final newLocation = LocationData(
+        id: 'websocket-${DateTime.now().millisecondsSinceEpoch}',
+        data: locationUpdate.timestamp,
+        latitude: locationUpdate.latitude,
+        longitude: locationUpdate.longitude,
+        animal: locationUpdate.animalId,
+        coleira: locationUpdate.coleiraId,
+        // Adiciona informações de área segura do WebSocket
+        isOutsideSafeZone: locationUpdate.isOutsideSafeZone,
+        distanciaDoPerimetro: locationUpdate.distanciaDoPerimetro,
+      );
 
-    // Atualiza a localização usando o método unificado
-    // CORREÇÃO: shouldAnimate = true para recentralizar automaticamente
-    updateAnimalLocation(newLocation, shouldAnimate: true);
+      setState(() {
+        _currentLocation = newLocation;
+        _isOutsideSafeZone = locationUpdate.isOutsideSafeZone;
+        _distanceFromPerimeter = locationUpdate.distanciaDoPerimetro;
+      });
+
+      _createMarker(newLocation);
+      _animateToLocation(locationUpdate.latitude, locationUpdate.longitude);
+    }
   }
 
   /// MÉTODO UNIFICADO DE ATUALIZAÇÃO
@@ -261,7 +234,6 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
 
     // Usa o raio e centro da área segura da API
     setState(() {
-      _safeZoneRadius = _safeArea!.raio;
       _circles = {
         Circle(
           circleId: const CircleId('safe_zone_circle'),
@@ -549,8 +521,6 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
   @override
   void dispose() {
     _locationSubscription?.cancel();
-    _connectionSubscription?.cancel();
-    _webSocketService.disconnect();
     _mapController?.dispose();
     super.dispose();
   }
