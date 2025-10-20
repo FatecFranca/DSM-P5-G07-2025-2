@@ -23,6 +23,7 @@ class _HeartDateCardState extends State<HeartDateCard> {
   double? _mediaDoDia;
   bool _isLoading = false;
   String? _errorMessage;
+  String? _mensagemApi;
 
   @override
   void initState() {
@@ -35,6 +36,7 @@ class _HeartDateCardState extends State<HeartDateCard> {
       _isLoading = true;
       _errorMessage = null;
       _mediaDoDia = null;
+      _mensagemApi = null;
     });
 
     try {
@@ -42,10 +44,14 @@ class _HeartDateCardState extends State<HeartDateCard> {
 
       setState(() {
         _mediaDoDia = media;
+        if (media == null) {
+          _mensagemApi = "Nenhum dado encontrado para o intervalo fornecido.";
+        }
       });
     } catch (e) {
+      print('Erro em HeartDateCard._fetchMediaData: $e');
       setState(() {
-        _errorMessage = "Erro ao buscar dados.";
+        _errorMessage = "Erro ao buscar dados: ${e.toString()}";
       });
     } finally {
       setState(() {
@@ -62,13 +68,28 @@ class _HeartDateCardState extends State<HeartDateCard> {
       decoration: BoxDecoration(
         color: AppColors.sand,
         borderRadius: BorderRadius.circular(24.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildTitle('Média de Batimento Cardíaco por Data'),
+          Text(
+            'Média de batimento cardíaco por data',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.poppins(
+              color: AppColors.orange,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 16),
-          _buildTitle('Selecione uma Data:'),
+          _buildSubtitle('Selecione uma data:'),
           const SizedBox(height: 8),
           SelectDate(
             initialDate: _selectedDate,
@@ -80,7 +101,7 @@ class _HeartDateCardState extends State<HeartDateCard> {
             },
           ),
           const SizedBox(height: 16),
-          _buildTitle('Resultado:'),
+          _buildSubtitle('Resultado:'),
           const SizedBox(height: 8),
           _buildResult(),
         ],
@@ -88,7 +109,7 @@ class _HeartDateCardState extends State<HeartDateCard> {
     );
   }
 
-  Widget _buildTitle(String text) {
+  Widget _buildSubtitle(String text) {
     return Text(
       text,
       style: GoogleFonts.poppins(
@@ -110,7 +131,12 @@ class _HeartDateCardState extends State<HeartDateCard> {
     if (_errorMessage != null) {
       return Text(
         _errorMessage!,
-        style: GoogleFonts.poppins(color: Colors.red, fontSize: 16),
+        textAlign: TextAlign.center,
+        style: GoogleFonts.poppins(
+          color: Colors.red,
+          fontSize: 14,
+          height: 1.5,
+        ),
       );
     }
     if (_mediaDoDia != null) {
@@ -118,14 +144,30 @@ class _HeartDateCardState extends State<HeartDateCard> {
         '${_mediaDoDia!.toStringAsFixed(2)} BPM',
         style: GoogleFonts.poppins(
           color: AppColors.black400,
-          fontSize: 32,
+          fontSize: 28,
           fontWeight: FontWeight.bold,
+        ),
+      );
+    }
+    if (_mensagemApi != null) {
+      return Text(
+        _mensagemApi!,
+        textAlign: TextAlign.center,
+        style: GoogleFonts.poppins(
+          color: AppColors.black400,
+          fontSize: 14,
+          height: 1.5,
         ),
       );
     }
     return Text(
       'Sem dados',
-      style: GoogleFonts.poppins(color: AppColors.black200, fontSize: 16),
+      textAlign: TextAlign.center,
+      style: GoogleFonts.poppins(
+        color: AppColors.black400,
+        fontSize: 14,
+        height: 1.5,
+      ),
     );
   }
 }

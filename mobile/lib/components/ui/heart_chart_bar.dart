@@ -3,16 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '/models/heartbeat_data.dart';
 import '/theme/app_theme.dart';
-import 'package:intl/intl.dart'; 
+import 'package:intl/intl.dart';
 
 class HeartChartBar extends StatelessWidget {
   final String title;
   final List<HeartbeatData> data;
+  final Color backgroundColor;
 
   const HeartChartBar({
     super.key,
     required this.title,
     required this.data,
+    this.backgroundColor = AppColors.sand100,
   });
 
   @override
@@ -21,7 +23,7 @@ class HeartChartBar extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(24.0),
       decoration: BoxDecoration(
-        color: AppColors.sand,
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(24.0),
       ),
       child: _buildChartContent(),
@@ -76,19 +78,24 @@ class HeartChartBar extends StatelessWidget {
                       showTitles: true,
                       reservedSize: 30,
                       getTitlesWidget: (value, meta) {
-                        if (value == minY || value == maxY) return const SizedBox();
+                        if (value == minY || value == maxY)
+                          return const SizedBox();
                         return Text(
                           value.toInt().toString(),
                           style: GoogleFonts.poppins(
                             color: AppColors.orange400,
-                            fontSize: 12
+                            fontSize: 12,
                           ),
                         );
                       },
                     ),
                   ),
-                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
@@ -122,7 +129,9 @@ class HeartChartBar extends StatelessWidget {
                         toY: item.value,
                         color: AppColors.orange400,
                         width: 40,
-                        borderRadius: const BorderRadius.all(Radius.circular(4)),
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(4),
+                        ),
                       ),
                     ],
                   );

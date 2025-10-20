@@ -81,9 +81,9 @@ class AnimalStatsService {
   Future<double?> getMediaPorData(String animalId, DateTime date) async {
     final formattedDate = DateFormat('yyyy-MM-dd').format(date);
 
-    // CORREÇÃO: A URL estava com "batimentos/" duplicado.
+    // Endpoint correto com /batimentos/ duplicado conforme especificação da API
     final uri = Uri.parse(
-      '$_pythonApiBaseUrl/batimentos/animal/$animalId/media-por-data',
+      '$_pythonApiBaseUrl/batimentos/animal/$animalId/batimentos/media-por-data',
     ).replace(queryParameters: {'inicio': formattedDate, 'fim': formattedDate});
 
     try {

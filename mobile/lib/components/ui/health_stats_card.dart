@@ -35,13 +35,15 @@ class _HealthStatsCardState extends State<HealthStatsCard> {
             child: CircularProgressIndicator(color: AppColors.orange),
           );
         } else if (snapshot.hasError) {
+          print('Erro em HealthStatsCard: ${snapshot.error}');
           cardContent = Center(
             child: Text(
-              'Erro ao carregar análise.',
+              'Erro ao carregar análise: ${snapshot.error}',
               style: GoogleFonts.poppins(
                 color: Colors.red,
                 fontWeight: FontWeight.w600,
               ),
+              textAlign: TextAlign.center,
             ),
           );
         } else if (!snapshot.hasData) {
@@ -67,17 +69,27 @@ class _HealthStatsCardState extends State<HealthStatsCard> {
               ),
               const SizedBox(height: 12),
               Text(
-                'O último batimento coletado é significativamente mais alto do que os valores normais registrados.',
+                analysis.titulo,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   color: AppColors.black400,
                   fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                analysis.interpretacao,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  color: AppColors.black400,
+                  fontSize: 14,
                   height: 1.5,
                 ),
               ),
               const SizedBox(height: 20),
               Text(
-                'Valor de referência:',
+                'Valor do batimento:',
                 style: GoogleFonts.poppins(
                   color: AppColors.orange,
                   fontSize: 16,
