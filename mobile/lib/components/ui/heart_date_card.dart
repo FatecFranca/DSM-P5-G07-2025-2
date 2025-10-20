@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '/components/ui/select_date.dart';
 import '/services/animal_stats_service.dart';
+import '/services/websocket_service.dart';
+import '/models/websocket_message.dart';
 import '/theme/app_theme.dart';
 
 class HeartDateCard extends StatefulWidget {
@@ -18,6 +21,8 @@ class HeartDateCard extends StatefulWidget {
 
 class _HeartDateCardState extends State<HeartDateCard> {
   final AnimalStatsService _statsService = AnimalStatsService();
+  final WebSocketService _webSocketService = WebSocketService();
+  StreamSubscription<HeartrateUpdate>? _heartrateSubscription;
 
   DateTime _selectedDate = DateTime.now();
   double? _mediaDoDia;
@@ -29,6 +34,26 @@ class _HeartDateCardState extends State<HeartDateCard> {
   void initState() {
     super.initState();
     _fetchMediaData(_selectedDate);
+    _initializeWebSocketListener();
+  }
+
+  /// Inicializa o listener do WebSocket para atualizações de batimento cardíaco
+  void _initializeWebSocketListener() {
+    _heartrateSubscription = _webSocketService.heartrateStream.listen(
+      (heartrateUpdate) {
+        // Verifica se a atualização é para o animal correto
+        if (heartrateUpdate.animalId == widget.animalId) {
+          // Recarrega os dados da data selecionada
+          _fetchMediaData(_selectedDate);
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _heartrateSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> _fetchMediaData(DateTime date) async {

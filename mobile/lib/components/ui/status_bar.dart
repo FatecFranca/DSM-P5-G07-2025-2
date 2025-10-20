@@ -66,8 +66,6 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
       (heartrateUpdate) {
         // Verifica se a atualização é para o animal correto
         if (heartrateUpdate.animalId == widget.animalId) {
-          debugPrint('💓 StatusBar: Batimento atualizado via WebSocket - ${heartrateUpdate.frequenciaMedia} bpm');
-
           if (mounted) {
             setState(() {
               // Atualiza o batimento cardíaco com os dados do WebSocket
@@ -75,15 +73,27 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
                 frequenciaMedia: heartrateUpdate.frequenciaMedia,
               );
             });
+
+            // Recarrega o histórico de batimentos para atualizar o gráfico
+            _reloadHeartbeatHistory();
           }
         }
       },
-      onError: (error) {
-        debugPrint('❌ Erro no stream de batimentos: $error');
-      },
     );
+  }
 
-    debugPrint('✅ StatusBar: Listener de batimentos WebSocket inicializado');
+  /// Recarrega o histórico de batimentos para atualizar o gráfico
+  Future<void> _reloadHeartbeatHistory() async {
+    try {
+      final history = await _animalService.getHeartbeatHistory(widget.animalId);
+      if (mounted) {
+        setState(() {
+          _heartbeatHistory = history;
+        });
+      }
+    } catch (e) {
+      // Silencioso
+    }
   }
 
   @override
