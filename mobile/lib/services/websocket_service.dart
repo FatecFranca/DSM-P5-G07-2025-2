@@ -258,6 +258,7 @@ class WebSocketService {
           if (wsMessage is LocationUpdate) {
             _locationController.add(wsMessage);
             // Envia notificação se o pet saiu da área segura
+            // IMPORTANTE: Usar unawaited para não bloquear o stream
             _checkAndNotifySafeZone(wsMessage);
           } else if (wsMessage is HeartrateUpdate) {
             _heartrateController.add(wsMessage);
@@ -399,9 +400,17 @@ class WebSocketService {
   /// Implementa lógica de transição de estado
   void _checkAndNotifySafeZone(LocationUpdate locationUpdate) {
     // Envia para o serviço de notificações que detectará transições
-    _notificationService.sendSafeZoneAlert(
-      petName: _currentPetName ?? 'Seu pet',
-      isOutside: locationUpdate.isOutsideSafeZone,
-    );
+    // IMPORTANTE: Usar Future.microtask para não bloquear o stream
+    // Isso garante que a notificação seja enviada mesmo em release builds
+    Future.microtask(() async {
+      try {
+        await _notificationService.sendSafeZoneAlert(
+          petName: _currentPetName ?? 'Seu pet',
+          isOutside: locationUpdate.isOutsideSafeZone,
+        );
+      } catch (e) {
+        LoggerService.error('❌ Erro ao enviar alerta de área segura: $e', error: e);
+      }
+    });
   }
 }
