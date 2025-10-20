@@ -1,3 +1,4 @@
+import 'package:PetDex/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:PetDex/theme/app_theme.dart';
@@ -6,7 +7,7 @@ import 'package:PetDex/components/ui/heart_date_card.dart';
 import 'package:PetDex/components/ui/health_stats_card.dart';
 import 'package:PetDex/services/animal_stats_service.dart';
 import 'package:PetDex/models/heartbeat_data.dart';
-import 'package:PetDex/services/auth_service.dart'; 
+import 'package:PetDex/services/auth_service.dart';
 
 class HealthScreen extends StatefulWidget {
   final String? animalId;
@@ -37,6 +38,7 @@ class _HealthScreenState extends State<HealthScreen> {
   }
 
   void _initializeValues() {
+    // Prioridade: parâmetro recebido -> authService -> null
     _animalId = widget.animalId ?? (authService.getAnimalId());
     _animalName = widget.animalName ?? (authService.getPetName());
 
@@ -59,7 +61,10 @@ class _HealthScreenState extends State<HealthScreen> {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
+          // --- CORREÇÃO APLICADA AQUI ---
+          // Aumentamos o padding inferior para garantir espaço para o conteúdo rolar
+          // para cima do card do pet e da barra de navegação.
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 250),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -97,7 +102,6 @@ class _HealthScreenState extends State<HealthScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Ainda assim, exibe os componentes com animalId nulo? Não — prevenimos chamadas indevidas.
               ] else ...[
                 // 1) HeartChartBar — obtém dados e passa title + data como o componente exige
                 FutureBuilder<List<HeartbeatData>>(
