@@ -15,15 +15,73 @@ class AnimalPin extends StatelessWidget {
     this.size = 40,
   });
 
-  @override
-  Widget build(BuildContext context) {
-    final bool temImagem = imageUrl != null && imageUrl!.isNotEmpty;
+  /// Determina se a URL é uma imagem de rede (começa com http/https)
+  bool _isNetworkImage(String url) {
+    return url.startsWith('http://') || url.startsWith('https://');
+  }
 
-    // ✅ CORREÇÃO: Usar os nomes corretos dos arquivos de imagem
+  /// Constrói o widget de imagem apropriado (asset ou network)
+  Widget _buildImage(String imageUrl) {
+    final bool isNetwork = _isNetworkImage(imageUrl);
+
+    if (isNetwork) {
+      return Image.network(
+        imageUrl,
+        fit: BoxFit.cover,
+        cacheWidth: (size * 2).toInt(),
+        cacheHeight: (size * 2).toInt(),
+        filterQuality: FilterQuality.low,
+        errorBuilder: (context, error, stackTrace) {
+          // Fallback para imagem padrão se a rede falhar
+          return _buildDefaultImage();
+        },
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          // Mostra imagem padrão enquanto carrega
+          return _buildDefaultImage();
+        },
+      );
+    } else {
+      return Image.asset(
+        imageUrl,
+        fit: BoxFit.cover,
+        cacheWidth: (size * 2).toInt(),
+        cacheHeight: (size * 2).toInt(),
+        filterQuality: FilterQuality.low,
+        errorBuilder: (context, error, stackTrace) {
+          return _buildDefaultImage();
+        },
+      );
+    }
+  }
+
+  /// Constrói a imagem padrão baseada na espécie
+  Widget _buildDefaultImage() {
     final String imagemPadrao = especie == SpeciesEnum.cat
         ? 'assets/images/gato-dex.png'
         : 'assets/images/cao-dex.png';
 
+    return Image.asset(
+      imagemPadrao,
+      fit: BoxFit.cover,
+      cacheWidth: (size * 2).toInt(),
+      cacheHeight: (size * 2).toInt(),
+      filterQuality: FilterQuality.low,
+      errorBuilder: (context, error, stackTrace) {
+        // Último fallback: container colorido
+        return Container(
+          color: AppColors.orange400.withValues(alpha: 0.3),
+          child: const Center(
+            child: Icon(Icons.pets, color: AppColors.orange400),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool temImagem = imageUrl != null && imageUrl!.isNotEmpty;
     final double borderWidth = 6.0;
 
     return Container(
@@ -34,25 +92,7 @@ class AnimalPin extends StatelessWidget {
         border: Border.all(color: pinColor, width: borderWidth),
       ),
       child: ClipOval(
-        child: Image.asset(
-          temImagem ? imageUrl! : imagemPadrao,
-          fit: BoxFit.cover,
-          // ✅ OTIMIZAÇÃO: Reduz o tamanho da imagem em memória
-          cacheWidth: (size * 2).toInt(),
-          cacheHeight: (size * 2).toInt(),
-          // ✅ OTIMIZAÇÃO: Filtragem de baixa qualidade para melhor performance
-          filterQuality: FilterQuality.low,
-          errorBuilder: (context, error, stackTrace) {
-            // Fallback se a imagem falhar ao carregar
-            return Image.asset(
-              imagemPadrao,
-              fit: BoxFit.cover,
-              cacheWidth: (size * 2).toInt(),
-              cacheHeight: (size * 2).toInt(),
-              filterQuality: FilterQuality.low,
-            );
-          },
-        ),
+        child: temImagem ? _buildImage(imageUrl!) : _buildDefaultImage(),
       ),
     );
   }

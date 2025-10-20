@@ -162,11 +162,14 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
         ),
       );
 
-      setState(() {
-        _markers = {marker};
-      });
+      if (mounted) {
+        setState(() {
+          _markers = {marker};
+        });
+      }
     } catch (e) {
-      // Erro ao criar marcador
+      debugPrint('Erro ao criar marcador do animal: $e');
+      // Continua mesmo se falhar - o mapa será exibido sem o marcador
     }
   }
 
@@ -175,26 +178,33 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
     try {
       final bool temImagem = widget.animalImageUrl != null && widget.animalImageUrl!.isNotEmpty;
 
-      // ✅ CORREÇÃO: Usar os nomes corretos das imagens que existem
-      final String imagePath = temImagem
-          ? widget.animalImageUrl!
-          : (widget.animalSpecies == SpeciesEnum.cat
-              ? 'assets/images/gato-dex.png'
-              : 'assets/images/cao-dex.png');
+      if (temImagem) {
+        final String imageUrl = widget.animalImageUrl!;
+        final bool isNetworkImage = imageUrl.startsWith('http://') || imageUrl.startsWith('https://');
 
-      // Pré-carrega a imagem
-      await precacheImage(AssetImage(imagePath), context);
+        if (isNetworkImage) {
+          // Pré-carrega imagem de rede
+          await precacheImage(NetworkImage(imageUrl), context);
+        } else {
+          // Pré-carrega imagem de asset
+          await precacheImage(AssetImage(imageUrl), context);
+        }
+      } else {
+        // Pré-carrega imagem padrão baseada na espécie
+        final String imagemPadrao = widget.animalSpecies == SpeciesEnum.cat
+            ? 'assets/images/gato-dex.png'
+            : 'assets/images/cao-dex.png';
+        await precacheImage(AssetImage(imagemPadrao), context);
+      }
     } catch (e) {
       // Continua mesmo se falhar - o marcador será criado com imagem padrão
+      debugPrint('Erro ao fazer precache da imagem: $e');
     }
   }
 
   /// Converte um widget (AnimalPin) para Uint8List usando OverlayEntry
   Future<Uint8List> _createMarkerFromWidget(Widget widget, Size size) async {
     final overlayState = Overlay.of(context);
-    if (overlayState == null) {
-      throw Exception('Overlay não disponível');
-    }
 
     final key = GlobalKey();
     final entry = OverlayEntry(
@@ -213,28 +223,36 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
 
     overlayState.insert(entry);
 
-    // CORREÇÃO: Aumenta o delay para garantir que a imagem seja carregada
-    await Future.delayed(const Duration(milliseconds: 150));
-    await WidgetsBinding.instance.endOfFrame;
-
-    // Aguarda mais um frame para garantir renderização completa
-    await Future.delayed(const Duration(milliseconds: 50));
-
     try {
+      // CORREÇÃO: Aumenta o delay para garantir que a imagem seja carregada
+      // Especialmente importante para imagens de rede
+      await Future.delayed(const Duration(milliseconds: 200));
+      await WidgetsBinding.instance.endOfFrame;
+
+      // Aguarda mais um frame para garantir renderização completa
+      await Future.delayed(const Duration(milliseconds: 100));
+
       final boundary = key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
       if (boundary == null) {
-        throw Exception('Erro ao capturar RenderRepaintBoundary');
+        throw Exception('RenderRepaintBoundary não encontrado - widget não foi renderizado');
       }
 
       final ui.Image image = await boundary.toImage(pixelRatio: 2.0);
       final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      final bytes = byteData!.buffer.asUint8List();
 
-      entry.remove();
+      if (byteData == null) {
+        throw Exception('Falha ao converter imagem para ByteData');
+      }
+
+      final bytes = byteData.buffer.asUint8List();
+      debugPrint('Marcador criado com sucesso: ${bytes.length} bytes');
+
       return bytes;
     } catch (e) {
-      entry.remove();
+      debugPrint('Erro ao criar marcador: $e');
       rethrow;
+    } finally {
+      entry.remove();
     }
   }
 
