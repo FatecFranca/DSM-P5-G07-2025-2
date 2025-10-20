@@ -154,6 +154,32 @@ async def analisar_animal(id_animal: int, sintomas: SintomasInput, credentials: 
         raise HTTPException(status_code=500, detail=f"Erro ao processar PMML: {str(e)}")
 
 
+@app.post("/ia/teste", tags=["IA"])
+async def testar_predicao(sintomas: SintomasInput):
+    """
+    Rota de teste para validar a predição da IA com base em dados diretos (sem API Java).
+    
+    Envie todos os campos necessários no corpo da requisição.
+    Ideal para testar se o modelo PMML está retornando o mesmo resultado
+    que consta na tabela original usada no treinamento.
+    """
+    try:
+        # Converte o modelo recebido (SintomasInput) em dicionário
+        dados_teste = sintomas.dict()
+
+        # Faz a predição diretamente com o PMML
+        from app.services import pmml_predictor
+        resultado = pmml_predictor.predict_with_pmml({}, dados_teste)
+
+        return {
+            "entrada": dados_teste,
+            "resultado_previsto": resultado
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro no teste de predição: {str(e)}")
+
+
+
 
 # --------------------- Batimentos - Estatísticas ---------------------
 @app.get("/batimentos/animal/{animalId}/estatisticas", tags=["Batimentos"])
