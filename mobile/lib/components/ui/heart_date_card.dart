@@ -3,10 +3,14 @@ import 'package:google_fonts/google_fonts.dart';
 import '/components/ui/select_date.dart';
 import '/services/animal_stats_service.dart';
 import '/theme/app_theme.dart';
-import '/services/animal_service.dart'; 
 
 class HeartDateCard extends StatefulWidget {
-  const HeartDateCard({super.key});
+  final String animalId;
+
+  const HeartDateCard({
+    super.key,
+    required this.animalId,
+  });
 
   @override
   State<HeartDateCard> createState() => _HeartDateCardState();
@@ -14,16 +18,16 @@ class HeartDateCard extends StatefulWidget {
 
 class _HeartDateCardState extends State<HeartDateCard> {
   final AnimalStatsService _statsService = AnimalStatsService();
-  
+
   DateTime _selectedDate = DateTime.now();
   double? _mediaDoDia;
   bool _isLoading = false;
   String? _errorMessage;
+  String? _mensagemApi;
 
   @override
   void initState() {
     super.initState();
-    // Busca os dados para a data de hoje ao iniciar
     _fetchMediaData(_selectedDate);
   }
 
@@ -32,16 +36,22 @@ class _HeartDateCardState extends State<HeartDateCard> {
       _isLoading = true;
       _errorMessage = null;
       _mediaDoDia = null;
+      _mensagemApi = null;
     });
 
     try {
-      final media = await _statsService.getMediaPorData(AnimalService.unoId, date);
+      final media = await _statsService.getMediaPorData(widget.animalId, date);
+
       setState(() {
         _mediaDoDia = media;
+        if (media == null) {
+          _mensagemApi = "Nenhum dado encontrado para o intervalo fornecido.";
+        }
       });
     } catch (e) {
+      print('Erro em HeartDateCard._fetchMediaData: $e');
       setState(() {
-        _errorMessage = "Erro ao buscar dados.";
+        _errorMessage = "Erro ao buscar dados: ${e.toString()}";
       });
     } finally {
       setState(() {
@@ -58,13 +68,28 @@ class _HeartDateCardState extends State<HeartDateCard> {
       decoration: BoxDecoration(
         color: AppColors.sand,
         borderRadius: BorderRadius.circular(24.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildTitle('Média de batimento Cardíaco por data'),
+          Text(
+            'Média de batimento cardíaco por data',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.poppins(
+              color: AppColors.orange,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 16),
-          _buildTitle('Insira uma data:'),
+          _buildSubtitle('Selecione uma data:'),
           const SizedBox(height: 8),
           SelectDate(
             initialDate: _selectedDate,
@@ -76,7 +101,7 @@ class _HeartDateCardState extends State<HeartDateCard> {
             },
           ),
           const SizedBox(height: 16),
-          _buildTitle('A média do dia é igual a:'),
+          _buildSubtitle('Resultado:'),
           const SizedBox(height: 8),
           _buildResult(),
         ],
@@ -84,8 +109,7 @@ class _HeartDateCardState extends State<HeartDateCard> {
     );
   }
 
-  // Widget auxiliar para os títulos
-  Widget _buildTitle(String text) {
+  Widget _buildSubtitle(String text) {
     return Text(
       text,
       style: GoogleFonts.poppins(
@@ -96,7 +120,6 @@ class _HeartDateCardState extends State<HeartDateCard> {
     );
   }
 
-  // Widget para exibir o resultado da API (ou loading/erro)
   Widget _buildResult() {
     if (_isLoading) {
       return const SizedBox(
@@ -108,22 +131,43 @@ class _HeartDateCardState extends State<HeartDateCard> {
     if (_errorMessage != null) {
       return Text(
         _errorMessage!,
-        style: GoogleFonts.poppins(color: Colors.red, fontSize: 16),
+        textAlign: TextAlign.center,
+        style: GoogleFonts.poppins(
+          color: Colors.red,
+          fontSize: 14,
+          height: 1.5,
+        ),
       );
     }
     if (_mediaDoDia != null) {
       return Text(
-        _mediaDoDia!.toStringAsFixed(2),
+        '${_mediaDoDia!.toInt()} BPM',
         style: GoogleFonts.poppins(
           color: AppColors.black400,
-          fontSize: 32,
+          fontSize: 28,
           fontWeight: FontWeight.bold,
+        ),
+      );
+    }
+    if (_mensagemApi != null) {
+      return Text(
+        _mensagemApi!,
+        textAlign: TextAlign.center,
+        style: GoogleFonts.poppins(
+          color: AppColors.black400,
+          fontSize: 14,
+          height: 1.5,
         ),
       );
     }
     return Text(
       'Sem dados',
-      style: GoogleFonts.poppins(color: AppColors.black200, fontSize: 16),
+      textAlign: TextAlign.center,
+      style: GoogleFonts.poppins(
+        color: AppColors.black400,
+        fontSize: 14,
+        height: 1.5,
+      ),
     );
   }
 }
