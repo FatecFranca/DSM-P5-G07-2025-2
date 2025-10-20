@@ -20,63 +20,44 @@ class _HealthStatsCardState extends State<HealthStatsCard> {
   @override
   void initState() {
     super.initState();
-    // A chamada da API é iniciada quando o componente é criado
     _analysisFuture = _statsService.getLatestHeartbeatAnalysis(widget.animalId);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24.0),
-      decoration: BoxDecoration(
-        color: AppColors.sand,
-        borderRadius: BorderRadius.circular(24.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      // FutureBuilder gerencia os estados de carregamento, erro e sucesso
-      child: FutureBuilder<HeartbeatAnalysis>(
-        future: _analysisFuture,
-        builder: (context, snapshot) {
-          // Estado de Carregamento
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-                child: CircularProgressIndicator(color: AppColors.orange));
-          }
-          // Estado de Erro
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Erro ao carregar análise.',
-                style: GoogleFonts.poppins(
-                    color: Colors.red, fontWeight: FontWeight.w600),
-              ),
-            );
-          }
-          // Estado de Sucesso (mas sem dados)
-          if (!snapshot.hasData) {
-            return Center(
-              child: Text(
-                'Nenhuma análise encontrada.',
-                style: GoogleFonts.poppins(color: AppColors.black200),
-              ),
-            );
-          }
+    return FutureBuilder<HeartbeatAnalysis>(
+      future: _analysisFuture,
+      builder: (context, snapshot) {
+        Widget cardContent; 
 
-          // Estado de Sucesso (com dados)
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          cardContent = const Center(
+            child: CircularProgressIndicator(color: AppColors.orange),
+          );
+        } else if (snapshot.hasError) {
+          cardContent = Center(
+            child: Text(
+              'Erro ao carregar análise.',
+              style: GoogleFonts.poppins(
+                color: Colors.red,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          );
+        } else if (!snapshot.hasData) {
+          cardContent = Center(
+            child: Text(
+              'Nenhuma análise encontrada.',
+              style: GoogleFonts.poppins(color: AppColors.black200),
+            ),
+          );
+        } else {
           final analysis = snapshot.data!;
-
-          return Column(
+          cardContent = Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                analysis.titulo,
+                'Análise de batimentos',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   color: AppColors.orange,
@@ -86,7 +67,7 @@ class _HealthStatsCardState extends State<HealthStatsCard> {
               ),
               const SizedBox(height: 12),
               Text(
-                analysis.interpretacao,
+                'O último batimento coletado é significativamente mais alto do que os valores normais registrados.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   color: AppColors.black400,
@@ -114,8 +95,25 @@ class _HealthStatsCardState extends State<HealthStatsCard> {
               ),
             ],
           );
-        },
-      ),
+        }
+
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(24.0),
+          decoration: BoxDecoration(
+            color: AppColors.sand,
+            borderRadius: BorderRadius.circular(24.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: cardContent,
+        );
+      },
     );
   }
 }

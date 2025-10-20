@@ -13,11 +13,7 @@ class HealthScreen extends StatefulWidget {
   final String? animalId;
   final String? animalName;
 
-  const HealthScreen({
-    super.key,
-    this.animalId,
-    this.animalName,
-  });
+  const HealthScreen({super.key, this.animalId, this.animalName});
 
   @override
   State<HealthScreen> createState() => _HealthScreenState();
@@ -61,9 +57,6 @@ class _HealthScreenState extends State<HealthScreen> {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          // --- CORREÇÃO APLICADA AQUI ---
-          // Aumentamos o padding inferior para garantir espaço para o conteúdo rolar
-          // para cima do card do pet e da barra de navegação.
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 250),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -72,22 +65,19 @@ class _HealthScreenState extends State<HealthScreen> {
               Text(
                 "Painel de Saúde",
                 style: GoogleFonts.poppins(
-                  color: AppColors.orange900,
+                  color: AppColors.orange,
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
-                _animalName != null && _animalName!.isNotEmpty
-                    ? "Monitoramento da saúde de $_animalName"
-                    : "Monitoramento da saúde do pet",
+                "Frequência cardíaca, padrões de atividade e informações de saúde reunidas em um só lugar.\nTenha controle total da saúde do seu pet.",
                 style: const TextStyle(fontSize: 14, color: AppColors.black400),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
 
-              // Se não houver animalId — mostra mensagem e não tenta carregar API
               if (_animalId == null || _animalId!.isEmpty) ...[
                 Container(
                   padding: const EdgeInsets.all(16),
@@ -111,7 +101,9 @@ class _HealthScreenState extends State<HealthScreen> {
                       return const SizedBox(
                         height: 220,
                         child: Center(
-                          child: CircularProgressIndicator(color: AppColors.orange900),
+                          child: CircularProgressIndicator(
+                            color: AppColors.orange900,
+                          ),
                         ),
                       );
                     }
@@ -134,7 +126,10 @@ class _HealthScreenState extends State<HealthScreen> {
 
                     if (data.isEmpty) {
                       return Container(
-                        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 24,
+                          horizontal: 16,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.sand300,
                           borderRadius: BorderRadius.circular(16),
