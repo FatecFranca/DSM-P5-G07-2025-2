@@ -141,7 +141,7 @@ class _HeartDateCardState extends State<HeartDateCard> {
     }
     if (_mediaDoDia != null) {
       return Text(
-        '${_mediaDoDia!.toStringAsFixed(2)} BPM',
+        '${_mediaDoDia!.toInt()} BPM',
         style: GoogleFonts.poppins(
           color: AppColors.black400,
           fontSize: 28,
