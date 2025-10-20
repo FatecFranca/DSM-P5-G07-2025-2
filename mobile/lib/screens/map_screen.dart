@@ -50,6 +50,10 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
   bool _isInBackground = false;
   bool _isInitialized = false; // Flag para evitar inicializações duplicadas
 
+  // Informações de área segura
+  bool? _isOutsideSafeZone;
+  double? _distanceFromPerimeter;
+
   static const CameraPosition _defaultPosition = CameraPosition(
     target: LatLng(-23.5505, -46.6333),
     zoom: 16.0,
@@ -102,6 +106,8 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
       if (location != null) {
         setState(() {
           _currentLocation = location;
+          _isOutsideSafeZone = location.isOutsideSafeZone;
+          _distanceFromPerimeter = location.distanciaDoPerimetro;
         });
         await _createMarker(location);
 
@@ -288,6 +294,8 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
 
       setState(() {
         _currentLocation = newLocation;
+        _isOutsideSafeZone = locationUpdate.isOutsideSafeZone;
+        _distanceFromPerimeter = locationUpdate.distanciaDoPerimetro;
       });
 
       _createMarker(newLocation);
@@ -407,6 +415,55 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
                           fontSize: 14,
                         ),
                       ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+          // Indicador de área segura - Exibe apenas quando o animal está FORA da área segura
+          if (_isOutsideSafeZone == true && !_isLoading)
+            Positioned(
+              top: 60,
+              left: 16,
+              right: 16,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 16,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.red.shade200,
+                    width: 1.5,
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.warning_rounded,
+                          color: Colors.red.shade700,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            'Pet fora da área segura',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                              color: Colors.red.shade700,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
