@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 import httpx
+import asyncio
 from typing import Optional
 
 # Carrega as variáveis do .env
@@ -39,8 +40,8 @@ async def buscar_todos_batimentos(animalId: str, token: Optional[str] = None):
     pagina = 0
     tamanho = 50  # ou o tamanho padrão da sua API
 
-    # Configurar timeout de 30 segundos para cada requisição
-    timeout = httpx.Timeout(30.0)
+    # Timeout mais curto: 10 segundos
+    timeout = httpx.Timeout(10.0)
 
     async with httpx.AsyncClient(timeout=timeout) as client:
         # Primeira chamada para descobrir total de páginas
@@ -54,15 +55,28 @@ async def buscar_todos_batimentos(animalId: str, token: Optional[str] = None):
         total_paginas = data.get("totalPages", 1)
         batimentos.extend(data["content"])
 
-        # Buscar as outras páginas (se houver)
-        for pagina in range(1, total_paginas):
-            response = await client.get(
-                f"{API_URL}/batimentos/animal/{animalId}?page={pagina}&size={tamanho}",
-                headers=_get_auth_headers(token)
-            )
-            response.raise_for_status()
-            data = response.json()
-            batimentos.extend(data["content"])
+        # Buscar as outras páginas em paralelo (máximo 5 páginas simultâneas)
+        if total_paginas > 1:
+            tasks = []
+            for pagina in range(1, total_paginas):
+                task = client.get(
+                    f"{API_URL}/batimentos/animal/{animalId}?page={pagina}&size={tamanho}",
+                    headers=_get_auth_headers(token)
+                )
+                tasks.append(task)
+
+            # Executar requisições em paralelo com limite de concorrência
+            responses = await asyncio.gather(*tasks, return_exceptions=True)
+
+            for response in responses:
+                if isinstance(response, Exception):
+                    continue
+                try:
+                    response.raise_for_status()
+                    data = response.json()
+                    batimentos.extend(data.get("content", []))
+                except Exception:
+                    continue
 
     return batimentos
 
@@ -77,7 +91,7 @@ async def buscar_ultimo_batimento(animalId: str, token: Optional[str] = None):
     Returns:
         dict: The last heartbeat record
     """
-    timeout = httpx.Timeout(30.0)
+    timeout = httpx.Timeout(8.0)
 
     async with httpx.AsyncClient(timeout=timeout) as client:
         response = await client.get(
@@ -104,7 +118,7 @@ async def buscar_todos_movimentos(animalId: str, token: Optional[str] = None):
     pagina = 0
     tamanho = 50  # ajuste conforme necessidade
 
-    timeout = httpx.Timeout(30.0)
+    timeout = httpx.Timeout(10.0)
 
     async with httpx.AsyncClient(timeout=timeout) as client:
         response = await client.get(
@@ -117,14 +131,27 @@ async def buscar_todos_movimentos(animalId: str, token: Optional[str] = None):
         total_paginas = data.get("totalPages", 1)
         movimentos.extend(data["content"])
 
-        for pagina in range(1, total_paginas):
-            response = await client.get(
-                f"{API_URL}/movimentos/animal/{animalId}?page={pagina}&size={tamanho}",
-                headers=_get_auth_headers(token)
-            )
-            response.raise_for_status()
-            data = response.json()
-            movimentos.extend(data["content"])
+        # Buscar as outras páginas em paralelo
+        if total_paginas > 1:
+            tasks = []
+            for pagina in range(1, total_paginas):
+                task = client.get(
+                    f"{API_URL}/movimentos/animal/{animalId}?page={pagina}&size={tamanho}",
+                    headers=_get_auth_headers(token)
+                )
+                tasks.append(task)
+
+            responses = await asyncio.gather(*tasks, return_exceptions=True)
+
+            for response in responses:
+                if isinstance(response, Exception):
+                    continue
+                try:
+                    response.raise_for_status()
+                    data = response.json()
+                    movimentos.extend(data.get("content", []))
+                except Exception:
+                    continue
 
     return movimentos
 
@@ -139,7 +166,7 @@ async def buscar_dados_animal(animalId: str, token: Optional[str] = None):
     Returns:
         dict: Animal data with last heartbeat information, or None if not found
     """
-    timeout = httpx.Timeout(30.0)
+    timeout = httpx.Timeout(8.0)
 
     async with httpx.AsyncClient(timeout=timeout) as client:
         response = await client.get(
