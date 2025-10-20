@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '/models/heartbeat_analysis.dart';
+import '/models/websocket_message.dart';
 import '/services/animal_stats_service.dart';
+import '/services/websocket_service.dart';
 import '/theme/app_theme.dart';
 
 class HealthStatsCard extends StatefulWidget {
@@ -15,12 +18,39 @@ class HealthStatsCard extends StatefulWidget {
 
 class _HealthStatsCardState extends State<HealthStatsCard> {
   final AnimalStatsService _statsService = AnimalStatsService();
+  final WebSocketService _webSocketService = WebSocketService();
+  StreamSubscription<HeartrateUpdate>? _heartrateSubscription;
+
   Future<HeartbeatAnalysis>? _analysisFuture;
 
   @override
   void initState() {
     super.initState();
     _analysisFuture = _statsService.getLatestHeartbeatAnalysis(widget.animalId);
+    _initializeWebSocketListener();
+  }
+
+  /// Inicializa o listener do WebSocket para atualizações de batimento cardíaco
+  void _initializeWebSocketListener() {
+    _heartrateSubscription = _webSocketService.heartrateStream.listen(
+      (heartrateUpdate) {
+        // Verifica se a atualização é para o animal correto
+        if (heartrateUpdate.animalId == widget.animalId) {
+          // Recarrega a análise do batimento
+          if (mounted) {
+            setState(() {
+              _analysisFuture = _statsService.getLatestHeartbeatAnalysis(widget.animalId);
+            });
+          }
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _heartrateSubscription?.cancel();
+    super.dispose();
   }
 
   @override

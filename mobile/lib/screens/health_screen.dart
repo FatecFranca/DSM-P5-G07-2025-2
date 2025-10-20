@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:PetDex/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,7 +8,8 @@ import 'package:PetDex/components/ui/heart_date_card.dart';
 import 'package:PetDex/components/ui/health_stats_card.dart';
 import 'package:PetDex/services/animal_stats_service.dart';
 import 'package:PetDex/models/heartbeat_data.dart';
-import 'package:PetDex/services/auth_service.dart';
+import 'package:PetDex/services/websocket_service.dart';
+import 'package:PetDex/models/websocket_message.dart';
 
 class HealthScreen extends StatefulWidget {
   final String? animalId;
@@ -21,6 +23,9 @@ class HealthScreen extends StatefulWidget {
 
 class _HealthScreenState extends State<HealthScreen> {
   late final AnimalStatsService _statsService;
+  final WebSocketService _webSocketService = WebSocketService();
+  StreamSubscription<HeartrateUpdate>? _heartrateSubscription;
+
   late Future<List<HeartbeatData>> _mediasFuture;
   String? _animalId;
   String? _animalName;
@@ -31,6 +36,30 @@ class _HealthScreenState extends State<HealthScreen> {
     super.initState();
     _statsService = AnimalStatsService();
     _initializeValues();
+    _initializeWebSocketListener();
+  }
+
+  /// Inicializa o listener do WebSocket para atualizações de batimento cardíaco
+  void _initializeWebSocketListener() {
+    _heartrateSubscription = _webSocketService.heartrateStream.listen(
+      (heartrateUpdate) {
+        // Verifica se a atualização é para o animal correto
+        if (heartrateUpdate.animalId == _animalId) {
+          // Recarrega o gráfico dos últimos 5 dias
+          if (mounted && _animalId != null && _animalId!.isNotEmpty) {
+            setState(() {
+              _mediasFuture = _statsService.getMediaUltimos5Dias(_animalId!);
+            });
+          }
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _heartrateSubscription?.cancel();
+    super.dispose();
   }
 
   void _initializeValues() {
