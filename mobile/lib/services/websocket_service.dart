@@ -74,8 +74,16 @@ class WebSocketService {
   }
 
   Future<void> connect(String animalId) async {
-    if (_isConnected) {
+    // Se já está conectado ao MESMO animal, não reconecta
+    if (_isConnected && _currentAnimalId == animalId) {
+      LoggerService.websocket('✅ Já conectado ao animal: $animalId');
       return;
+    }
+
+    // Se está conectado a um animal DIFERENTE, desconecta primeiro
+    if (_isConnected && _currentAnimalId != animalId) {
+      LoggerService.websocket('🔄 Mudança de animal detectada. Desconectando de $_currentAnimalId e conectando a $animalId');
+      disconnect();
     }
 
     _currentAnimalId = animalId;
