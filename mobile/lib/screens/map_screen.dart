@@ -11,6 +11,7 @@ import 'package:flutter/rendering.dart';
 
 import 'package:PetDex/services/location_service.dart';
 import 'package:PetDex/services/websocket_service.dart';
+import 'package:PetDex/services/logger_service.dart';
 import 'package:PetDex/data/enums/species.dart';
 import 'package:PetDex/theme/app_theme.dart';
 import 'package:PetDex/models/location_model.dart';
@@ -81,7 +82,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
       _initializeBackgroundService();
       _isInitialized = true;
     } catch (e) {
-      debugPrint('❌ Erro ao inicializar app: $e');
+      LoggerService.error('❌ Erro ao inicializar app: $e', error: e);
     }
   }
 
@@ -90,7 +91,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
     try {
       await _webSocketService.initializeNotifications(petName: widget.animalName);
     } catch (e) {
-      debugPrint('❌ Erro ao inicializar notificações: $e');
+      LoggerService.error('❌ Erro ao inicializar notificações: $e', error: e);
     }
   }
 
@@ -168,7 +169,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
         });
       }
     } catch (e) {
-      debugPrint('Erro ao criar marcador do animal: $e');
+      LoggerService.warning('Erro ao criar marcador do animal: $e');
       // Continua mesmo se falhar - o mapa será exibido sem o marcador
     }
   }
@@ -198,7 +199,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
       }
     } catch (e) {
       // Continua mesmo se falhar - o marcador será criado com imagem padrão
-      debugPrint('Erro ao fazer precache da imagem: $e');
+      LoggerService.warning('Erro ao fazer precache da imagem: $e');
     }
   }
 
@@ -245,11 +246,11 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
       }
 
       final bytes = byteData.buffer.asUint8List();
-      debugPrint('Marcador criado com sucesso: ${bytes.length} bytes');
+      LoggerService.success('Marcador criado com sucesso: ${bytes.length} bytes');
 
       return bytes;
     } catch (e) {
-      debugPrint('Erro ao criar marcador: $e');
+      LoggerService.error('Erro ao criar marcador: $e', error: e);
       rethrow;
     } finally {
       entry.remove();
@@ -265,15 +266,37 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
   }
 
   /// Centraliza o mapa na localização atual do animal
-  void _centerOnAnimalLocation() {
+  /// Também recarrega a localização mais recente da API e atualiza o status de área segura
+  Future<void> _centerOnAnimalLocation() async {
     if (_currentLocation != null) {
-      _animateToLocation(_currentLocation!.latitude, _currentLocation!.longitude);
+      // Recarrega a localização mais recente da API
+      try {
+        final location = await _locationService.getUltimaLocalizacaoAnimal(widget.animalId);
+        if (location != null) {
+          // Atualiza a localização e status da área segura
+          setState(() {
+            _currentLocation = location;
+            _isOutsideSafeZone = location.isOutsideSafeZone;
+            _distanceFromPerimeter = location.distanciaDoPerimetro;
+          });
+
+          // Atualiza o marcador com a nova localização
+          await _createMarker(location);
+
+          // Anima o mapa para a nova localização
+          _animateToLocation(location.latitude, location.longitude);
+
+          LoggerService.success('✅ Localização atualizada - Status: ${location.isOutsideSafeZone ?? false ? "FORA" : "DENTRO"}');
+        }
+      } catch (e) {
+        LoggerService.error('❌ Erro ao atualizar localização: $e', error: e);
+      }
     }
   }
 
   void _initializeWebSocket() {
     try {
-      debugPrint('🔌 Inicializando WebSocket para animal: ${widget.animalId}');
+      LoggerService.websocket('🔌 Inicializando WebSocket para animal: ${widget.animalId}');
 
       // Cancela subscription anterior se existir
       _locationSubscription?.cancel();
@@ -281,9 +304,9 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
       _locationSubscription = _webSocketServiceLocationStreamListener();
       _webSocketService.connect(widget.animalId);
 
-      debugPrint('✅ WebSocket inicializado');
+      LoggerService.success('✅ WebSocket inicializado');
     } catch (e) {
-      debugPrint('❌ Erro ao inicializar WebSocket: $e');
+      LoggerService.error('❌ Erro ao inicializar WebSocket: $e', error: e);
     }
   }
 
@@ -295,8 +318,8 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
 
   void _handleWebSocketLocationUpdate(LocationUpdate locationUpdate) {
     if (locationUpdate.animalId == widget.animalId) {
-      debugPrint('📍 WebSocket: Nova localização recebida - Lat: ${locationUpdate.latitude}, Lng: ${locationUpdate.longitude}');
-      debugPrint('🔒 Área segura: ${locationUpdate.isOutsideSafeZone ? "FORA" : "DENTRO"} - Distância: ${locationUpdate.distanciaDoPerimetro}m');
+      LoggerService.debug('📍 WebSocket: Nova localização recebida - Lat: ${locationUpdate.latitude}, Lng: ${locationUpdate.longitude}');
+      LoggerService.debug('🔒 Área segura: ${locationUpdate.isOutsideSafeZone ? "FORA" : "DENTRO"} - Distância: ${locationUpdate.distanciaDoPerimetro}m');
 
       final newLocation = LocationData(
         id: 'websocket-${DateTime.now().millisecondsSinceEpoch}',
@@ -354,7 +377,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
     try {
       await _webSocketService.initializeBackgroundService();
     } catch (e) {
-      debugPrint('❌ Erro ao inicializar background service: $e');
+      LoggerService.error('❌ Erro ao inicializar background service: $e', error: e);
       // Não propaga o erro para evitar crash do app
     }
   }

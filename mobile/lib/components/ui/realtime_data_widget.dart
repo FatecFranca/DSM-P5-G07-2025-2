@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../theme/app_theme.dart';
 import '../../models/websocket_message.dart';
 import '../../services/websocket_service.dart';
+import '../../services/logger_service.dart';
 
 class RealtimeDataWidget extends StatefulWidget {
   final String animalId;
@@ -41,31 +42,31 @@ class _RealtimeDataWidgetState extends State<RealtimeDataWidget> {
 
     _webSocketService.locationStream.listen((locationUpdate) {
       if (mounted) {
-        print('🎯 ===== LOCALIZAÇÃO CHEGOU NA INTERFACE =====');
-        print('📱 Animal ID: ${locationUpdate.animalId}');
-        print('📱 Latitude: ${locationUpdate.latitude}');
-        print('📱 Longitude: ${locationUpdate.longitude}');
-        print('📱 Zona Segura: ${locationUpdate.isOutsideSafeZone ? "FORA" : "DENTRO"}');
-        print('📱 Atualizando interface...');
+        LoggerService.debug('🎯 ===== LOCALIZAÇÃO CHEGOU NA INTERFACE =====');
+        LoggerService.debug('📱 Animal ID: ${locationUpdate.animalId}');
+        LoggerService.debug('📱 Latitude: ${locationUpdate.latitude}');
+        LoggerService.debug('📱 Longitude: ${locationUpdate.longitude}');
+        LoggerService.debug('📱 Zona Segura: ${locationUpdate.isOutsideSafeZone ? "FORA" : "DENTRO"}');
+        LoggerService.debug('📱 Atualizando interface...');
         setState(() {
           _lastLocation = locationUpdate;
         });
-        print('📱 Interface atualizada com sucesso!');
-        print('🎯 ==========================================');
+        LoggerService.debug('📱 Interface atualizada com sucesso!');
+        LoggerService.debug('🎯 ==========================================');
       }
     });
 
     _webSocketService.heartrateStream.listen((heartrateUpdate) {
       if (mounted) {
-        print('💓 ===== BATIMENTO CHEGOU NA INTERFACE =====');
-        print('📱 Animal ID: ${heartrateUpdate.animalId}');
-        print('📱 Frequência: ${heartrateUpdate.frequenciaMedia} bpm');
-        print('📱 Atualizando interface...');
+        LoggerService.debug('💓 ===== BATIMENTO CHEGOU NA INTERFACE =====');
+        LoggerService.debug('📱 Animal ID: ${heartrateUpdate.animalId}');
+        LoggerService.debug('📱 Frequência: ${heartrateUpdate.frequenciaMedia} bpm');
+        LoggerService.debug('📱 Atualizando interface...');
         setState(() {
           _lastHeartrate = heartrateUpdate;
         });
-        print('📱 Interface atualizada com sucesso!');
-        print('💓 ======================================');
+        LoggerService.debug('📱 Interface atualizada com sucesso!');
+        LoggerService.debug('💓 ======================================');
       }
     });
 
