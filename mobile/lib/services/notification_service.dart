@@ -31,7 +31,7 @@ class NotificationService {
     LoggerService.info('🔔 Inicializando NotificationService...');
 
     // Configurações para Android
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings('@mipmap/launcher_icon');
 
     // Configurações para iOS
     const iosSettings = DarwinInitializationSettings(
@@ -184,8 +184,7 @@ class NotificationService {
       playSound: true,
       enableVibration: true,
       vibrationPattern: Int64List.fromList([0, 500, 250, 500]),
-      icon: '@mipmap/ic_launcher',
-      largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+      icon: '@mipmap/launcher_icon',
       styleInformation: const BigTextStyleInformation(
         'Seu pet está fora da área segura!',
         contentTitle: '⚠️ Atenção',
@@ -233,8 +232,7 @@ class NotificationService {
       playSound: true,
       enableVibration: true,
       vibrationPattern: Int64List.fromList([0, 250, 250, 250]),
-      icon: '@mipmap/ic_launcher',
-      largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+      icon: '@mipmap/launcher_icon',
       styleInformation: const BigTextStyleInformation(
         'Seu pet retornou à área segura!',
         contentTitle: '✅ Seguro',
