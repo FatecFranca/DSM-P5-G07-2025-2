@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/foundation.dart';
+import 'logger_service.dart';
 
 /// Serviço de notificações locais para alertas de área segura
 /// Gerencia permissões, configuração e envio de notificações
@@ -122,7 +123,7 @@ class NotificationService {
       // Pet está FORA da área segura
       if (hasStateChanged) {
         // TRANSIÇÃO: Pet ACABOU DE SAIR da área segura
-        debugPrint('🚨 Pet saiu da área segura!');
+        LoggerService.warning('🚨 Pet saiu da área segura!');
         await _sendOutsideNotification(petName);
         _lastNotificationTime = DateTime.now();
 
@@ -134,7 +135,7 @@ class NotificationService {
       // Pet está DENTRO da área segura
       if (hasStateChanged) {
         // TRANSIÇÃO: Pet RETORNOU à área segura
-        debugPrint('✅ Pet retornou à área segura!');
+        LoggerService.success('✅ Pet retornou à área segura!');
 
         // Cancela timer de notificações repetidas
         _repeatingNotificationTimer?.cancel();
@@ -189,7 +190,7 @@ class NotificationService {
         payload: 'safe_zone_alert_outside',
       );
     } catch (e) {
-      debugPrint('❌ Erro ao enviar notificação de saída: $e');
+      LoggerService.error('❌ Erro ao enviar notificação de saída: $e', error: e);
     }
   }
 
@@ -235,7 +236,7 @@ class NotificationService {
         payload: 'safe_zone_alert_return',
       );
     } catch (e) {
-      debugPrint('❌ Erro ao enviar notificação de retorno: $e');
+      LoggerService.error('❌ Erro ao enviar notificação de retorno: $e', error: e);
     }
   }
 
@@ -250,7 +251,7 @@ class NotificationService {
       (timer) async {
         // Verifica se o pet ainda está fora (estado não mudou)
         if (_lastKnownSafeZoneState == true) {
-          debugPrint('🔔 Reenviando notificação de área segura (5 minutos)');
+          LoggerService.info('🔔 Reenviando notificação de área segura (5 minutos)');
           await _sendOutsideNotification(petName);
           _lastNotificationTime = DateTime.now();
         } else {

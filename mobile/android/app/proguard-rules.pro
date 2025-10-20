@@ -77,6 +77,21 @@
 -dontwarn com.google.android.play.core.**
 
 # ============================================================================
+# Notificações - CRÍTICO para alertas de área segura
+# ============================================================================
+-keep class androidx.core.app.NotificationCompat { *; }
+-keep class androidx.core.app.NotificationCompat$* { *; }
+-keep class android.app.Notification { *; }
+-keep class android.app.NotificationManager { *; }
+-keep class android.app.NotificationChannel { *; }
+-keep class android.app.NotificationChannelGroup { *; }
+-keep class com.google.android.material.notification.** { *; }
+
+# Flutter Local Notifications Plugin
+-keep class com.dexterous.flutterlocalnotifications.** { *; }
+-keep interface com.dexterous.flutterlocalnotifications.** { *; }
+
+# ============================================================================
 # Logging - Manter para debug
 # ============================================================================
 -keep class android.util.Log { *; }
