@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/foundation.dart';
+import 'logger_service.dart';
 
 /// Serviço de notificações locais para alertas de área segura
 /// Gerencia permissões, configuração e envio de notificações
@@ -22,10 +23,15 @@ class NotificationService {
 
   /// Inicializa o serviço de notificações
   Future<void> initialize() async {
-    if (_isInitialized) return;
+    if (_isInitialized) {
+      LoggerService.info('✅ NotificationService já foi inicializado');
+      return;
+    }
+
+    LoggerService.info('🔔 Inicializando NotificationService...');
 
     // Configurações para Android
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings('@mipmap/launcher_icon');
 
     // Configurações para iOS
     const iosSettings = DarwinInitializationSettings(
@@ -53,12 +59,17 @@ class NotificationService {
     await _requestPermissions();
 
     _isInitialized = true;
+    LoggerService.success('✅ NotificationService inicializado com sucesso');
   }
 
   /// Cria o canal de notificação no Android
   /// SEM ISSO, AS NOTIFICAÇÕES NÃO APARECEM!
   Future<void> _createNotificationChannel() async {
+    LoggerService.info('📢 Criando canal de notificação...');
+
     if (defaultTargetPlatform == TargetPlatform.android) {
+      LoggerService.info('🤖 Plataforma: Android - Criando canal de notificação');
+
       final androidChannel = AndroidNotificationChannel(
         'safe_zone_alerts', // ID do canal (deve ser o mesmo usado em sendSafeZoneAlert)
         'Alertas de Área Segura', // Nome do canal
@@ -74,15 +85,23 @@ class NotificationService {
 
       if (androidImplementation != null) {
         await androidImplementation.createNotificationChannel(androidChannel);
+        LoggerService.success('✅ Canal de notificação criado com sucesso');
+      } else {
+        LoggerService.error('❌ Não foi possível obter implementação Android para notificações');
       }
+    } else {
+      LoggerService.info('📱 Plataforma: iOS - Pulando criação de canal');
     }
   }
 
   /// Solicita permissões de notificação
   Future<void> _requestPermissions() async {
+    LoggerService.info('🔐 Solicitando permissões de notificação...');
+
     // Android 13+ requer permissão explícita
     if (defaultTargetPlatform == TargetPlatform.android) {
-      await Permission.notification.request();
+      final status = await Permission.notification.request();
+      LoggerService.info('🤖 Permissão de notificação Android: ${status.name}');
     }
 
     // iOS requer permissões específicas
@@ -94,6 +113,7 @@ class NotificationService {
             badge: true,
             sound: true,
           );
+      LoggerService.info('📱 Permissões iOS solicitadas');
     }
   }
 
@@ -108,12 +128,16 @@ class NotificationService {
     required String petName,
     required bool isOutside,
   }) async {
+    LoggerService.debug('🔔 sendSafeZoneAlert chamado: petName=$petName, isOutside=$isOutside, _isInitialized=$_isInitialized');
+
     if (!_isInitialized) {
+      LoggerService.warning('⚠️ NotificationService não inicializado, inicializando agora...');
       await initialize();
     }
 
     // Detecta transição de estado
     final hasStateChanged = _lastKnownSafeZoneState != isOutside;
+    LoggerService.debug('🔄 Estado anterior: $_lastKnownSafeZoneState, Estado novo: $isOutside, Mudança detectada: $hasStateChanged');
 
     // Atualiza o estado conhecido
     _lastKnownSafeZoneState = isOutside;
@@ -122,7 +146,7 @@ class NotificationService {
       // Pet está FORA da área segura
       if (hasStateChanged) {
         // TRANSIÇÃO: Pet ACABOU DE SAIR da área segura
-        debugPrint('🚨 Pet saiu da área segura!');
+        LoggerService.warning('🚨 Pet saiu da área segura!');
         await _sendOutsideNotification(petName);
         _lastNotificationTime = DateTime.now();
 
@@ -134,7 +158,7 @@ class NotificationService {
       // Pet está DENTRO da área segura
       if (hasStateChanged) {
         // TRANSIÇÃO: Pet RETORNOU à área segura
-        debugPrint('✅ Pet retornou à área segura!');
+        LoggerService.success('✅ Pet retornou à área segura!');
 
         // Cancela timer de notificações repetidas
         _repeatingNotificationTimer?.cancel();
@@ -149,6 +173,8 @@ class NotificationService {
 
   /// Envia notificação quando o pet sai da área segura
   Future<void> _sendOutsideNotification(String petName) async {
+    LoggerService.warning('📤 Enviando notificação de saída para $petName');
+
     final androidDetails = AndroidNotificationDetails(
       'safe_zone_alerts',
       'Alertas de Área Segura',
@@ -158,8 +184,7 @@ class NotificationService {
       playSound: true,
       enableVibration: true,
       vibrationPattern: Int64List.fromList([0, 500, 250, 500]),
-      icon: '@mipmap/ic_launcher',
-      largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+      icon: '@mipmap/launcher_icon',
       styleInformation: const BigTextStyleInformation(
         'Seu pet está fora da área segura!',
         contentTitle: '⚠️ Atenção',
@@ -188,13 +213,16 @@ class NotificationService {
         notificationDetails,
         payload: 'safe_zone_alert_outside',
       );
+      LoggerService.success('✅ Notificação de saída enviada com sucesso');
     } catch (e) {
-      debugPrint('❌ Erro ao enviar notificação de saída: $e');
+      LoggerService.error('❌ Erro ao enviar notificação de saída: $e', error: e);
     }
   }
 
   /// Envia notificação quando o pet retorna à área segura
   Future<void> _sendReturnNotification(String petName) async {
+    LoggerService.success('📤 Enviando notificação de retorno para $petName');
+
     final androidDetails = AndroidNotificationDetails(
       'safe_zone_alerts',
       'Alertas de Área Segura',
@@ -204,8 +232,7 @@ class NotificationService {
       playSound: true,
       enableVibration: true,
       vibrationPattern: Int64List.fromList([0, 250, 250, 250]),
-      icon: '@mipmap/ic_launcher',
-      largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+      icon: '@mipmap/launcher_icon',
       styleInformation: const BigTextStyleInformation(
         'Seu pet retornou à área segura!',
         contentTitle: '✅ Seguro',
@@ -234,8 +261,9 @@ class NotificationService {
         notificationDetails,
         payload: 'safe_zone_alert_return',
       );
+      LoggerService.success('✅ Notificação de retorno enviada com sucesso');
     } catch (e) {
-      debugPrint('❌ Erro ao enviar notificação de retorno: $e');
+      LoggerService.error('❌ Erro ao enviar notificação de retorno: $e', error: e);
     }
   }
 
@@ -250,7 +278,7 @@ class NotificationService {
       (timer) async {
         // Verifica se o pet ainda está fora (estado não mudou)
         if (_lastKnownSafeZoneState == true) {
-          debugPrint('🔔 Reenviando notificação de área segura (5 minutos)');
+          LoggerService.info('🔔 Reenviando notificação de área segura (5 minutos)');
           await _sendOutsideNotification(petName);
           _lastNotificationTime = DateTime.now();
         } else {
