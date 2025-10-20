@@ -41,11 +41,8 @@ async def buscar_todos_batimentos(animalId: str, token: Optional[str] = None):
     tamanho = 100  # Aumentar tamanho da página para menos requisições
     max_paginas = 3  # Limitar a apenas 3 páginas para ser rápido
 
-    # Timeout curto: 5 segundos
-    timeout = httpx.Timeout(5.0)
-
     try:
-        async with httpx.AsyncClient(timeout=timeout) as client:
+        async with httpx.AsyncClient() as client:
             # Primeira chamada para descobrir total de páginas
             response = await client.get(
                 f"{API_URL}/batimentos/animal/{animalId}?page={pagina}&size={tamanho}",
@@ -96,10 +93,8 @@ async def buscar_ultimo_batimento(animalId: str, token: Optional[str] = None):
     Returns:
         dict: The last heartbeat record
     """
-    timeout = httpx.Timeout(5.0)
-
     try:
-        async with httpx.AsyncClient(timeout=timeout) as client:
+        async with httpx.AsyncClient() as client:
             response = await client.get(
                 f"{API_URL}/batimentos/animal/{animalId}/ultimo",
                 headers=_get_auth_headers(token)
@@ -126,10 +121,8 @@ async def buscar_todos_movimentos(animalId: str, token: Optional[str] = None):
     tamanho = 100  # Aumentar tamanho da página
     max_paginas = 3  # Limitar a apenas 3 páginas
 
-    timeout = httpx.Timeout(5.0)
-
     try:
-        async with httpx.AsyncClient(timeout=timeout) as client:
+        async with httpx.AsyncClient() as client:
             response = await client.get(
                 f"{API_URL}/movimentos/animal/{animalId}?page={pagina}&size={tamanho}",
                 headers=_get_auth_headers(token)
@@ -178,10 +171,8 @@ async def buscar_dados_animal(animalId: str, token: Optional[str] = None):
     Returns:
         dict: Animal data with last heartbeat information, or None if not found
     """
-    timeout = httpx.Timeout(5.0)
-
     try:
-        async with httpx.AsyncClient(timeout=timeout) as client:
+        async with httpx.AsyncClient() as client:
             response = await client.get(
                 f"{API_URL}/animais/{animalId}",
                 headers=_get_auth_headers(token)
