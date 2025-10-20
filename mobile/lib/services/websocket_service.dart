@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/websocket_message.dart';
 import 'background_websocket_service.dart';
 import 'notification_service.dart';
+import 'logger_service.dart';
 
 class WebSocketService {
   static final WebSocketService _instance = WebSocketService._internal();
@@ -107,8 +108,8 @@ class WebSocketService {
           wsUrl = wsUrl.replaceFirst('http://', 'ws://');
         }
 
-        print('🔌 Tentando conectar ao WebSocket...');
-        print('🔗 URL: $wsUrl');
+        LoggerService.websocket('🔌 Tentando conectar ao WebSocket...');
+        LoggerService.websocket('🔗 URL: $wsUrl');
 
         _channel = WebSocketChannel.connect(
           Uri.parse(wsUrl),
@@ -123,12 +124,13 @@ class WebSocketService {
             _handleMessage(message);
           },
           onError: (error) {
+            LoggerService.connectionError('❌ Erro na conexão WebSocket', error: error);
             if (!_isConnected) {
               _handleDisconnection();
             }
           },
           onDone: () {
-            print('🔌 Desconectado do WebSocket');
+            LoggerService.websocket('🔌 Desconectado do WebSocket');
             _handleDisconnection();
           },
         );
@@ -137,7 +139,7 @@ class WebSocketService {
         _reconnectAttempts = 0;
         _lastSuccessfulConnection = DateTime.now();
         _connectionController.add(true);
-        print('✅ Conectado ao WebSocket');
+        LoggerService.success('✅ Conectado ao WebSocket');
 
         _sendConnectCommand();
         _startHeartbeat();
@@ -149,11 +151,13 @@ class WebSocketService {
         break;
 
       } catch (e) {
+        LoggerService.warning('⚠️ Falha ao conectar em $endpoint: $e');
         continue;
       }
     }
 
     if (!_isConnected) {
+      LoggerService.warning('⚠️ Nenhum endpoint disponível. Agendando reconexão...');
       _scheduleReconnect();
     }
   }
@@ -318,6 +322,7 @@ class WebSocketService {
     _reconnectTimer?.cancel();
 
     if (_reconnectAttempts >= _maxReconnectAttempts) {
+      LoggerService.error('❌ Máximo de tentativas de reconexão atingido ($_maxReconnectAttempts)');
       return;
     }
 
@@ -325,9 +330,12 @@ class WebSocketService {
       seconds: (_baseReconnectDelay.inSeconds * (1 << _reconnectAttempts)).clamp(2, 300),
     );
 
+    LoggerService.connection('🔄 Reconexão agendada em ${delay.inSeconds}s (tentativa ${_reconnectAttempts + 1}/$_maxReconnectAttempts)');
+
     _reconnectTimer = Timer(delay, () {
       if (!_isConnected && _currentAnimalId != null) {
         _reconnectAttempts++;
+        LoggerService.connection('🔄 Tentando reconectar... (tentativa $_reconnectAttempts/$_maxReconnectAttempts)');
         connect(_currentAnimalId!);
       }
     });
