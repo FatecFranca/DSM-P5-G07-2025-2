@@ -129,4 +129,43 @@ class AnimalStatsService {
       throw Exception('Erro de conexão ao buscar análise de batimentos.');
     }
   }
+
+  /// Busca a média de batimentos cardíacos das últimas 5 horas do animal.
+Future<List<HeartbeatData>> getMediaUltimas5HorasRegistradas(String animalId) async {
+  final endpoint = '/batimentos/animal/$animalId/media-ultimas-5-horas-registradas';
+  
+  try {
+    final response = await _httpClient.get(Uri.parse('$_pythonApiBaseUrl$endpoint'));
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+
+      // A API retorna {"media": 72, "media_por_hora": { ... }}
+      if (!data.containsKey('media_por_hora')) {
+        throw Exception('Resposta inesperada da API: campo "media_por_hora" ausente.');
+      }
+
+      final Map<String, dynamic> mediasPorHora = data['media_por_hora'];
+
+      final List<HeartbeatData> lista = mediasPorHora.entries.map((entry) {
+        return HeartbeatData(
+          date: entry.key,
+          value: (entry.value as num).toDouble(),
+        );
+      }).toList();
+
+      // Ordenar por data/hora para exibição correta no gráfico
+      lista.sort((a, b) => a.date.compareTo(b.date));
+
+      return lista;
+    } else {
+      throw Exception(
+        'Falha ao carregar dados da API: Status ${response.statusCode}, Body: ${response.body}',
+      );
+    }
+  } catch (e) {
+    print('Erro em getMediaUltimas5HorasRegistradas: $e');
+    throw Exception('Erro de conexão ao buscar médias das últimas 5 horas.');
+  }
+}
 }
