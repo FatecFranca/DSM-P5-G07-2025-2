@@ -1,29 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:PetDex/theme/app_theme.dart';
-import 'package:PetDex/services/animal_stats_service.dart';
-import 'package:PetDex/components/ui/heart_line_chart.dart';
-import '/models/heartbeat_data.dart';
+import 'package:PetDex/components/ui/disease_prediction.dart';
 
-class CheckupScreen extends StatefulWidget {
+class CheckupScreen extends StatelessWidget {
   const CheckupScreen({super.key});
-
-  @override
-  State<CheckupScreen> createState() => _CheckupScreenState();
-}
-
-class _CheckupScreenState extends State<CheckupScreen> {
-  late Future<List<HeartbeatData>> futureHeartbeats;
-  final AnimalStatsService _statsService = AnimalStatsService();
-
-  // TODO: Substituir pelo ID real do animal
-  final String animalId = "68194120636f719fcd5ee5fd";
-
-  @override
-  void initState() {
-    super.initState();
-    futureHeartbeats = _statsService.getMediaUltimas5HorasRegistradas(animalId);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,44 +30,9 @@ class _CheckupScreenState extends State<CheckupScreen> {
               ),
               const SizedBox(height: 32),
 
-              // 🔸 Gráfico de batimentos cardíacos
-              FutureBuilder<List<HeartbeatData>>(
-                future: futureHeartbeats,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.orange400,
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        "Erro ao carregar dados: ${snapshot.error}",
-                        style: const TextStyle(color: Colors.red),
-                        textAlign: TextAlign.center,
-                      ),
-                    );
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Text(
-                        "Sem dados disponíveis nas últimas 5 horas.",
-                        style: TextStyle(
-                          color: AppColors.black400,
-                          fontSize: 14,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    );
-                  }
-
-                  return HeartLineChart(
-                    title: "Batimentos - Últimas 5 horas",
-                    data: snapshot.data!,
-                  );
-                },
+              // 🧩 Novo componente de previsão de doença
+              const DiseasePrediction(
+                diseaseText: "Doenças gastrointestinais",
               ),
             ],
           ),
