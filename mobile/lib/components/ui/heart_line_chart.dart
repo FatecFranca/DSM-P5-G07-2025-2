@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '/models/heartbeat_data.dart';
 import '/theme/app_theme.dart';
-import 'package:intl/intl.dart';
 
 class HeartLineChart extends StatelessWidget {
   final String title;
@@ -81,9 +80,17 @@ class HeartLineChart extends StatelessWidget {
                           if (index < 0 || index >= data.length) {
                             return const SizedBox();
                           }
-                          final date = DateTime.parse(data[index].date);
-                          final formatted =
-                              DateFormat('dd/MM\nHH:mm').format(date);
+                          // Extract the local date and time from the timestamp string without timezone conversion
+                          // Format: "2025-10-17 20:00:00-03:00"
+                          final dateString = data[index].date;
+                          final datePart = dateString.substring(0, 10); // "2025-10-17"
+                          final timePart = dateString.substring(11, 16); // "20:00"
+
+                          // Format date as DD/MM
+                          final parts = datePart.split('-');
+                          final formattedDate = '${parts[2]}/${parts[1]}'; // "17/10"
+                          final formatted = '$formattedDate\n$timePart'; // "17/10\n20:00"
+
                           return Padding(
                             padding: const EdgeInsets.only(top: 6),
                             child: Text(
@@ -139,7 +146,7 @@ class HeartLineChart extends StatelessWidget {
                       dotData: FlDotData(show: true),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: AppColors.orange400.withOpacity(0.1),
+                        color: AppColors.orange400.withValues(alpha: 0.1),
                       ),
                     ),
                   ],
