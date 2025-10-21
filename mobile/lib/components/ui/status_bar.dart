@@ -28,8 +28,9 @@ class StatusBar extends StatefulWidget {
 
 class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMixin {
   bool _isExpanded = false;
+  bool _showExpandedContent = false; // mantém conteúdo visível até o fim da animação de fechamento
   late final AnimationController _animationController;
-  late final Animation<double> _heightAnimation;
+  late Animation<double> _heightAnimation;
 
   final AnimalService _animalService = AnimalService();
   final WebSocketService _webSocketService = WebSocketService();
@@ -50,13 +51,24 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 500),
     );
-    _heightAnimation = Tween<double>(begin: _collapsedHeight, end: 1.0).animate(
+    // Progresso de 0.0 a 1.0; usaremos esse valor para interpolar a altura
+    _heightAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
+    // Inicia como totalmente "colapsado" (t = 1 no ramo de colapso)
+    _animationController.value = 1.0;
+
     _fetchData();
     _initializeWebSocketListener();
+
+    // Quando a animação de fechamento terminar, escondemos o conteúdo expandido
+    _animationController.addStatusListener((status) {
+      if (status == AnimationStatus.completed && !_isExpanded) {
+        if (mounted) setState(() => _showExpandedContent = false);
+      }
+    });
   }
 
   void _initializeWebSocketListener() {
@@ -113,8 +125,11 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
 
       if (!mounted) return;
 
-      if (_retryCount < 5) _scheduleRetry();
-      else setState(() => _isLoading = false);
+      if (_retryCount < 5) {
+        _scheduleRetry();
+      } else {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -130,11 +145,16 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
 
   void _toggleExpand() {
     if (_animalInfo != null) {
+      final willExpand = !_isExpanded;
       setState(() {
-        _isExpanded = !_isExpanded;
-        if (_isExpanded) _animationController.forward();
-        else _animationController.reverse();
+        _isExpanded = willExpand;
+        if (willExpand) {
+          // Garantir que o conteúdo expandido apareça antes de animar a abertura
+          _showExpandedContent = true;
+        }
       });
+      // Dispara a animação de 0 -> 1 para expandir/contrair suavemente
+      _animationController.forward(from: 0);
     }
   }
 
@@ -148,13 +168,20 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    final maxHeight = MediaQuery.of(context).size.height * 0.9;
+
     return AnimatedBuilder(
       animation: _heightAnimation,
       builder: (context, child) {
+        final t = _heightAnimation.value;
+        final currentHeight = _isExpanded
+            ? _collapsedHeight + t * (maxHeight - _collapsedHeight)
+            : maxHeight - t * (maxHeight - _collapsedHeight);
+
         return Container(
           constraints: BoxConstraints(
             minHeight: _collapsedHeight,
-            maxHeight: _isExpanded ? MediaQuery.of(context).size.height * 0.9 : _collapsedHeight,
+            maxHeight: currentHeight,
           ),
           child: ClipRRect(
             borderRadius: const BorderRadius.only(
@@ -215,7 +242,7 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
           _buildHeader(),
           const SizedBox(height: 10),
           _buildInfoBlock(),
-          if (_isExpanded)
+          if (_showExpandedContent)
             Padding(
               padding: const EdgeInsets.only(top: 20.0),
               child: HeartLineChart(
