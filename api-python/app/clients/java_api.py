@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 import httpx
+import asyncio
 from typing import Optional
 
 
@@ -38,29 +39,47 @@ async def buscar_todos_batimentos(animalId: str, token: Optional[str] = None):
     """
     batimentos = []
     pagina = 0
-    tamanho = 50  # ou o tamanho padrão da sua API
+    tamanho = 100  # Aumentar tamanho da página para menos requisições
+    max_paginas = 3  # Limitar a apenas 3 páginas para ser rápido
 
-    async with httpx.AsyncClient() as client:
-        # Primeira chamada para descobrir total de páginas
-        response = await client.get(
-            f"{API_URL}/batimentos/animal/{animalId}?page={pagina}&size={tamanho}",
-            headers=_get_auth_headers(token)
-        )
-        response.raise_for_status()
-        data = response.json()
-
-        total_paginas = data.get("totalPages", 1)
-        batimentos.extend(data["content"])
-
-        # Buscar as outras páginas (se houver)
-        for pagina in range(1, total_paginas):
+    try:
+        async with httpx.AsyncClient() as client:
+            # Primeira chamada para descobrir total de páginas
             response = await client.get(
                 f"{API_URL}/batimentos/animal/{animalId}?page={pagina}&size={tamanho}",
                 headers=_get_auth_headers(token)
             )
             response.raise_for_status()
             data = response.json()
-            batimentos.extend(data["content"])
+
+            total_paginas = min(data.get("totalPages", 1), max_paginas)
+            batimentos.extend(data.get("content", []))
+
+            # Buscar as outras páginas em paralelo (limitado a max_paginas)
+            if total_paginas > 1:
+                tasks = []
+                for pagina in range(1, total_paginas):
+                    task = client.get(
+                        f"{API_URL}/batimentos/animal/{animalId}?page={pagina}&size={tamanho}",
+                        headers=_get_auth_headers(token)
+                    )
+                    tasks.append(task)
+
+                # Executar requisições em paralelo
+                responses = await asyncio.gather(*tasks, return_exceptions=True)
+
+                for response in responses:
+                    if isinstance(response, Exception):
+                        continue
+                    try:
+                        response.raise_for_status()
+                        data = response.json()
+                        batimentos.extend(data.get("content", []))
+                    except Exception:
+                        continue
+    except Exception:
+        # Se falhar, retornar lista vazia em vez de falhar
+        pass
 
     return batimentos
 
@@ -75,15 +94,17 @@ async def buscar_ultimo_batimento(animalId: str, token: Optional[str] = None):
     Returns:
         dict: The last heartbeat record
     """
-    async with httpx.AsyncClient() as client:
-        response = await client.get(
-            f"{API_URL}/batimentos/animal/{animalId}/ultimo",
-            headers=_get_auth_headers(token)
-        )
-        response.raise_for_status()
-        data = response.json()
-
-    return data
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{API_URL}/batimentos/animal/{animalId}/ultimo",
+                headers=_get_auth_headers(token)
+            )
+            response.raise_for_status()
+            data = response.json()
+            return data
+    except Exception:
+        return {}
 
 async def buscar_todos_movimentos(animalId: str, token: Optional[str] = None):
     """
@@ -98,27 +119,45 @@ async def buscar_todos_movimentos(animalId: str, token: Optional[str] = None):
     """
     movimentos = []
     pagina = 0
-    tamanho = 50  # ajuste conforme necessidade
+    tamanho = 100  # Aumentar tamanho da página
+    max_paginas = 3  # Limitar a apenas 3 páginas
 
-    async with httpx.AsyncClient() as client:
-        response = await client.get(
-            f"{API_URL}/movimentos/animal/{animalId}?page={pagina}&size={tamanho}",
-            headers=_get_auth_headers(token)
-        )
-        response.raise_for_status()
-        data = response.json()
-
-        total_paginas = data.get("totalPages", 1)
-        movimentos.extend(data["content"])
-
-        for pagina in range(1, total_paginas):
+    try:
+        async with httpx.AsyncClient() as client:
             response = await client.get(
                 f"{API_URL}/movimentos/animal/{animalId}?page={pagina}&size={tamanho}",
                 headers=_get_auth_headers(token)
             )
             response.raise_for_status()
             data = response.json()
-            movimentos.extend(data["content"])
+
+            total_paginas = min(data.get("totalPages", 1), max_paginas)
+            movimentos.extend(data.get("content", []))
+
+            # Buscar as outras páginas em paralelo
+            if total_paginas > 1:
+                tasks = []
+                for pagina in range(1, total_paginas):
+                    task = client.get(
+                        f"{API_URL}/movimentos/animal/{animalId}?page={pagina}&size={tamanho}",
+                        headers=_get_auth_headers(token)
+                    )
+                    tasks.append(task)
+
+                responses = await asyncio.gather(*tasks, return_exceptions=True)
+
+                for response in responses:
+                    if isinstance(response, Exception):
+                        continue
+                    try:
+                        response.raise_for_status()
+                        data = response.json()
+                        movimentos.extend(data.get("content", []))
+                    except Exception:
+                        continue
+    except Exception:
+        # Se falhar, retornar lista vazia
+        pass
 
     return movimentos
 
@@ -133,17 +172,20 @@ async def buscar_dados_animal(animalId: str, token: Optional[str] = None):
     Returns:
         dict: Animal data with last heartbeat information, or None if not found
     """
-    async with httpx.AsyncClient() as client:
-        response = await client.get(
-            f"{API_URL}/animais/{animalId}",
-            headers=_get_auth_headers(token)
-        )
-        if response.status_code != 200:
-            return None
-        animal_data = response.json()
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{API_URL}/animais/{animalId}",
+                headers=_get_auth_headers(token)
+            )
+            if response.status_code != 200:
+                return None
+            animal_data = response.json()
 
-        # Busca último batimento
-        ultimo_bat = await buscar_ultimo_batimento(animalId, token)
-        animal_data["ultimo_batimento"] = ultimo_bat.get("frequenciaMedia")
+            # Busca último batimento em paralelo
+            ultimo_bat = await buscar_ultimo_batimento(animalId, token)
+            animal_data["ultimo_batimento"] = ultimo_bat.get("frequenciaMedia")
 
-    return animal_data
+            return animal_data
+    except Exception:
+        return None

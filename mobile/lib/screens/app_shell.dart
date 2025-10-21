@@ -43,7 +43,7 @@ class _AppShellState extends State<AppShell> {
         animalSpecies: SpeciesEnum.dog,
         animalImageUrl: "assets/images/uno.png",
       ),
-      HealthScreen(),
+      HealthScreen(animalId: _animalId, animalName: _animalName,),
       CheckupScreen(),
       LocationScreen(
         animalId: _animalId,

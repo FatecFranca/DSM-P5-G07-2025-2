@@ -12,10 +12,11 @@
 
 
     <application
-        android:label="mobile"
+        android:label="PetDex"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
-        android:largeHeap="true">
+        android:icon="@mipmap/launcher_icon"
+        android:largeHeap="true"
+        android:networkSecurityConfig="@xml/network_security_config">
         <activity
             android:name=".MainActivity"
             android:exported="true"

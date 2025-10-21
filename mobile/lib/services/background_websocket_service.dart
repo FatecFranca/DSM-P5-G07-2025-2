@@ -410,27 +410,20 @@ class BackgroundWebSocketService {
     }
   }
 
-  /// Verifica se o pet saiu da área segura e envia notificação via NotificationService
+  /// Verifica se o pet saiu/retornou da área segura e envia notificação apropriada
+  /// Implementa lógica de transição de estado
   static Future<void> _checkAndNotifySafeZone(Map<String, dynamic> data) async {
     try {
       // Verifica se a mensagem contém informações de área segura
       final isOutsideSafeZone = data['isOutsideSafeZone'] as bool? ?? false;
 
-      if (isOutsideSafeZone) {
-        // Usa o NotificationService para enviar a notificação de alerta
-        final notificationService = NotificationService();
-        await notificationService.sendSafeZoneAlert(
-          petName: 'Seu pet',
-          isOutside: true,
-        );
-      } else {
-        // Pet voltou para área segura - reseta o estado
-        final notificationService = NotificationService();
-        await notificationService.sendSafeZoneAlert(
-          petName: 'Seu pet',
-          isOutside: false,
-        );
-      }
+      // Usa o NotificationService para enviar a notificação apropriada
+      // O serviço detectará transições de estado automaticamente
+      final notificationService = NotificationService();
+      await notificationService.sendSafeZoneAlert(
+        petName: 'Seu pet',
+        isOutside: isOutsideSafeZone,
+      );
     } catch (e) {
       // Silencioso
     }
