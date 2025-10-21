@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import httpx
 from typing import Optional
 
+
 # Carrega as variáveis do .env
 load_dotenv()
 

@@ -1,57 +1,76 @@
-# app/services/pmml_predictor.py
-import os
-import jpype
+import httpx
 import logging
+import os
+import pandas as pd
+from datetime import datetime
+from dotenv import load_dotenv
 from pypmml import Model
 
-logging.basicConfig(level=logging.INFO)
+# Carrega variáveis do .env
+load_dotenv()
+
 logger = logging.getLogger("PMMLPredictor")
 
-MODEL_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "modelo_random_forest.pmml"))
-model = None
+API_BASE_URL = os.getenv("API_URL")
+TOKEN_JAVA = os.getenv("JAVA_API_TOKEN")
+MODEL_PATH = "modelos/modelo_random_forest.pmml"
 
-def _init_model():
-    global model
-    if model is None:
-        logger.info("🔹 Inicializando modelo PMML...")
-        try:
-            if not jpype.isJVMStarted():
-                jpype.startJVM(convertStrings=False)
-            if not os.path.exists(MODEL_PATH):
-                raise FileNotFoundError(f"Modelo PMML não encontrado em {MODEL_PATH}")
-            model = Model.load(MODEL_PATH)
-            logger.info(f"✅ Modelo carregado de {MODEL_PATH}")
-        except Exception as e:
-            logger.exception(f"Erro ao inicializar modelo PMML: {e}")
-            raise
+# ✅ Carrega o modelo uma única vez ao iniciar
+model = Model.load(MODEL_PATH)
 
-def predict_with_pmml(animal_data: dict, sintomas: dict):
-    _init_model()
-    input_data = {**animal_data, **sintomas}
-    for k, v in input_data.items():
-        if isinstance(v, str):
-            input_data[k] = v.strip()
+async def get_animal_data(id_animal: str) -> dict:
+    """
+    Consulta os dados do animal na API Java e retorna os campos
+    necessários para o modelo de predição.
+    """
+    url = f"{API_BASE_URL}/animais/{id_animal}"
+    headers = {"Authorization": f"Bearer {TOKEN_JAVA}"}
+
     try:
-        resultado = model.predict(input_data)
-        resultado_dict = {k: float(resultado[k]) for k in resultado.keys()}
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url, headers=headers)
+            response.raise_for_status()
+            data = response.json()
 
-        # Descobrir a classe com maior probabilidade
-        classe_maior_prob = max(resultado_dict, key=resultado_dict.get)
+            logger.info(f"✅ Dados do animal obtidos: {data}")
 
-        # Remove "probability(...)" para ficar só o nome da doença
-        if classe_maior_prob.startswith("probability(") and classe_maior_prob.endswith(")"):
-            classe_maior_prob = classe_maior_prob[len("probability("):-1]
+            animal_data = {
+                "tipo_do_animal": data.get("especieNome", "").lower(),
+                "raca": data.get("racaNome", "").lower(),
+                "idade": _calcular_idade(data.get("dataNascimento")),
+                "genero": 1 if data.get("sexo") == "M" else 0,
+                "peso": data.get("peso", 0),
+                "batimento_cardiaco": 0  # futuro: integrar com sensores
+            }
 
-        # Montar JSON final no mesmo formato do antigo
-        final_result = {"predicted_classe_doenca": classe_maior_prob}
-        for k, v in resultado_dict.items():
-            if k.startswith("probability(") and k.endswith(")"):
-                chave = k[len("probability("):-1]  # pega só o nome da doença
-                final_result[f"probability_{chave}"] = v
-        
+            return animal_data
 
-        return final_result
-
+    except httpx.HTTPStatusError as e:
+        logger.error(f"❌ Erro HTTP {e.response.status_code} ao consultar API Java.")
     except Exception as e:
-        logger.exception("Falha ao fazer predição com PMML.")
-        return {"erro": f"Falha ao fazer predição com PMML: {str(e)}"}
+        logger.error(f"🚨 Erro geral ao consultar API Java: {e}")
+
+    return {}
+
+def _calcular_idade(data_nascimento: str) -> float:
+    """Calcula idade aproximada em anos."""
+    try:
+        nascimento = datetime.fromisoformat(data_nascimento.replace("Z", "+00:00"))
+        hoje = datetime.now()
+        idade = (hoje - nascimento).days / 365
+        return round(idade, 1)
+    except Exception:
+        return 0.0
+
+# 🔮 Função principal para predição
+def predict_pmml(dados: dict):
+    """
+    Realiza a predição usando o modelo PMML carregado.
+    """
+    try:
+        df = pd.DataFrame([dados])
+        result = model.predict(df)
+        return result.to_dict(orient="records")[0]
+    except Exception as e:
+        logger.error(f"🚨 Erro ao realizar predição: {e}")
+        return {"erro": str(e)}
