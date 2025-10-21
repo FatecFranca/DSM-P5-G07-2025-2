@@ -11,6 +11,7 @@ import 'package:flutter/rendering.dart';
 
 import 'package:PetDex/services/location_service.dart';
 import 'package:PetDex/services/websocket_service.dart';
+import 'package:PetDex/services/logger_service.dart';
 import 'package:PetDex/data/enums/species.dart';
 import 'package:PetDex/theme/app_theme.dart';
 import 'package:PetDex/models/location_model.dart';
@@ -50,6 +51,10 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
   bool _isInBackground = false;
   bool _isInitialized = false; // Flag para evitar inicializações duplicadas
 
+  // Informações de área segura
+  bool? _isOutsideSafeZone;
+  double? _distanceFromPerimeter;
+
   static const CameraPosition _defaultPosition = CameraPosition(
     target: LatLng(-23.5505, -46.6333),
     zoom: 16.0,
@@ -77,7 +82,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
       _initializeBackgroundService();
       _isInitialized = true;
     } catch (e) {
-      debugPrint('❌ Erro ao inicializar app: $e');
+      LoggerService.error('❌ Erro ao inicializar app: $e', error: e);
     }
   }
 
@@ -86,7 +91,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
     try {
       await _webSocketService.initializeNotifications(petName: widget.animalName);
     } catch (e) {
-      debugPrint('❌ Erro ao inicializar notificações: $e');
+      LoggerService.error('❌ Erro ao inicializar notificações: $e', error: e);
     }
   }
 
@@ -102,6 +107,8 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
       if (location != null) {
         setState(() {
           _currentLocation = location;
+          _isOutsideSafeZone = location.isOutsideSafeZone;
+          _distanceFromPerimeter = location.distanciaDoPerimetro;
         });
         await _createMarker(location);
 
@@ -156,11 +163,14 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
         ),
       );
 
-      setState(() {
-        _markers = {marker};
-      });
+      if (mounted) {
+        setState(() {
+          _markers = {marker};
+        });
+      }
     } catch (e) {
-      // Erro ao criar marcador
+      LoggerService.warning('Erro ao criar marcador do animal: $e');
+      // Continua mesmo se falhar - o mapa será exibido sem o marcador
     }
   }
 
@@ -169,26 +179,33 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
     try {
       final bool temImagem = widget.animalImageUrl != null && widget.animalImageUrl!.isNotEmpty;
 
-      // ✅ CORREÇÃO: Usar os nomes corretos das imagens que existem
-      final String imagePath = temImagem
-          ? widget.animalImageUrl!
-          : (widget.animalSpecies == SpeciesEnum.cat
-              ? 'assets/images/gato-dex.png'
-              : 'assets/images/cao-dex.png');
+      if (temImagem) {
+        final String imageUrl = widget.animalImageUrl!;
+        final bool isNetworkImage = imageUrl.startsWith('http://') || imageUrl.startsWith('https://');
 
-      // Pré-carrega a imagem
-      await precacheImage(AssetImage(imagePath), context);
+        if (isNetworkImage) {
+          // Pré-carrega imagem de rede
+          await precacheImage(NetworkImage(imageUrl), context);
+        } else {
+          // Pré-carrega imagem de asset
+          await precacheImage(AssetImage(imageUrl), context);
+        }
+      } else {
+        // Pré-carrega imagem padrão baseada na espécie
+        final String imagemPadrao = widget.animalSpecies == SpeciesEnum.cat
+            ? 'assets/images/gato-dex.png'
+            : 'assets/images/cao-dex.png';
+        await precacheImage(AssetImage(imagemPadrao), context);
+      }
     } catch (e) {
       // Continua mesmo se falhar - o marcador será criado com imagem padrão
+      LoggerService.warning('Erro ao fazer precache da imagem: $e');
     }
   }
 
   /// Converte um widget (AnimalPin) para Uint8List usando OverlayEntry
   Future<Uint8List> _createMarkerFromWidget(Widget widget, Size size) async {
     final overlayState = Overlay.of(context);
-    if (overlayState == null) {
-      throw Exception('Overlay não disponível');
-    }
 
     final key = GlobalKey();
     final entry = OverlayEntry(
@@ -207,28 +224,36 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
 
     overlayState.insert(entry);
 
-    // CORREÇÃO: Aumenta o delay para garantir que a imagem seja carregada
-    await Future.delayed(const Duration(milliseconds: 150));
-    await WidgetsBinding.instance.endOfFrame;
-
-    // Aguarda mais um frame para garantir renderização completa
-    await Future.delayed(const Duration(milliseconds: 50));
-
     try {
+      // CORREÇÃO: Aumenta o delay para garantir que a imagem seja carregada
+      // Especialmente importante para imagens de rede
+      await Future.delayed(const Duration(milliseconds: 200));
+      await WidgetsBinding.instance.endOfFrame;
+
+      // Aguarda mais um frame para garantir renderização completa
+      await Future.delayed(const Duration(milliseconds: 100));
+
       final boundary = key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
       if (boundary == null) {
-        throw Exception('Erro ao capturar RenderRepaintBoundary');
+        throw Exception('RenderRepaintBoundary não encontrado - widget não foi renderizado');
       }
 
       final ui.Image image = await boundary.toImage(pixelRatio: 2.0);
       final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      final bytes = byteData!.buffer.asUint8List();
 
-      entry.remove();
+      if (byteData == null) {
+        throw Exception('Falha ao converter imagem para ByteData');
+      }
+
+      final bytes = byteData.buffer.asUint8List();
+      LoggerService.success('Marcador criado com sucesso: ${bytes.length} bytes');
+
       return bytes;
     } catch (e) {
-      entry.remove();
+      LoggerService.error('Erro ao criar marcador: $e', error: e);
       rethrow;
+    } finally {
+      entry.remove();
     }
   }
 
@@ -241,15 +266,37 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
   }
 
   /// Centraliza o mapa na localização atual do animal
-  void _centerOnAnimalLocation() {
+  /// Também recarrega a localização mais recente da API e atualiza o status de área segura
+  Future<void> _centerOnAnimalLocation() async {
     if (_currentLocation != null) {
-      _animateToLocation(_currentLocation!.latitude, _currentLocation!.longitude);
+      // Recarrega a localização mais recente da API
+      try {
+        final location = await _locationService.getUltimaLocalizacaoAnimal(widget.animalId);
+        if (location != null) {
+          // Atualiza a localização e status da área segura
+          setState(() {
+            _currentLocation = location;
+            _isOutsideSafeZone = location.isOutsideSafeZone;
+            _distanceFromPerimeter = location.distanciaDoPerimetro;
+          });
+
+          // Atualiza o marcador com a nova localização
+          await _createMarker(location);
+
+          // Anima o mapa para a nova localização
+          _animateToLocation(location.latitude, location.longitude);
+
+          LoggerService.success('✅ Localização atualizada - Status: ${location.isOutsideSafeZone ?? false ? "FORA" : "DENTRO"}');
+        }
+      } catch (e) {
+        LoggerService.error('❌ Erro ao atualizar localização: $e', error: e);
+      }
     }
   }
 
   void _initializeWebSocket() {
     try {
-      debugPrint('🔌 Inicializando WebSocket para animal: ${widget.animalId}');
+      LoggerService.websocket('🔌 Inicializando WebSocket para animal: ${widget.animalId}');
 
       // Cancela subscription anterior se existir
       _locationSubscription?.cancel();
@@ -257,9 +304,9 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
       _locationSubscription = _webSocketServiceLocationStreamListener();
       _webSocketService.connect(widget.animalId);
 
-      debugPrint('✅ WebSocket inicializado');
+      LoggerService.success('✅ WebSocket inicializado');
     } catch (e) {
-      debugPrint('❌ Erro ao inicializar WebSocket: $e');
+      LoggerService.error('❌ Erro ao inicializar WebSocket: $e', error: e);
     }
   }
 
@@ -271,8 +318,8 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
 
   void _handleWebSocketLocationUpdate(LocationUpdate locationUpdate) {
     if (locationUpdate.animalId == widget.animalId) {
-      debugPrint('📍 WebSocket: Nova localização recebida - Lat: ${locationUpdate.latitude}, Lng: ${locationUpdate.longitude}');
-      debugPrint('🔒 Área segura: ${locationUpdate.isOutsideSafeZone ? "FORA" : "DENTRO"} - Distância: ${locationUpdate.distanciaDoPerimetro}m');
+      LoggerService.debug('📍 WebSocket: Nova localização recebida - Lat: ${locationUpdate.latitude}, Lng: ${locationUpdate.longitude}');
+      LoggerService.debug('🔒 Área segura: ${locationUpdate.isOutsideSafeZone ? "FORA" : "DENTRO"} - Distância: ${locationUpdate.distanciaDoPerimetro}m');
 
       final newLocation = LocationData(
         id: 'websocket-${DateTime.now().millisecondsSinceEpoch}',
@@ -288,6 +335,8 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
 
       setState(() {
         _currentLocation = newLocation;
+        _isOutsideSafeZone = locationUpdate.isOutsideSafeZone;
+        _distanceFromPerimeter = locationUpdate.distanciaDoPerimetro;
       });
 
       _createMarker(newLocation);
@@ -328,7 +377,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
     try {
       await _webSocketService.initializeBackgroundService();
     } catch (e) {
-      debugPrint('❌ Erro ao inicializar background service: $e');
+      LoggerService.error('❌ Erro ao inicializar background service: $e', error: e);
       // Não propaga o erro para evitar crash do app
     }
   }
@@ -407,6 +456,55 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
                           fontSize: 14,
                         ),
                       ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+          // Indicador de área segura - Exibe apenas quando o animal está FORA da área segura
+          if (_isOutsideSafeZone == true && !_isLoading)
+            Positioned(
+              top: 60,
+              left: 16,
+              right: 16,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 16,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.red.shade200,
+                    width: 1.5,
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.warning_rounded,
+                          color: Colors.red.shade700,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            'Pet fora da área segura',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                              color: Colors.red.shade700,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
