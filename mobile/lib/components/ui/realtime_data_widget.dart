@@ -329,8 +329,18 @@ class _RealtimeDataWidgetState extends State<RealtimeDataWidget> {
 
   String _formatTimestamp(String timestamp) {
     try {
-      final dateTime = DateTime.parse(timestamp);
-      return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}:${dateTime.second.toString().padLeft(2, '0')}';
+      // Extract the local time from the timestamp string without timezone conversion
+      // Format: "2025-10-17 20:00:00-03:00" or similar
+      // We want to extract just the time part: "20:00:00"
+      if (timestamp.contains(' ')) {
+        final parts = timestamp.split(' ');
+        if (parts.length >= 2) {
+          final timePart = parts[1]; // "20:00:00-03:00" or "20:00:00"
+          final cleanTime = timePart.split('-')[0].split('+')[0]; // Remove timezone offset
+          return cleanTime; // "20:00:00"
+        }
+      }
+      return timestamp;
     } catch (e) {
       return timestamp;
     }

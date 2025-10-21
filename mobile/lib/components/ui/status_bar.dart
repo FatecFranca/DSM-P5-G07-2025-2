@@ -4,12 +4,13 @@ import 'package:google_fonts/google_fonts.dart';
 import '/models/animal.dart';
 import '/models/heartbeat_data.dart';
 import '/models/latest_heartbeat.dart';
-import '/models/websocket_message.dart';
+import '/models/websocket_message.dart'; // HeartrateUpdate
 import '/services/animal_service.dart';
 import '/services/websocket_service.dart';
+import '/services/animal_stats_service.dart'; // <- nova
 import '/theme/app_theme.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'heart_chart_bar.dart';
+import 'package:PetDex/components/ui/heart_line_chart.dart';
 
 class StatusBar extends StatefulWidget {
   final String animalId;
@@ -32,19 +33,17 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
 
   final AnimalService _animalService = AnimalService();
   final WebSocketService _webSocketService = WebSocketService();
+  final AnimalStatsService _statsService = AnimalStatsService(); // <- para API Python
 
   Animal? _animalInfo;
   LatestHeartbeat? _latestHeartbeat;
-  List<HeartbeatData>? _heartbeatHistory;
+  List<HeartbeatData>? _heartbeatHistory; // <- dados reais da API
   bool _isLoading = true;
   int _retryCount = 0;
   Timer? _retryTimer;
   StreamSubscription<HeartrateUpdate>? _heartrateSubscription;
 
   static const double _collapsedHeight = 150.0;
-  static const double _expandedHeight = 420.0;
-  static const int _maxRetries = 5; // Máximo de tentativas
-  static const int _retryDelaySeconds = 3; // Delay inicial entre tentativas
 
   @override
   void initState() {
@@ -53,28 +52,21 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    _heightAnimation = Tween<double>(begin: _collapsedHeight, end: _expandedHeight).animate(
+    _heightAnimation = Tween<double>(begin: _collapsedHeight, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
     _fetchData();
     _initializeWebSocketListener();
   }
 
-  /// Inicializa o listener do WebSocket para atualizações de batimento cardíaco em tempo real
   void _initializeWebSocketListener() {
     _heartrateSubscription = _webSocketService.heartrateStream.listen(
-      (heartrateUpdate) {
-        // Verifica se a atualização é para o animal correto
-        if (heartrateUpdate.animalId == widget.animalId) {
+      (HeartrateUpdate update) {
+        if (update.animalId == widget.animalId) {
           if (mounted) {
             setState(() {
-              // Atualiza o batimento cardíaco com os dados do WebSocket
-              _latestHeartbeat = LatestHeartbeat(
-                frequenciaMedia: heartrateUpdate.frequenciaMedia,
-              );
+              _latestHeartbeat = LatestHeartbeat(frequenciaMedia: update.frequenciaMedia);
             });
-
-            // Recarrega o histórico de batimentos para atualizar o gráfico
             _reloadHeartbeatHistory();
           }
         }
@@ -82,51 +74,31 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
     );
   }
 
-  /// Recarrega o histórico de batimentos para atualizar o gráfico
   Future<void> _reloadHeartbeatHistory() async {
     try {
-      final history = await _animalService.getHeartbeatHistory(widget.animalId);
+      final history = await _statsService.getMediaUltimas5HorasRegistradas(widget.animalId); // <- dados reais
       if (mounted) {
         setState(() {
           _heartbeatHistory = history;
         });
       }
-    } catch (e) {
-      // Silencioso
-    }
+    } catch (_) {}
   }
 
-  @override
-  void didUpdateWidget(StatusBar oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Atualiza a UI quando o status de conexão mudar
-    if (oldWidget.isConnected != widget.isConnected) {
-      setState(() {
-        // Força rebuild para atualizar o indicador de conexão
-      });
-    }
-  }
-
-  /// Busca os dados do StatusBar com retry automático
   Future<void> _fetchData() async {
     if (!mounted) return;
-
     try {
-      // Adiciona timeout para evitar travamentos
       final results = await Future.wait<dynamic>([
         _animalService.getAnimalInfo(widget.animalId),
         _animalService.getLatestHeartbeat(widget.animalId),
-        _animalService.getHeartbeatHistory(widget.animalId),
+        _statsService.getMediaUltimas5HorasRegistradas(widget.animalId), // <- pega da API Python
       ]).timeout(
         const Duration(seconds: 10),
-        onTimeout: () {
-          throw TimeoutException('Timeout ao buscar dados');
-        },
+        onTimeout: () => throw TimeoutException('Timeout ao buscar dados'),
       );
 
       if (!mounted) return;
 
-      // ✅ Sucesso! Cancela qualquer retry pendente
       _retryTimer?.cancel();
       _retryCount = 0;
 
@@ -137,34 +109,22 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
         _isLoading = false;
       });
     } catch (e) {
-      debugPrint("❌ Erro ao buscar dados do StatusBar (tentativa ${_retryCount + 1}/$_maxRetries): $e");
+      debugPrint("❌ Erro ao buscar dados (tentativa ${_retryCount + 1}/5): $e");
 
       if (!mounted) return;
 
-      // Se ainda não atingiu o máximo de tentativas, agenda retry
-      if (_retryCount < _maxRetries) {
-        _scheduleRetry();
-      } else {
-        // Atingiu o máximo de tentativas, para de tentar
-        setState(() => _isLoading = false);
-      }
+      if (_retryCount < 5) _scheduleRetry();
+      else setState(() => _isLoading = false);
     }
   }
 
-  /// Agenda uma nova tentativa de buscar dados com backoff exponencial
   void _scheduleRetry() {
     if (!mounted) return;
-
     _retryCount++;
-
-    // Backoff exponencial: 3s, 6s, 12s, 24s, 48s
-    final delaySeconds = _retryDelaySeconds * (1 << (_retryCount - 1));
-
+    final delaySeconds = 3 * (1 << (_retryCount - 1));
     _retryTimer?.cancel();
     _retryTimer = Timer(Duration(seconds: delaySeconds), () {
-      if (mounted) {
-        _fetchData();
-      }
+      if (mounted) _fetchData();
     });
   }
 
@@ -172,19 +132,16 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
     if (_animalInfo != null) {
       setState(() {
         _isExpanded = !_isExpanded;
-        if (_isExpanded) {
-          _animationController.forward();
-        } else {
-          _animationController.reverse();
-        }
+        if (_isExpanded) _animationController.forward();
+        else _animationController.reverse();
       });
     }
   }
 
   @override
   void dispose() {
-    _retryTimer?.cancel(); // Cancela retry pendente
-    _heartrateSubscription?.cancel(); // Cancela subscription do WebSocket
+    _retryTimer?.cancel();
+    _heartrateSubscription?.cancel();
     _animationController.dispose();
     super.dispose();
   }
@@ -195,7 +152,10 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
       animation: _heightAnimation,
       builder: (context, child) {
         return Container(
-          height: _heightAnimation.value,
+          constraints: BoxConstraints(
+            minHeight: _collapsedHeight,
+            maxHeight: _isExpanded ? MediaQuery.of(context).size.height * 0.9 : _collapsedHeight,
+          ),
           child: ClipRRect(
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(30),
@@ -204,9 +164,8 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               decoration: const BoxDecoration(
-                color: AppColors.sand100,
-                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -5))]
-              ),
+                  color: AppColors.sand100,
+                  boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -5))]),
               child: _buildContent(),
             ),
           ),
@@ -224,54 +183,46 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
             const CircularProgressIndicator(color: AppColors.orange),
             const SizedBox(height: 16),
             Text(
-              _retryCount > 0
-                ? 'Tentando reconectar... (${_retryCount}/$_maxRetries)'
-                : 'Carregando dados do pet...',
-              style: GoogleFonts.poppins(
-                color: AppColors.black400,
-                fontSize: 12,
-              ),
+              _retryCount > 0 ? 'Tentando reconectar... ($_retryCount/5)' : 'Carregando dados do pet...',
+              style: GoogleFonts.poppins(color: AppColors.black400, fontSize: 12),
             ),
           ],
         ),
       );
     }
+
     if (_animalInfo == null) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              color: AppColors.orange,
-              size: 48,
-            ),
+            const Icon(Icons.error_outline, color: AppColors.orange, size: 48),
             const SizedBox(height: 16),
             Text(
               'Não foi possível carregar os dados do pet.',
-              style: GoogleFonts.poppins(
-                color: AppColors.black400,
-                fontSize: 14,
-              ),
+              style: GoogleFonts.poppins(color: AppColors.black400, fontSize: 14),
               textAlign: TextAlign.center,
             ),
           ],
         ),
       );
     }
+
     return SingleChildScrollView(
-      physics: const NeverScrollableScrollPhysics(),
+      physics: const BouncingScrollPhysics(),
       child: Column(
         children: [
           _buildHeader(),
           const SizedBox(height: 10),
           _buildInfoBlock(),
-          AnimatedCrossFade(
-            firstChild: const SizedBox.shrink(),
-            secondChild: _buildChart(),
-            crossFadeState: _isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-            duration: const Duration(milliseconds: 300),
-          ),
+          if (_isExpanded)
+            Padding(
+              padding: const EdgeInsets.only(top: 20.0),
+              child: HeartLineChart(
+                title: 'Batimentos - Últimas 5 horas',
+                data: _heartbeatHistory ?? [],
+              ),
+            ),
         ],
       ),
     );
@@ -287,10 +238,7 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
           color: AppColors.sand,
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Icon(
-          _isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
-          color: AppColors.orange900,
-        ),
+        child: Icon(_isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up, color: AppColors.orange900),
       ),
     );
   }
@@ -303,11 +251,7 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const CircleAvatar(
-          radius: 40,
-          backgroundImage: AssetImage('assets/images/uno.png'),
-          backgroundColor: AppColors.sand200,
-        ),
+        const CircleAvatar(radius: 40, backgroundImage: AssetImage('assets/images/uno.png'), backgroundColor: AppColors.sand200),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -318,41 +262,26 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(
-                      _animalInfo!.nome,
-                      style: GoogleFonts.poppins(fontSize: 36, fontWeight: FontWeight.bold, color: AppColors.orange900),
-                    ),
+                    Text(_animalInfo!.nome,
+                        style: GoogleFonts.poppins(fontSize: 36, fontWeight: FontWeight.bold, color: AppColors.orange900)),
                     const SizedBox(width: 8),
-                    FaIcon(
-                      _animalInfo!.sexo.toUpperCase() == 'M' ? FontAwesomeIcons.mars : FontAwesomeIcons.venus,
-                      size: 24,
-                      color: AppColors.orange900,
-                    ),
+                    FaIcon(_animalInfo!.sexo.toUpperCase() == 'M' ? FontAwesomeIcons.mars : FontAwesomeIcons.venus,
+                        size: 24, color: AppColors.orange900),
                   ],
                 ),
               ),
               const SizedBox(height: 4),
               Row(
-                // 👇 CORREÇÃO AQUI: A Row agora encolhe para caber o conteúdo
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    widget.isConnected ? 'Conectado' : 'Desconectado',
-                    style: GoogleFonts.poppins(
-                      fontSize: 11,
-                      color: Colors.grey[700],
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                  Text(widget.isConnected ? 'Conectado' : 'Desconectado',
+                      style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey[700], fontWeight: FontWeight.w500)),
                   const SizedBox(width: 6),
                   Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: widget.isConnected ? Colors.green : Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                  )
+                      width: 8,
+                      height: 8,
+                      decoration:
+                          BoxDecoration(color: widget.isConnected ? Colors.green : Colors.red, shape: BoxShape.circle))
                 ],
               )
             ],
@@ -365,14 +294,13 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
               padding: const EdgeInsets.only(top: 15.0),
               child: Row(
                 children: [
-                  Text(
-                    latestHeartbeatValue,
-                    style: GoogleFonts.poppins(fontSize: 36, fontWeight: FontWeight.bold, color: AppColors.black400),
-                  ),
+                  Text(latestHeartbeatValue,
+                      style: GoogleFonts.poppins(fontSize: 36, fontWeight: FontWeight.bold, color: AppColors.black400)),
                   const SizedBox(width: 4),
                   const FaIcon(FontAwesomeIcons.heartPulse, color: AppColors.orange, size: 24),
                   const SizedBox(width: 4),
-                  Text('BPM', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.black400)),
+                  Text('BPM',
+                      style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.black400)),
                 ],
               ),
             ),
@@ -380,32 +308,16 @@ class _StatusBarState extends State<StatusBar> with SingleTickerProviderStateMix
               padding: const EdgeInsets.only(top: 0.0),
               child: Row(
                 children: [
-                  Transform.rotate(
-                    angle: -1.57,
-                    child: const FaIcon(batteryIcon, color: Colors.green, size: 18),
-                  ),
+                  Transform.rotate(angle: -1.57, child: const FaIcon(batteryIcon, color: Colors.green, size: 18)),
                   const SizedBox(width: 4),
-                  Text(
-                    '$batteryLevel%', 
-                    style: GoogleFonts.poppins(fontSize: 14, color: AppColors.black400, fontWeight: FontWeight.w600)
-                  ),
+                  Text('$batteryLevel%',
+                      style: GoogleFonts.poppins(fontSize: 14, color: AppColors.black400, fontWeight: FontWeight.w600)),
                 ],
               ),
             ),
           ],
         )
       ],
-    );
-  }
-  
-  Widget _buildChart() {
-    if (_heartbeatHistory == null || _heartbeatHistory!.isEmpty) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.only(top: 20.0),
-      child: HeartChartBar(
-        title: 'Média de batimentos dos últimos cinco dias:',
-        data: _heartbeatHistory!,
-      ),
     );
   }
 }
