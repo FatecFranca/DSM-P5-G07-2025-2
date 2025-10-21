@@ -6,7 +6,7 @@ from app.security import get_current_user
 from typing import Tuple
 from app.services import pmml_predictor
 from app.models.sintomas import SintomasInput
-from datetime import date
+from datetime import date, datetime
 from pydantic import BaseModel
 from typing import Optional
 import math
@@ -88,6 +88,17 @@ def custom_openapi():
 
 app.openapi = custom_openapi
 
+def calcular_idade(data_nascimento_str: str):
+    if not data_nascimento_str:
+        return None
+    try:
+        data_nascimento = datetime.fromisoformat(data_nascimento_str.replace("Z", "+00:00"))
+        hoje = datetime.now()
+        idade = hoje.year - data_nascimento.year - ((hoje.month, hoje.day) < (data_nascimento.month, data_nascimento.day))
+        return idade
+    except Exception:
+        return None
+
 # --------------------- Health ---------------------
 @app.get("/health", tags=["Status"])
 async def health_check():
@@ -116,7 +127,7 @@ async def analisar_animal(id_animal: str, sintomas: SintomasInput):
     return {"animalId": id_animal, "resultado": resultado} """
 
 @app.post("/ia/animal/{id_animal}", tags=["IA"])
-async def analisar_animal(id_animal: int, sintomas: SintomasInput, credentials: Tuple[str, str] = Depends(get_current_user)):
+async def analisar_animal(id_animal: str, sintomas: SintomasInput, credentials: Tuple[str, str] = Depends(get_current_user)):
     """
     Analisa sintomas de um animal e retorna a predição de problema/doença via PMML.
 
@@ -139,19 +150,53 @@ async def analisar_animal(id_animal: int, sintomas: SintomasInput, credentials: 
     if not response:
         raise HTTPException(status_code=404, detail="Animal não encontrado na API Java")
     
-    resultado = pmml_predictor.predict_with_pmml(response, sintomas.dict())
-    
-    # Substitui todos os nan por None
-    resultado_sanitizado = {k: (None if isinstance(v, float) and math.isnan(v) else v) for k, v in resultado.items()}
-    
-    return {"animalId": id_animal, "resultado": resultado_sanitizado}
 
-    # Faz a predição (carrega o modelo só quando for usado)
+    
+
+     # Monta dados combinados somente para inspeção / logs (o pmml_predictor aceita response + sintomas)
     try:
-        resultado = pmml_predictor.predict({**response, **sintomas})
-        return {"animalId": id_animal, "resultado": resultado}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro ao processar PMML: {str(e)}")
+        # calcula idade aproximada em anos (fallback seguro caso dataNascimento falhe)
+        data_nasc = response.get("dataNascimento")
+        idade = None
+        if data_nasc:
+            try:
+                from datetime import datetime
+                nascimento = datetime.fromisoformat(data_nasc.replace("Z", "+00:00"))
+                idade = round((datetime.now() - nascimento).days / 365, 1)
+            except Exception:
+                idade = None
+
+        dados_modelo = {
+            "tipo_do_animal": response.get("especieNome") or response.get("tipo_do_animal"),
+            "raca": response.get("racaNome") or response.get("raca"),
+            "idade": idade if idade is not None else response.get("idade"),
+            # modelo espera número (1/0) para gênero nas versões que testamos
+            "genero": 1 if response.get("sexo") == "M" or response.get("genero") in (1, "M", "m") else 0,
+            "peso": response.get("peso"),
+            # merge só para inspeção — os sintomas reais vêm do body (SintomasInput)
+            **sintomas.dict()
+        }
+    except Exception:
+        # se algo falhar ao montar dados_modelo, não interrompe a predição — apenas segue com response + sintomas
+        dados_modelo = {**response, **sintomas.dict()}
+
+    # Executa a predição usando o módulo que já estava funcionando
+    resultado = pmml_predictor.predict_with_pmml(response, sintomas.dict())
+
+    # Substitui todos os nan por None para evitar erro JSON
+    import math
+    resultado_sanitizado = {}
+    if isinstance(resultado, dict):
+        for k, v in resultado.items():
+            if isinstance(v, float) and math.isnan(v):
+                resultado_sanitizado[k] = None
+            else:
+                resultado_sanitizado[k] = v
+    else:
+        # caso o predictor retorne outro formato (string/erro), encapsula
+        resultado_sanitizado = {"raw_result": resultado}
+
+    return {"animalId": id_animal, "dados_entrada": dados_modelo, "resultado": resultado_sanitizado}
 
 
 @app.post("/ia/teste", tags=["IA"])
