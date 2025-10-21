@@ -62,16 +62,18 @@ def custom_openapi():
         routes=app.routes,
     )
 
-    # Adiciona a definição de segurança Bearer
-    openapi_schema["components"] = {
-        "securitySchemes": {
-            "Bearer": {
-                "type": "http",
-                "scheme": "bearer",
-                "bearerFormat": "JWT",
-                "description": "Token JWT obtido da API Java. Formato: Bearer <token>"
-            }
-        }
+    # Adiciona a definição de segurança Bearer (preservando os schemas existentes)
+    if "components" not in openapi_schema:
+        openapi_schema["components"] = {}
+
+    if "securitySchemes" not in openapi_schema["components"]:
+        openapi_schema["components"]["securitySchemes"] = {}
+
+    openapi_schema["components"]["securitySchemes"]["Bearer"] = {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Token JWT obtido da API Java. Formato: Bearer <token>"
     }
 
     # Aplica a segurança Bearer a todos os endpoints (exceto /health)
@@ -88,18 +90,52 @@ def custom_openapi():
 
 app.openapi = custom_openapi
 
+
 def calcular_idade(data_nascimento_str: str):
+    """
+    Retorna a idade em anos como inteiro:
+    - se idade < 1: retorna 1
+    - se idade >= 1: arredonda para o inteiro mais próximo
+    - em caso de data futura ou erro: retorna None
+    Aceita ISO strings: "YYYY-MM-DD", "YYYY-MM-DDTHH:MM:SSZ", "+00:00" etc.
+    """
     if not data_nascimento_str:
         return None
     try:
-        data_nascimento = datetime.fromisoformat(data_nascimento_str.replace("Z", "+00:00"))
-        hoje = datetime.now()
-        idade = hoje.year - data_nascimento.year - ((hoje.month, hoje.day) < (data_nascimento.month, data_nascimento.day))
-        return idade
+        from datetime import datetime, timezone
+        import math
+
+        # Normaliza 'Z' para '+00:00' e parse
+        data_nascimento = datetime.fromisoformat(
+            data_nascimento_str.replace("Z", "+00:00"))
+
+        # Garante datetime aware em UTC
+        if data_nascimento.tzinfo is None:
+            data_nascimento = data_nascimento.replace(tzinfo=timezone.utc)
+        else:
+            data_nascimento = data_nascimento.astimezone(timezone.utc)
+
+        hoje = datetime.now(timezone.utc)
+
+        # Data futura => inválida
+        if hoje < data_nascimento:
+            return None
+
+        # Calcula anos (mais preciso usando 365.2425 dias)
+        dias = (hoje - data_nascimento).total_seconds() / 86400.0
+        anos = dias / 365.2425
+
+        if anos < 1:
+            return 1
+
+        # Arredonda para o inteiro mais próximo (0.5 -> para cima)
+        return int(math.floor(anos + 0.5))
     except Exception:
         return None
 
 # --------------------- Health ---------------------
+
+
 @app.get("/health", tags=["Status"])
 async def health_check():
     """
@@ -116,76 +152,78 @@ async def health_check():
 # --------------------- IA (PMML) ---------------------
 """ @app.post("/ia/animal/{id_animal}", tags=["IA"])
 async def analisar_animal(id_animal: str, sintomas: SintomasInput):
-  
+
     #Recebe sintomas e retorna a predição de problema/doença via PMML.
-    
+
     response = await java_api.buscar_dados_animal(id_animal)
     if not response:
-        raise HTTPException(status_code=404, detail="Animal não encontrado na API Java")
-    
+        raise HTTPException(
+            status_code=404, detail="Animal não encontrado na API Java")
+
     resultado = pmml_predictor.predict_with_pmml(response, sintomas.dict())
     return {"animalId": id_animal, "resultado": resultado} """
 
-@app.post("/ia/animal/{id_animal}", tags=["IA"])
-async def analisar_animal(id_animal: str, sintomas: SintomasInput, credentials: Tuple[str, str] = Depends(get_current_user)):
+
+@app.post("/ia/checkup/animal/{id_animal}", tags=["IA"])
+async def checkup_animal(id_animal: str, sintomas: SintomasInput, credentials: Tuple[str, str] = Depends(get_current_user)):
     """
     Analisa sintomas de um animal e retorna a predição de problema/doença via PMML.
 
     **Requer autenticação JWT.**
 
-    Args:
-        id_animal: ID do animal a ser analisado
-        sintomas: Dicionário com os sintomas do animal
+    ## Parâmetros:
+    - **id_animal** (path): ID do animal a ser analisado
+    - **sintomas** (body): Dados dos sintomas do animal (veja o schema abaixo)
 
-    Returns:
-        dict: Resultado da predição com o ID do animal e o resultado da análise
+    ## Retorno:
+    - **animalId**: ID do animal analisado
+    - **dados_entrada**: Dados combinados do animal (da API Java + sintomas)
+    - **probabilidades**: Probabilidades de cada classe de doença
+    - **resultado**: Nome da classe com maior probabilidade (diagnóstico previsto)
 
-    Raises:
-        401: Token JWT ausente, inválido ou expirado
-        404: Animal não encontrado na API Java
-        500: Erro ao processar o modelo PMML
+    ## Possíveis diagnósticos:
+    - cardiovascular_hematologica
+    - cutanea
+    - gastrointestinal
+    - nenhuma
+    - neuro_musculoesqueletica
+    - respiratoria
+    - urogenital
+
+    ## Erros:
+    - **401**: Token JWT ausente, inválido ou expirado
+    - **404**: Animal não encontrado na API Java
+    - **500**: Erro ao processar o modelo PMML
     """
     user_id, token = credentials
     response = await java_api.buscar_dados_animal(id_animal, token)
 
-    
     print(f"Response da API: \n {response}")
     if not response:
-        raise HTTPException(status_code=404, detail="Animal não encontrado na API Java")
-    
+        raise HTTPException(
+            status_code=404, detail="Animal não encontrado na API Java")
+
      # Monta dados combinados somente para inspeção / logs (o pmml_predictor aceita response + sintomas)
 
     # calcula idade aproximada em anos (fallback seguro caso dataNascimento falhe)
     data_nasc = response.get("dataNascimento")
     raca = response.get("racaNome")
-    idade = None
-    if data_nasc:
-        try:
-            from datetime import datetime, timezone
-            nascimento = datetime.fromisoformat(data_nasc.replace("Z", "+00:00"))
-            # Se nascimento tem tzinfo (aware), convertemos agora para UTC e removemos tzinfo
-            if nascimento.tzinfo is not None:
-                nascimento = nascimento.astimezone(timezone.utc).replace(tzinfo=None)
-            # Usa agora (naive) compatível com 'nascimento' (também naive após replace)
-            idade = round((datetime.now() - nascimento).days / 365, 1)
-        except Exception:
-            print("Erro de conversão da idade")
-            idade = None
+    idade = calcular_idade(data_nasc)
 
     if raca == "SRD (Sem Raça Definida)":
         raca = "sem_raca_definida_(srd)"
     else:
-        raca = raca.lower().replace(" ","_")
+        raca = (raca or "").lower().replace(" ", "_")
     
     dados_modelo = {
-        "tipo_do_animal": response.get("especieNome").lower(),
+        "tipo_do_animal": (response.get("especieNome") or "").lower(),
         "raca": raca,
         "idade": idade,
         # modelo espera número (1/0) para gênero nas versões que testamos
-        "genero": 1 if (response.get("sexo")).lower() == "m" else 0,
+        "genero": 1 if (response.get("sexo") or "").lower() == "m" else 0,
         "peso": response.get("peso"),
         "batimento_cardiaco": response.get("ultimo_batimento"),
-        # # merge só para inspeção — os sintomas reais vêm do body (SintomasInput)
+        # merge só para inspeção — os sintomas reais vêm do body (SintomasInput)
         **sintomas.dict(exclude_none=True)
     }
     
@@ -193,31 +231,61 @@ async def analisar_animal(id_animal: str, sintomas: SintomasInput, credentials: 
 
     # Executa a predição usando o módulo que já estava funcionando
     resultado = pmml_predictor.predict_with_pmml_animal(dados_modelo)
+    
+    print(f"\n\n Resultado: {resultado}")
 
     # Substitui todos os nan por None para evitar erro JSON
     import math
     resultado_sanitizado = {}
+    classe_prevista = None
     if isinstance(resultado, dict):
         for k, v in resultado.items():
             if isinstance(v, float) and math.isnan(v):
                 resultado_sanitizado[k] = None
             else:
                 resultado_sanitizado[k] = v
+
+        # Extrai a classe com maior probabilidade
+        max_prob = -1
+        for key, value in resultado_sanitizado.items():
+            if key.startswith("probability(") and isinstance(value, (int, float)) and value is not None:
+                if value > max_prob:
+                    max_prob = value
+                    classe_prevista = key.replace("probability(", "").replace(")", "")
     else:
         # caso o predictor retorne outro formato (string/erro), encapsula
         resultado_sanitizado = {"raw_result": resultado}
 
-    return {"animalId": id_animal, "dados_entrada": dados_modelo, "resultado": resultado_sanitizado}
+    return {"animalId": id_animal, "dados_entrada": dados_modelo, "probabilidades": resultado_sanitizado, "resultado": classe_prevista}
 
 
-@app.post("/ia/teste", tags=["IA"])
-async def testar_predicao(sintomas: AnimalSintomasInput):
+@app.post("/ia/checkup", tags=["IA"])
+async def checkup(sintomas: AnimalSintomasInput):
     """
     Rota de teste para validar a predição da IA com base em dados diretos (sem API Java).
-    
-    Envie todos os campos necessários no corpo da requisição.
-    Ideal para testar se o modelo PMML está retornando o mesmo resultado
-    que consta na tabela original usada no treinamento.
+
+    **NÃO requer autenticação JWT** - Use esta rota para testar o modelo PMML.
+
+    ## Parâmetros:
+    - **sintomas** (body): Dados completos do animal com sintomas (veja o schema abaixo)
+
+    ## Retorno:
+    - **entrada**: Dados de entrada enviados
+    - **probabilidades**: Probabilidades de cada classe de doença
+    - **resultado**: Nome da classe com maior probabilidade (diagnóstico previsto)
+
+    ## Possíveis diagnósticos:
+    - cardiovascular_hematologica
+    - cutanea
+    - gastrointestinal
+    - nenhuma
+    - neuro_musculoesqueletica
+    - respiratoria
+    - urogenital
+
+    ## Notas:
+    - Ideal para testar se o modelo PMML está retornando o mesmo resultado que consta na tabela original usada no treinamento
+    - Todos os campos são opcionais, mas quanto mais dados fornecidos, melhor a predição
     """
     try:
         # Converte o modelo recebido (SintomasInput) em dicionário
@@ -227,9 +295,20 @@ async def testar_predicao(sintomas: AnimalSintomasInput):
         from app.services import pmml_predictor
         resultado = pmml_predictor.predict_with_pmml({}, dados_teste)
 
+        # Extrai a classe com maior probabilidade
+        classe_prevista = None
+        if isinstance(resultado, dict):
+            max_prob = -1
+            for key, value in resultado.items():
+                if key.startswith("probability(") and isinstance(value, (int, float)) and value is not None:
+                    if value > max_prob:
+                        max_prob = value
+                        classe_prevista = key.replace("probability(", "").replace(")", "")
+
         return {
             "entrada": dados_teste,
-            "resultado_previsto": resultado
+            "probabilidades": resultado,
+            "resultado": classe_prevista
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro no teste de predição: {str(e)}")

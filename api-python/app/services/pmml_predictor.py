@@ -129,7 +129,11 @@ def predict_with_pmml_animal(dados: dict):
 
         # Realiza a predição
         df = pd.DataFrame([dados])
+        
+        print(f"\nDados : {dados}")
         result = current_model.predict(df)
+        
+        print(f"Resultado: {result}")
 
         logger.info(f"✅ Predição realizada com sucesso")
         return result.to_dict(orient="records")[0]
