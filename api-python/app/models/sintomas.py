@@ -1,7 +1,8 @@
 from pydantic import BaseModel
 from typing import Optional
 
-class SintomasInput(BaseModel):
+
+class AnimalSintomasInput(BaseModel):
     tipo_do_animal: Optional[str] = None
     raca: Optional[str] = None
     idade: Optional[float] = None
@@ -18,6 +19,41 @@ class SintomasInput(BaseModel):
     secrecao_nasal: Optional[int] = None
     secrecao_ocular: Optional[int] = None
     batimento_cardiaco: Optional[float] = None
+    agitacao: Optional[int] = None
+    andar_em_circulos: Optional[int] = None
+    aumento_apetite: Optional[int] = None
+    cera_excessiva_nas_orelhas: Optional[int] = None
+    coceira: Optional[int] = None
+    desidratacao: Optional[int] = None
+    desmaio: Optional[int] = None
+    dificuldade_para_urinar: Optional[int] = None
+    dor: Optional[int] = None
+    espamos_musculares: Optional[int] = None
+    espirros: Optional[int] = None
+    febre: Optional[int] = None
+    fraqueza: Optional[int] = None
+    inchaco: Optional[int] = None
+    lambedura: Optional[int] = None
+    letargia: Optional[int] = None
+    lingua_azulada: Optional[int] = None
+    perda_de_pelos: Optional[int] = None
+    perda_de_peso: Optional[int] = None
+    ranger_de_dentes: Optional[int] = None
+    ronco: Optional[int] = None
+    salivacao: Optional[int] = None
+    suor_alterado: Optional[int] = None
+
+class SintomasInput(BaseModel):
+    duracao: Optional[float] = None
+    perda_de_apetite: Optional[int] = None
+    vomito: Optional[int] = None
+    diarreia: Optional[int] = None
+    tosse: Optional[int] = None
+    dificuldade_para_respirar: Optional[int] = None
+    dificuldade_para_locomover: Optional[int] = None
+    problemas_na_pele: Optional[int] = None
+    secrecao_nasal: Optional[int] = None
+    secrecao_ocular: Optional[int] = None
     agitacao: Optional[int] = None
     andar_em_circulos: Optional[int] = None
     aumento_apetite: Optional[int] = None

@@ -5,7 +5,7 @@ from app.services import stats
 from app.security import get_current_user
 from typing import Tuple
 from app.services import pmml_predictor
-from app.models.sintomas import SintomasInput
+from app.models.sintomas import AnimalSintomasInput, SintomasInput
 from datetime import date, datetime
 from pydantic import BaseModel
 from typing import Optional
@@ -147,41 +147,52 @@ async def analisar_animal(id_animal: str, sintomas: SintomasInput, credentials: 
     """
     user_id, token = credentials
     response = await java_api.buscar_dados_animal(id_animal, token)
+
+    
+    print(f"Response da API: \n {response}")
     if not response:
         raise HTTPException(status_code=404, detail="Animal não encontrado na API Java")
     
-
-    
-
      # Monta dados combinados somente para inspeção / logs (o pmml_predictor aceita response + sintomas)
-    try:
-        # calcula idade aproximada em anos (fallback seguro caso dataNascimento falhe)
-        data_nasc = response.get("dataNascimento")
-        idade = None
-        if data_nasc:
-            try:
-                from datetime import datetime
-                nascimento = datetime.fromisoformat(data_nasc.replace("Z", "+00:00"))
-                idade = round((datetime.now() - nascimento).days / 365, 1)
-            except Exception:
-                idade = None
 
-        dados_modelo = {
-            "tipo_do_animal": response.get("especieNome") or response.get("tipo_do_animal"),
-            "raca": response.get("racaNome") or response.get("raca"),
-            "idade": idade if idade is not None else response.get("idade"),
-            # modelo espera número (1/0) para gênero nas versões que testamos
-            "genero": 1 if response.get("sexo") == "M" or response.get("genero") in (1, "M", "m") else 0,
-            "peso": response.get("peso"),
-            # merge só para inspeção — os sintomas reais vêm do body (SintomasInput)
-            **sintomas.dict()
-        }
-    except Exception:
-        # se algo falhar ao montar dados_modelo, não interrompe a predição — apenas segue com response + sintomas
-        dados_modelo = {**response, **sintomas.dict()}
+    # calcula idade aproximada em anos (fallback seguro caso dataNascimento falhe)
+    data_nasc = response.get("dataNascimento")
+    raca = response.get("racaNome")
+    idade = None
+    if data_nasc:
+        try:
+            from datetime import datetime, timezone
+            nascimento = datetime.fromisoformat(data_nasc.replace("Z", "+00:00"))
+            # Se nascimento tem tzinfo (aware), convertemos agora para UTC e removemos tzinfo
+            if nascimento.tzinfo is not None:
+                nascimento = nascimento.astimezone(timezone.utc).replace(tzinfo=None)
+            # Usa agora (naive) compatível com 'nascimento' (também naive após replace)
+            idade = round((datetime.now() - nascimento).days / 365, 1)
+        except Exception:
+            print("Erro de conversão da idade")
+            idade = None
+
+    if raca == "SRD (Sem Raça Definida)":
+        raca = "sem_raca_definida_(srd)"
+    else:
+        raca = raca.lower().replace(" ","_")
+    
+    dados_modelo = {
+        "tipo_do_animal": response.get("especieNome").lower(),
+        "raca": raca,
+        "idade": idade,
+        # modelo espera número (1/0) para gênero nas versões que testamos
+        "genero": 1 if (response.get("sexo")).lower() == "m" else 0,
+        "peso": response.get("peso"),
+        "batimento_cardiaco": response.get("ultimo_batimento"),
+        # # merge só para inspeção — os sintomas reais vêm do body (SintomasInput)
+        **sintomas.dict(exclude_none=True)
+    }
+    
+    print (f"\n\nDados modelo: \n {dados_modelo}")
 
     # Executa a predição usando o módulo que já estava funcionando
-    resultado = pmml_predictor.predict_with_pmml(response, sintomas.dict())
+    resultado = pmml_predictor.predict_with_pmml_animal(dados_modelo)
 
     # Substitui todos os nan por None para evitar erro JSON
     import math
@@ -200,7 +211,7 @@ async def analisar_animal(id_animal: str, sintomas: SintomasInput, credentials: 
 
 
 @app.post("/ia/teste", tags=["IA"])
-async def testar_predicao(sintomas: SintomasInput):
+async def testar_predicao(sintomas: AnimalSintomasInput):
     """
     Rota de teste para validar a predição da IA com base em dados diretos (sem API Java).
     

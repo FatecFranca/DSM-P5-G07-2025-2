@@ -4,7 +4,6 @@ import os
 import pandas as pd
 from datetime import datetime
 from dotenv import load_dotenv
-from pypmml import Model
 
 # Carrega variáveis do .env
 load_dotenv()
@@ -13,10 +12,44 @@ logger = logging.getLogger("PMMLPredictor")
 
 API_BASE_URL = os.getenv("API_URL")
 TOKEN_JAVA = os.getenv("JAVA_API_TOKEN")
-MODEL_PATH = "modelos/modelo_random_forest.pmml"
+MODEL_PATH = "modelo_random_forest.pmml"
 
-# ✅ Carrega o modelo uma única vez ao iniciar
-model = Model.load(MODEL_PATH)
+# Variável global para armazenar o modelo
+model = None
+
+def _load_model():
+    """Carrega o modelo PMML de forma lazy."""
+    global model
+    if model is None:
+        try:
+            # Import pypmml apenas quando necessário
+            from pypmml import Model
+            logger.info(f"🔄 Carregando modelo PMML: {MODEL_PATH}")
+            model = Model.load(MODEL_PATH)
+            logger.info(f"✅ Modelo PMML carregado com sucesso: {MODEL_PATH}")
+        except Exception as e:
+            logger.error(f"❌ Erro ao carregar modelo PMML: {e}")
+            # Tenta carregar modelos alternativos
+            alternative_models = [
+                "modelo_decision_tree.pmml",
+                "modelo_svm.pmml",
+                "modelo_smo.pmml"
+            ]
+            for alt_model in alternative_models:
+                try:
+                    from pypmml import Model
+                    logger.info(f"🔄 Tentando modelo alternativo: {alt_model}")
+                    model = Model.load(alt_model)
+                    logger.info(f"✅ Modelo alternativo carregado: {alt_model}")
+                    break
+                except Exception as alt_e:
+                    logger.warning(f"⚠️ Modelo alternativo {alt_model} também falhou: {alt_e}")
+                    continue
+
+            if model is None:
+                logger.error("❌ Nenhum modelo PMML pôde ser carregado")
+
+    return model
 
 async def get_animal_data(id_animal: str) -> dict:
     """
@@ -67,10 +100,83 @@ def predict_pmml(dados: dict):
     """
     Realiza a predição usando o modelo PMML carregado.
     """
+    current_model = _load_model()
+    if current_model is None:
+        logger.error("❌ Modelo PMML não foi carregado corretamente")
+        return {"erro": "Modelo PMML não disponível"}
+
     try:
         df = pd.DataFrame([dados])
-        result = model.predict(df)
+        result = current_model.predict(df)
         return result.to_dict(orient="records")[0]
     except Exception as e:
         logger.error(f"🚨 Erro ao realizar predição: {e}")
+        return {"erro": str(e)}
+
+
+
+def predict_with_pmml_animal(dados: dict):
+    """
+    Função que combina dados do animal com sintomas e realiza a predição.
+    Esta é a função que está sendo chamada no main.py.
+    """
+    current_model = _load_model()
+    if current_model is None:
+        logger.error("❌ Modelo PMML não foi carregado corretamente")
+        return {"erro": "Modelo PMML não disponível"}
+
+    try:
+
+        # Realiza a predição
+        df = pd.DataFrame([dados])
+        result = current_model.predict(df)
+
+        logger.info(f"✅ Predição realizada com sucesso")
+        return result.to_dict(orient="records")[0]
+
+    except Exception as e:
+        logger.error(f"🚨 Erro ao realizar predição com PMML: {e}")
+        return {"erro": str(e)}
+
+
+def predict_with_pmml(animal_data: dict, sintomas_data: dict):
+    """
+    Função que combina dados do animal com sintomas e realiza a predição.
+    Esta é a função que está sendo chamada no main.py.
+    """
+    current_model = _load_model()
+    if current_model is None:
+        logger.error("❌ Modelo PMML não foi carregado corretamente")
+        return {"erro": "Modelo PMML não disponível"}
+
+    try:
+        # Combina dados do animal com sintomas
+        dados_completos = {**animal_data, **sintomas_data}
+
+        # Converte campos categóricos para lowercase se necessário
+        if "tipo_do_animal" in dados_completos and dados_completos["tipo_do_animal"]:
+            dados_completos["tipo_do_animal"] = str(dados_completos["tipo_do_animal"]).lower()
+        if "raca" in dados_completos and dados_completos["raca"]:
+            dados_completos["raca"] = str(dados_completos["raca"]).lower()
+
+        # Garante que campos numéricos sejam números
+        campos_numericos = ["idade", "genero", "peso", "batimento_cardiaco"]
+        for campo in campos_numericos:
+            if campo in dados_completos:
+                try:
+                    dados_completos[campo] = float(dados_completos[campo]) if dados_completos[campo] is not None else 0.0
+                except (ValueError, TypeError):
+                    dados_completos[campo] = 0.0
+
+        logger.info(f"🔍 Dados para predição: {dados_completos}")
+
+        # Realiza a predição
+        df = pd.DataFrame([dados_completos])
+        result = current_model.predict(df)
+
+        logger.info(f"✅ Predição realizada com sucesso")
+        return result.to_dict(orient="records")[0]
+
+    except Exception as e:
+        logger.error(f"🚨 Erro ao realizar predição com PMML: {e}")
         return {"erro": str(e)}
