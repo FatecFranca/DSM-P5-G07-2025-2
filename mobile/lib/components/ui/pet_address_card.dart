@@ -71,7 +71,7 @@ class PetAddressCard extends StatelessWidget {
                 address,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
-                  color: AppColors.black400,
+                  color: AppColors.brown,
                   fontSize: 15,
                   height: 1.4,
                 ),

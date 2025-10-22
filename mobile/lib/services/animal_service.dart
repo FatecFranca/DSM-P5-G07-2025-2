@@ -69,14 +69,23 @@ class AnimalService {
   Future<CheckupResult> postCheckup(String animalId, Map<String, dynamic> sintomas) async {
     final uri = Uri.parse('$_pythonApiBaseUrl/ia/checkup/animal/$animalId');
 
+    print('[AnimalService] 📋 Enviando checkup para animal: $animalId');
+    print('[AnimalService] Dados: $sintomas');
+
     final response = await _httpClient
         .post(
           uri,
+          headers: {
+            'Content-Type': 'application/json',
+          },
           body: jsonEncode(sintomas),
         )
         .timeout(const Duration(seconds: 60));
 
     final decodedBody = utf8.decode(response.bodyBytes);
+
+    print('[AnimalService] Status: ${response.statusCode}');
+    print('[AnimalService] Resposta: $decodedBody');
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       final Map<String, dynamic> data = jsonDecode(decodedBody);

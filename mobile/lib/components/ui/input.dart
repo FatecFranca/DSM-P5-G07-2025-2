@@ -3,7 +3,7 @@ import '../../data/enums/input_size.dart';
 import '../../theme/app_theme.dart';
 
 class Input extends StatefulWidget {
-  final String label;
+  final String? label;
   final String hintText;
   final InputSize size;
   final TextEditingController controller;
@@ -11,10 +11,13 @@ class Input extends StatefulWidget {
   final Function(String)? onChanged;
   final TextInputType keyboardType;
   final bool obscureText;
+  final bool centerText;
+  final String? suffixText;
+  final FocusNode? focusNode;
 
   const Input({
     super.key,
-    required this.label,
+    this.label,
     required this.hintText,
     required this.controller,
     this.size = InputSize.large,
@@ -22,6 +25,9 @@ class Input extends StatefulWidget {
     this.onChanged,
     this.keyboardType = TextInputType.text,
     this.obscureText = false,
+    this.centerText = false,
+    this.suffixText,
+    this.focusNode,
   });
 
   @override
@@ -29,12 +35,22 @@ class Input extends StatefulWidget {
 }
 
 class _InputState extends State<Input> {
-  final FocusNode _focusNode = FocusNode();
+  late FocusNode _focusNode;
   bool _isFocused = false;
+  bool _isInternalFocusNode = false;
 
   @override
   void initState() {
     super.initState();
+    // Use o focusNode externo se fornecido, caso contrário crie um interno
+    if (widget.focusNode != null) {
+      _focusNode = widget.focusNode!;
+      _isInternalFocusNode = false;
+    } else {
+      _focusNode = FocusNode();
+      _isInternalFocusNode = true;
+    }
+
     _focusNode.addListener(() {
       setState(() {
         _isFocused = _focusNode.hasFocus;
@@ -44,7 +60,10 @@ class _InputState extends State<Input> {
 
   @override
   void dispose() {
-    _focusNode.dispose();
+    // Só dispose se for um focusNode interno
+    if (_isInternalFocusNode) {
+      _focusNode.dispose();
+    }
     super.dispose();
   }
 
@@ -53,55 +72,72 @@ class _InputState extends State<Input> {
     double labelFontSize;
     double textFieldFontSize;
     double iconSize;
-    EdgeInsets contentPadding;
+    double verticalPadding;
 
     switch (widget.size) {
       case InputSize.medium:
         labelFontSize = 14;
         textFieldFontSize = 14;
         iconSize = 20;
-        contentPadding =
-            const EdgeInsets.symmetric(horizontal: 22, vertical: 14);
+        verticalPadding = 14;
         break;
       case InputSize.small:
         labelFontSize = 12;
         textFieldFontSize = 12;
         iconSize = 18;
-        contentPadding =
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 12);
+        verticalPadding = 12;
         break;
       case InputSize.large:
       default:
         labelFontSize = 16;
         textFieldFontSize = 16;
         iconSize = 22;
-        contentPadding =
-            const EdgeInsets.symmetric(horizontal: 24, vertical: 16);
+        verticalPadding = 10;
         break;
     }
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: widget.centerText
+          ? CrossAxisAlignment.center
+          : CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            if (widget.icon != null) ...[
-              Icon(
-                widget.icon,
-                color: AppColors.orange,
-                size: iconSize,
-              ),
-              const SizedBox(width: 8),
+        if (widget.centerText) ...[
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (widget.icon != null)
+                Icon(widget.icon, color: AppColors.orange400, size: iconSize),
+              if (widget.label != null) const SizedBox(height: 8),
+              if (widget.label != null)
+                Text(
+                  widget.label!,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: labelFontSize,
+                    color: AppColors.black400,
+                  ),
+                ),
             ],
-            Text(
-              widget.label,
-              style: TextStyle(
-                fontSize: labelFontSize,
-                color: AppColors.black400,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ] else ...[
+          Row(
+            children: [
+              if (widget.icon != null) ...[
+                Icon(widget.icon, color: AppColors.orange400, size: iconSize),
+                const SizedBox(width: 8),
+              ],
+              if (widget.label != null) ...[
+                Text(
+                  widget.label!,
+                  style: TextStyle(
+                    fontSize: labelFontSize,
+                    color: AppColors.brown,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
         const SizedBox(height: 8),
         AnimatedContainer(
           duration: const Duration(milliseconds: 200),
@@ -109,29 +145,58 @@ class _InputState extends State<Input> {
             color: Colors.transparent,
             borderRadius: BorderRadius.circular(30.0),
             border: Border.all(
-              color: AppColors.orange,
+              color: AppColors.orange400,
               width: _isFocused ? 2.5 : 2.0,
             ),
           ),
-          child: TextField(
-            focusNode: _focusNode,
-            controller: widget.controller,
-            keyboardType: widget.keyboardType,
-            onChanged: widget.onChanged,
-            obscureText: widget.obscureText,
-            cursorColor: AppColors.orange,
-            style: TextStyle(
-              color: AppColors.black400,
-              fontSize: textFieldFontSize,
-            ),
-            decoration: InputDecoration(
-              contentPadding: contentPadding,
-              hintText: widget.hintText,
-              hintStyle: TextStyle(
-                color: AppColors.black200,
-                fontSize: textFieldFontSize,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 90),
+            child: IntrinsicWidth(
+              child: Row(
+                mainAxisAlignment: widget.centerText
+                    ? MainAxisAlignment.center
+                    : MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: TextField(
+                      focusNode: _focusNode,
+                      controller: widget.controller,
+                      keyboardType: widget.keyboardType,
+                      onChanged: widget.onChanged,
+                      obscureText: widget.obscureText,
+                      cursorColor: AppColors.orange400,
+                      textAlign: widget.centerText
+                          ? TextAlign.center
+                          : TextAlign.start,
+                      style: TextStyle(
+                        color: AppColors.brown,
+                        fontSize: textFieldFontSize,
+                      ),
+                      decoration: InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: verticalPadding,
+                        ),
+                        hintText: widget.hintText,
+                        hintStyle: TextStyle(
+                          color: AppColors.black200,
+                          fontSize: textFieldFontSize,
+                        ),
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                  if (widget.suffixText != null)
+                    Text(
+                      widget.suffixText!,
+                      style: TextStyle(
+                        color: AppColors.brown,
+                        fontSize: textFieldFontSize,
+                      ),
+                    ),
+                ],
               ),
-              border: InputBorder.none,
             ),
           ),
         ),
