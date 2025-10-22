@@ -832,6 +832,36 @@ class _CheckupScreenState extends State<CheckupScreen> {
     return 'Enviar Respostas';
   }
 
+  // Verifica se pode voltar para a etapa anterior ou para a introdução
+  bool _podeVoltar() {
+    // Pode voltar se já passou da introdução e não está mostrando resultado
+    // Agora permite voltar mesmo na etapa 0 (volta para a introdução)
+    return _mostrouIntroducao && _etapaAtual >= 0 && !_mostrouResultado;
+  }
+
+  // Volta para a etapa anterior ou para a tela de introdução
+  void _voltarEtapa() {
+    setState(() {
+      if (_etapaAtual == 0) {
+        // Se está na primeira etapa, volta para a introdução
+        _mostrouIntroducao = false;
+      } else {
+        // Caso contrário, volta para a etapa anterior
+        _etapaAtual--;
+      }
+    });
+    // Rola para o topo quando voltar
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
   void _onPressBotao() {
     if (_mostrouResultado) {
       setState(() {
@@ -909,6 +939,35 @@ class _CheckupScreenState extends State<CheckupScreen> {
                   text: _enviando ? 'Enviando...' : _textoBotao(),
                   onPressed: _enviando ? () {} : _onPressBotao,
                 ),
+                // Botão Voltar - aparece quando pode voltar
+                if (_podeVoltar()) ...[
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: _voltarEtapa,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.arrow_back,
+                          size: 18,
+                          color: AppColors.orange900,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Voltar',
+                          style: GoogleFonts.poppins(
+                            color: AppColors.orange900,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 20),
                 if (_enviando)
                   const CircularProgressIndicator(color: AppColors.orange900),
