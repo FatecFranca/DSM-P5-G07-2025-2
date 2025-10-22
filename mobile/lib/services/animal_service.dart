@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import '/models/animal.dart';
 import '/models/heartbeat_data.dart';
 import '/models/latest_heartbeat.dart';
+import '/models/checkup_result.dart';
 import 'package:PetDex/services/http_client.dart';
 
 class AnimalService {
@@ -62,6 +63,26 @@ class AnimalService {
       throw Exception(
         'Falha ao carregar histórico de batimentos. Status: ${response.statusCode}',
       );
+    }
+  }
+
+  Future<CheckupResult> postCheckup(String animalId, Map<String, dynamic> sintomas) async {
+    final uri = Uri.parse('$_pythonApiBaseUrl/ia/checkup/animal/$animalId');
+
+    final response = await _httpClient
+        .post(
+          uri,
+          body: jsonEncode(sintomas),
+        )
+        .timeout(const Duration(seconds: 60));
+
+    final decodedBody = utf8.decode(response.bodyBytes);
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      final Map<String, dynamic> data = jsonDecode(decodedBody);
+      return CheckupResult.fromJson(data);
+    } else {
+      throw Exception('Falha no checkup. Status: ${response.statusCode}. Corpo: $decodedBody');
     }
   }
 }

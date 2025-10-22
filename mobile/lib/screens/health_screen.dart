@@ -91,13 +91,13 @@ class _HealthScreenState extends State<HealthScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 6),
-              Text(
-                "Painel de Saúde",
-                style: GoogleFonts.poppins(
-                  color: AppColors.orange,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
+                Text(
+                  "Painel de Saúde",
+                  style: GoogleFonts.poppins(
+                    color: AppColors.orange,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
               ),
               const SizedBox(height: 8),
               Text(
