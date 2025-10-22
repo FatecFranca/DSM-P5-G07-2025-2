@@ -161,7 +161,7 @@ class _CheckupScreenState extends State<CheckupScreen> {
       case 'urogenital':
         return 'Problemas urogenitais';
       case 'neuro_musculoesqueletica':
-        return 'Doenças neuro-musculoesqueléticas';
+        return 'Problemas neuro-musculoesqueléticos';
       case 'cardiovascular_hematologica':
         return 'Problemas cardiovasculares/hematológicos';
       case 'nenhuma':
@@ -321,7 +321,7 @@ class _CheckupScreenState extends State<CheckupScreen> {
               const SizedBox(height: 16),
               // Lista de itens
               _buildListItem('Sistema cardiovascular e hematológico'),
-              _buildListItem('Doenças de pele (cutâneas)'),
+              _buildListItem('Problemas de pele (cutâneas)'),
               _buildListItem('Distúrbios gastrointestinais'),
               _buildListItem('Problemas neurológicos ou musculoesqueléticos'),
               _buildListItem('Alterações respiratórias'),
