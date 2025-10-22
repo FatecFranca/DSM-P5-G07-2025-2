@@ -47,7 +47,7 @@ class _StatusBarState extends State<StatusBar>
   Timer? _retryTimer;
   StreamSubscription<HeartrateUpdate>? _heartrateSubscription;
 
-  static const double _collapsedHeight = 150.0;
+  static const double _collapsedHeight = 160.0;
 
   @override
   void initState() {

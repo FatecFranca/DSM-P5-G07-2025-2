@@ -109,7 +109,8 @@ class _DefineSafeAreaScreenState extends State<DefineSafeAreaScreen> {
       if (success && mounted) {
         // Consulta a última localização do animal para obter os novos status
         try {
-          final updatedLocation = await _locationService.getUltimaLocalizacaoAnimal(widget.animalId);
+          final updatedLocation = await _locationService
+              .getUltimaLocalizacaoAnimal(widget.animalId);
           if (mounted) {
             _showSuccessDialog(updatedLocation);
           }
@@ -149,13 +150,14 @@ class _DefineSafeAreaScreenState extends State<DefineSafeAreaScreen> {
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
+                color: AppColors.brown,
               ),
             ),
           ],
         ),
         content: Text(
           'Área segura definida com sucesso!',
-          style: GoogleFonts.poppins(fontSize: 15),
+          style: GoogleFonts.poppins(fontSize: 15, color: AppColors.brown),
         ),
         actions: [
           TextButton(
