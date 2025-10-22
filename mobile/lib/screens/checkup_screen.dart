@@ -19,10 +19,13 @@ class CheckupScreen extends StatefulWidget {
 class _CheckupScreenState extends State<CheckupScreen> {
   final AnimalService _animalService = AnimalService();
   final petNome = authService.getPetName();
+  bool _mostrouIntroducao =
+      false; // Controla se a tela de introdução foi exibida
   int _etapaAtual = 0; // 0..5 perguntas, 6 = resultado
   bool _enviando = false;
   bool _mostrouResultado = false;
-  String? _resultadoRotulo; // Texto apresentado no DiseasePrediction
+  String? _resultadoRotulo; // Texto apresentado no DiseasePrediction\
+  String? _description;
 
   final TextEditingController _duracaoController = TextEditingController(
     text: '0',
@@ -57,7 +60,8 @@ class _CheckupScreenState extends State<CheckupScreen> {
       if (inputContext == null) return;
 
       // Obtém a posição do Input na tela
-      final RenderBox? renderBox = inputContext.findRenderObject() as RenderBox?;
+      final RenderBox? renderBox =
+          inputContext.findRenderObject() as RenderBox?;
       if (renderBox == null) return;
 
       // Posição do Input relativa ao topo da tela
@@ -72,13 +76,17 @@ class _CheckupScreenState extends State<CheckupScreen> {
       final visibleHeight = screenHeight - keyboardHeight;
 
       // Calcula onde o Input deve estar (centralizado na área visível)
-      final targetPosition = position.dy - (visibleHeight / 2) + (inputHeight / 2);
+      final targetPosition =
+          position.dy - (visibleHeight / 2) + (inputHeight / 2);
 
       // Scroll atual
       final currentScroll = _scrollController.offset;
 
       // Nova posição de scroll
-      final newScroll = currentScroll + targetPosition - 100; // -100 para dar um espaço extra no topo
+      final newScroll =
+          currentScroll +
+          targetPosition -
+          100; // -100 para dar um espaço extra no topo
 
       // Anima para a nova posição
       _scrollController.animateTo(
@@ -134,6 +142,7 @@ class _CheckupScreenState extends State<CheckupScreen> {
       'suor_alterado': null,
     };
     _duracaoController.text = '0';
+    _mostrouIntroducao = false; // Volta para a tela de introdução
     _etapaAtual = 0;
     _enviando = false;
     _mostrouResultado = false;
@@ -157,8 +166,15 @@ class _CheckupScreenState extends State<CheckupScreen> {
         return 'Problemas cardiovasculares/hematológicos';
       case 'nenhuma':
       default:
-        return 'Nenhum problema de saúde identificado';
+        return '$petNome está saúdavel';
     }
+  }
+
+  String _mapResultadoParaRotuloDescricao(String resultado) {
+    if (resultado == 'nenhuma') {
+      return 'Não foi identificado nenhum problema de saúde';
+    }
+    return "";
   }
 
   void _atualizarResposta(String chave, bool? valor) {
@@ -242,7 +258,165 @@ class _CheckupScreenState extends State<CheckupScreen> {
     return true;
   }
 
+  Widget _telaIntroducao() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const SizedBox(height: 20),
+        // Título Principal
+        Text(
+          'Checkup Inteligente',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.poppins(
+            color: AppColors.orange,
+            fontSize: 28,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 4),
+        // Subtítulo
+        Text(
+          'Descubra o que o seu pet pode estar sentindo',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.poppins(
+            color: AppColors.orange900,
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 24),
+        // Parágrafo Explicativo
+        Text(
+          'Responda algumas perguntas rápidas sobre os sintomas observados e deixe a inteligência da PetDex analisar os dados para identificar possíveis problemas de saúde.',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.poppins(
+            color: AppColors.brown,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            height: 1.5,
+          ),
+        ),
+        const SizedBox(height: 32),
+        // Card Informativo
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: AppColors.sand,
+            borderRadius: BorderRadius.circular(24.0),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Título do Card
+              Text(
+                'A nossa análise poderá indicar se há sinais relacionados a:',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  color: AppColors.orange900,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Lista de itens
+              _buildListItem('Sistema cardiovascular e hematológico'),
+              _buildListItem('Doenças de pele (cutâneas)'),
+              _buildListItem('Distúrbios gastrointestinais'),
+              _buildListItem('Problemas neurológicos ou musculoesqueléticos'),
+              _buildListItem('Alterações respiratórias'),
+              _buildListItem('Condições do trato urinário ou genital'),
+              const SizedBox(height: 16),
+              // Texto adicional
+              Center(
+                child: Text(
+                  'Ou indicar que está tudo bem! 🐾',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    color: AppColors.orange900,
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 32),
+        // Botão de Ação
+        Button(
+          text: 'Iniciar',
+          onPressed: () {
+            setState(() {
+              _mostrouIntroducao = true;
+            });
+            // Rola para o topo quando iniciar
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (_scrollController.hasClients) {
+                _scrollController.animateTo(
+                  0,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOut,
+                );
+              }
+            });
+          },
+        ),
+        const SizedBox(height: 16),
+        // Disclaimer
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            'Essa análise tem caráter informativo e não substitui a avaliação de um médico veterinário.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.poppins(
+              color: AppColors.brown.withOpacity(0.6),
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+              height: 1.4,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildListItem(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '• ',
+            style: GoogleFonts.poppins(
+              color: AppColors.brown,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              text,
+              style: GoogleFonts.poppins(
+                color: AppColors.brown,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _tituloTopo() {
+    // Não mostra título na tela de introdução
+    if (!_mostrouIntroducao) {
+      return const SizedBox.shrink();
+    }
+
     String titulo;
     if (_mostrouResultado) {
       titulo = 'Resultado da Análise';
@@ -585,8 +759,10 @@ class _CheckupScreenState extends State<CheckupScreen> {
 
       final result = await _animalService.postCheckup(animalId, respostas);
       final rotulo = _mapResultadoParaRotulo(result.resultado);
+      final description = _mapResultadoParaRotuloDescricao(result.resultado);
       if (!mounted) return;
       setState(() {
+        _description = description;
         _resultadoRotulo = rotulo;
         _mostrouResultado = true;
         _etapaAtual = 6; // etapa de resultado
@@ -615,11 +791,19 @@ class _CheckupScreenState extends State<CheckupScreen> {
   }
 
   Widget _conteudoPorEtapa() {
+    // Mostra a tela de introdução se ainda não foi exibida
+    if (!_mostrouIntroducao) {
+      return _telaIntroducao();
+    }
+
     if (_mostrouResultado) {
       return Column(
         children: [
           DiseasePrediction(
             diseaseText: _resultadoRotulo ?? 'Análise indisponível',
+            descriptionText: _description != "" && _description != null
+                ? _description
+                : null,
           ),
         ],
       );
@@ -704,9 +888,9 @@ class _CheckupScreenState extends State<CheckupScreen> {
         child: SingleChildScrollView(
           controller: _scrollController,
           padding: EdgeInsets.fromLTRB(
-            16,
+            26,
             12,
-            16,
+            26,
             bottomInset > 0 ? bottomInset + 20 : 250,
           ),
           child: Column(
@@ -718,14 +902,17 @@ class _CheckupScreenState extends State<CheckupScreen> {
 
               _conteudoPorEtapa(),
 
-              const SizedBox(height: 28),
-              Button(
-                text: _enviando ? 'Enviando...' : _textoBotao(),
-                onPressed: _enviando ? () {} : _onPressBotao,
-              ),
-              const SizedBox(height: 20),
-              if (_enviando)
-                const CircularProgressIndicator(color: AppColors.orange900),
+              // Esconde o botão na tela de introdução (ela tem seu próprio botão)
+              if (_mostrouIntroducao) ...[
+                const SizedBox(height: 28),
+                Button(
+                  text: _enviando ? 'Enviando...' : _textoBotao(),
+                  onPressed: _enviando ? () {} : _onPressBotao,
+                ),
+                const SizedBox(height: 20),
+                if (_enviando)
+                  const CircularProgressIndicator(color: AppColors.orange900),
+              ],
             ],
           ),
         ),
