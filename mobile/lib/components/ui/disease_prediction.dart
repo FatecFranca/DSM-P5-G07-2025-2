@@ -4,10 +4,12 @@ import 'package:PetDex/theme/app_theme.dart';
 
 class DiseasePrediction extends StatelessWidget {
   final String diseaseText;
+  final String? descriptionText;
 
   const DiseasePrediction({
     super.key,
     required this.diseaseText,
+    this.descriptionText,
   });
 
   @override
@@ -31,11 +33,8 @@ class DiseasePrediction extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "Segundo suas respostas ao questionário, seu animal apresenta sintomas de",
-            style: GoogleFonts.poppins(
-              color: AppColors.brown,
-              fontSize: 13,
-            ),
+            "Segundo suas respostas ao questionário, a nossa análise identificou",
+            style: GoogleFonts.poppins(color: AppColors.brown, fontSize: 13),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 46),
@@ -43,11 +42,26 @@ class DiseasePrediction extends StatelessWidget {
             diseaseText,
             style: GoogleFonts.poppins(
               color: AppColors.orange900,
-              fontSize: 26,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
             textAlign: TextAlign.center,
           ),
+          if (descriptionText != null) ...[
+            const SizedBox(height: 3),
+            Padding(
+              padding: EdgeInsetsGeometry.symmetric(horizontal: 20),
+              child: Text(
+                descriptionText!,
+                style: GoogleFonts.poppins(
+                  color: AppColors.brown,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
           const SizedBox(height: 46),
           Text(
             "Nossa análise não substitui uma \n visita ao veterinário.",
