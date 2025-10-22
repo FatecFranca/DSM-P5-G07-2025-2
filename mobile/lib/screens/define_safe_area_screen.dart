@@ -288,7 +288,7 @@ class _DefineSafeAreaScreenState extends State<DefineSafeAreaScreen> {
                     style: GoogleFonts.poppins(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.black400,
+                      color: AppColors.brown,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -296,7 +296,7 @@ class _DefineSafeAreaScreenState extends State<DefineSafeAreaScreen> {
                     'Toque no mapa para definir o centro da área',
                     style: GoogleFonts.poppins(
                       fontSize: 13,
-                      color: AppColors.black200,
+                      color: AppColors.brown,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -315,7 +315,7 @@ class _DefineSafeAreaScreenState extends State<DefineSafeAreaScreen> {
                         style: GoogleFonts.poppins(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.black400,
+                          color: AppColors.brown,
                         ),
                       ),
                     ],
@@ -407,7 +407,7 @@ class _DefineSafeAreaScreenState extends State<DefineSafeAreaScreen> {
                       'Toque no mapa para mover o centro da área',
                       style: GoogleFonts.poppins(
                         fontSize: 13,
-                        color: AppColors.black400,
+                        color: AppColors.brown,
                       ),
                     ),
                   ),

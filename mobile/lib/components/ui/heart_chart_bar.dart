@@ -113,7 +113,7 @@ class HeartChartBar extends StatelessWidget {
                         return Text(
                           formattedDate,
                           style: GoogleFonts.poppins(
-                            color: AppColors.black400,
+                            color: AppColors.brown,
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
                           ),

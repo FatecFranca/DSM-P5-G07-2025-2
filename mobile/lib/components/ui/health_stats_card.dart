@@ -102,7 +102,7 @@ class _HealthStatsCardState extends State<HealthStatsCard> {
                 analysis.titulo,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
-                  color: AppColors.black400,
+                  color: AppColors.brown,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
@@ -112,7 +112,7 @@ class _HealthStatsCardState extends State<HealthStatsCard> {
                 analysis.interpretacao,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
-                  color: AppColors.black400,
+                  color: AppColors.brown,
                   fontSize: 14,
                   height: 1.5,
                 ),
@@ -130,7 +130,7 @@ class _HealthStatsCardState extends State<HealthStatsCard> {
               Text(
                 '${analysis.batimentoAnalisado} BPM',
                 style: GoogleFonts.poppins(
-                  color: AppColors.black400,
+                  color: AppColors.brown,
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                 ),

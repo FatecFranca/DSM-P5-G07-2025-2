@@ -91,18 +91,18 @@ class _HealthScreenState extends State<HealthScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 6),
-              Text(
-                "Painel de Saúde",
-                style: GoogleFonts.poppins(
-                  color: AppColors.orange,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
+                Text(
+                  "Painel de Saúde",
+                  style: GoogleFonts.poppins(
+                    color: AppColors.orange,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
               ),
               const SizedBox(height: 8),
               Text(
                 "Frequência cardíaca, padrões de atividade e informações de saúde reunidas em um só lugar.\nTenha controle total da saúde do seu pet.",
-                style: const TextStyle(fontSize: 14, color: AppColors.black400),
+                style: const TextStyle(fontSize: 14, color: AppColors.brown),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
@@ -117,7 +117,7 @@ class _HealthScreenState extends State<HealthScreen> {
                   child: const Text(
                     "ID do animal não encontrado. Faça login novamente ou selecione um pet.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: AppColors.black400),
+                    style: TextStyle(color: AppColors.brown),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -166,7 +166,7 @@ class _HealthScreenState extends State<HealthScreen> {
                         child: const Text(
                           "Sem dados dos últimos dias para exibir no gráfico.",
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: AppColors.black400),
+                          style: TextStyle(color: AppColors.brown),
                         ),
                       );
                     }
