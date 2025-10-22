@@ -168,7 +168,7 @@ class _HeartDateCardState extends State<HeartDateCard> {
       return Text(
         '${_mediaDoDia!.toInt()} BPM',
         style: GoogleFonts.poppins(
-          color: AppColors.black400,
+          color: AppColors.brown,
           fontSize: 28,
           fontWeight: FontWeight.bold,
         ),
@@ -179,7 +179,7 @@ class _HeartDateCardState extends State<HeartDateCard> {
         _mensagemApi!,
         textAlign: TextAlign.center,
         style: GoogleFonts.poppins(
-          color: AppColors.black400,
+          color: AppColors.brown,
           fontSize: 14,
           height: 1.5,
         ),
@@ -189,7 +189,7 @@ class _HeartDateCardState extends State<HeartDateCard> {
       'Sem dados',
       textAlign: TextAlign.center,
       style: GoogleFonts.poppins(
-        color: AppColors.black400,
+        color: AppColors.brown,
         fontSize: 14,
         height: 1.5,
       ),

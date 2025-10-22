@@ -1,3 +1,5 @@
+import 'package:google_fonts/google_fonts.dart';
+
 import '../../theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -44,9 +46,9 @@ class Button extends StatelessWidget {
       case ButtonSize.small:
         return const EdgeInsets.symmetric(horizontal: 20, vertical: 8);
       case ButtonSize.medium:
-        return const EdgeInsets.symmetric(horizontal: 24, vertical: 12);
+        return const EdgeInsets.symmetric(horizontal: 32, vertical: 12);
       case ButtonSize.large:
-        return const EdgeInsets.symmetric(horizontal: 28, vertical: 16);
+        return const EdgeInsets.symmetric(horizontal: 32, vertical: 16);
     }
   }
 
@@ -78,7 +80,7 @@ class Button extends StatelessWidget {
             ],
             Text(
               text,
-              style: TextStyle(
+              style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontSize: _getFontSize(),
                 fontWeight: FontWeight.w600,
