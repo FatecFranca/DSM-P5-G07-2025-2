@@ -5,6 +5,8 @@ import '/models/animal.dart';
 import '/models/heartbeat_data.dart';
 import '/models/latest_heartbeat.dart';
 import 'package:PetDex/services/http_client.dart';
+import 'package:PetDex/models/checkup_result.dart';
+import 'dart:async';
 
 class AnimalService {
   String get _javaApiBaseUrl => dotenv.env['API_JAVA_URL']!;
@@ -62,6 +64,36 @@ class AnimalService {
       throw Exception(
         'Falha ao carregar histórico de batimentos. Status: ${response.statusCode}',
       );
+    }
+  }
+
+  // POST /ia/checkup/animal/{idAnimal}
+  Future<CheckupResult> postCheckup(String animalId, Map<String, dynamic> sintomas) async {
+    final url = Uri.parse("$_pythonApiBaseUrl/ia/checkup/animal/$animalId");
+
+    try {
+      final response = await _httpClient
+          .post(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode(sintomas),
+          )
+          .timeout(const Duration(seconds: 60));
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(utf8.decode(response.bodyBytes));
+        return CheckupResult.fromJson(decoded);
+      } else {
+        throw Exception(
+          'Erro ao realizar checkup: ${response.statusCode} - ${response.body}',
+        );
+      }
+    } on TimeoutException {
+      throw Exception('Tempo de requisição excedido (timeout).');
+    } catch (e) {
+      throw Exception('Erro inesperado ao realizar checkup: $e');
     }
   }
 }
