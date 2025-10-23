@@ -921,7 +921,7 @@ class _CheckupScreenState extends State<CheckupScreen> {
             26,
             12,
             26,
-            bottomInset > 0 ? bottomInset + 20 : 250,
+            bottomInset > 0 ? bottomInset + 40 : 280,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
