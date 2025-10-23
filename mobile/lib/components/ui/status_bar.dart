@@ -29,8 +29,10 @@ class StatusBar extends StatefulWidget {
 class _StatusBarState extends State<StatusBar>
     with SingleTickerProviderStateMixin {
   bool _isExpanded = false;
+  bool _isClosing = false; // indica que está em processo de fechamento
   bool _showExpandedContent =
       false; // mantém conteúdo visível até o fim da animação de fechamento
+  bool _showArrowDown = false; // controla quando a seta muda de direção
   late final AnimationController _animationController;
   late Animation<double> _heightAnimation;
 
@@ -66,10 +68,27 @@ class _StatusBarState extends State<StatusBar>
     _fetchData();
     _initializeWebSocketListener();
 
-    // Quando a animação de fechamento terminar, escondemos o conteúdo expandido
+    // Listener para controlar a visibilidade do conteúdo e a direção da seta
     _animationController.addStatusListener((status) {
-      if (status == AnimationStatus.completed && !_isExpanded) {
-        if (mounted) setState(() => _showExpandedContent = false);
+      if (status == AnimationStatus.completed) {
+        if (_isClosing) {
+          // Ao terminar de fechar, finaliza o fechamento
+          if (mounted) {
+            setState(() {
+              _isExpanded = false;
+              _isClosing = false;
+              _showExpandedContent = false;
+              _showArrowDown = false;
+            });
+          }
+        } else if (_isExpanded) {
+          // Ao terminar de abrir, garante que a seta está para baixo
+          if (mounted) {
+            setState(() {
+              _showArrowDown = true;
+            });
+          }
+        }
       }
     });
   }
@@ -156,15 +175,26 @@ class _StatusBarState extends State<StatusBar>
   void _toggleExpand() {
     if (_animalInfo != null) {
       final willExpand = !_isExpanded;
-      setState(() {
-        _isExpanded = willExpand;
-        if (willExpand) {
-          // Garantir que o conteúdo expandido apareça antes de animar a abertura
+
+      if (willExpand) {
+        // Ao abrir: mostra o conteúdo e já muda a seta imediatamente
+        setState(() {
+          _isExpanded = true;
           _showExpandedContent = true;
-        }
-      });
-      // Dispara a animação de 0 -> 1 para expandir/contrair suavemente
-      _animationController.forward(from: 0);
+          _showArrowDown = true;
+        });
+        // Dispara a animação de 0 -> 1 para expandir
+        _animationController.forward(from: 0);
+      } else {
+        // Ao fechar: marca como fechando mas mantém _isExpanded = true
+        // para que a animação use a fórmula correta
+        setState(() {
+          _isClosing = true;
+        });
+        // Dispara a animação de 0 -> 1 para contrair
+        // O _isExpanded só mudará quando a animação terminar (no listener)
+        _animationController.forward(from: 0);
+      }
     }
   }
 
@@ -184,14 +214,16 @@ class _StatusBarState extends State<StatusBar>
       animation: _heightAnimation,
       builder: (context, child) {
         final t = _heightAnimation.value;
-        final currentHeight = _isExpanded
-            ? _collapsedHeight + t * (maxHeight - _collapsedHeight)
-            : maxHeight - t * (maxHeight - _collapsedHeight);
+        final currentHeight = (_isExpanded && !_isClosing)
+            ? _collapsedHeight + t * (maxHeight - _collapsedHeight) // Abrindo
+            : _isClosing
+                ? maxHeight - t * (maxHeight - _collapsedHeight) // Fechando
+                : _collapsedHeight; // Fechado
 
         return Container(
           decoration: const BoxDecoration(
             color: AppColors.sand100,
-            borderRadius: const BorderRadius.only(
+            borderRadius: BorderRadius.only(
               topLeft: Radius.circular(30),
               topRight: Radius.circular(30),
             ),
@@ -305,7 +337,7 @@ class _StatusBarState extends State<StatusBar>
           borderRadius: BorderRadius.circular(20),
         ),
         child: Icon(
-          _isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
+          _showArrowDown ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
           color: AppColors.brown,
         ),
       ),
