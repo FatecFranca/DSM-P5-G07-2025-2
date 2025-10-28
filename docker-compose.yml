@@ -1,8 +1,13 @@
 version: "3.8"
 
+networks:
+  petdex-network:
+
 services:
   api-java:
     image: petdex/api-java:latest
+    networks:
+      - petdex-network
     ports:
       - "8080:8080"
     environment:
@@ -13,6 +18,8 @@ services:
 
   api-python:
     image: petdex/api-python:latest
+    networks:
+      - petdex-network
     ports:
       - "8083:8083"
     environment:
