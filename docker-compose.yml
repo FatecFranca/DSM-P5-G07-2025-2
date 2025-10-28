@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  api-java:
+    image: petdex/api-java:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URI=${DATABASE_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - BCRYPT_SALT=${BCRYPT_SALT}
+    restart: always
+
+  api-python:
+    image: petdex/api-python:latest
+    ports:
+      - "8083:8083"
+    environment:
+      - API_URL=http://api-java:8080
+      - JWT_SECRET=${JWT_SECRET}
+    restart: always
