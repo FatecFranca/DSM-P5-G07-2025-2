@@ -8,9 +8,6 @@ on:
       - SCRUM-**
 
 jobs:
-  # ============================================================
-  # JOB 1 — BUILD E PUSH DAS IMAGENS DOCKER
-  # ============================================================
   build:
     runs-on: ubuntu-latest
 
@@ -38,9 +35,6 @@ jobs:
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/api-python:${BRANCH_NAME} .
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/api-python:${BRANCH_NAME}
 
-  # ============================================================
-  # JOB 2 — DEPLOY NA MÁQUINA VIRTUAL
-  # ============================================================
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -73,9 +67,8 @@ jobs:
 
           rsync -avz -e "ssh -i key.pem -o StrictHostKeyChecking=no" \
             docker-compose.yml \
-            api-gateway/ \
-            auth-service/ \
-            pet-service/ \
+            api-java/ \
+            api-python/ \
             ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_HOST }}:/home/${{ secrets.AZURE_VM_USER }}/petdex/
 
       - name: 🚀 Executar deploy via Docker Compose
