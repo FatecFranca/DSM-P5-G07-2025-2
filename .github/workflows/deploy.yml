@@ -70,7 +70,6 @@ jobs:
             api-java/ \
             api-python/ \
             ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_HOST }}:/home/${{ secrets.AZURE_VM_USER }}/petdex/
-
       - name: 🚀 Executar deploy via Docker Compose
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -80,6 +79,9 @@ jobs:
           script: |
             echo "🚀 Atualizando APIs da PetDex na VM..."
             cd /home/${{ secrets.AZURE_VM_USER }}/petdex
+            export TAG=${GITHUB_REF##*/}
+            export JWT_SECRET=${{ secrets.JWT_SECRET }}
+            export BCRYPT_SALT=${{ secrets.BCRYPT_SALT }}
             docker compose pull
             docker compose up -d --build
             echo "✅ Deploy concluído com sucesso!"
