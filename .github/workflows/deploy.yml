@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-      - dev
-      - SCRUM-**
 
 jobs:
   build:
@@ -38,9 +36,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    if: github.ref == 'refs/heads/main'
-
+  
     steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+  
       - name: Copiar docker-compose.yml para VM
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -49,7 +49,7 @@ jobs:
           key: ${{ secrets.AZURE_VM_SSH_KEY }}
           source: "./docker-compose.yml"
           target: "/home/${{ secrets.AZURE_VM_USER }}/petdex/docker-compose.yml"
-
+  
       - name: Conectar na VM e atualizar containers
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -59,15 +59,15 @@ jobs:
           envs: DATABASE_URI,API_KEY,DOCKERHUB_USERNAME
           script: |
             echo "Atualizando APIs da PetDex na VM..."
-
+  
             cd /home/${{ secrets.AZURE_VM_USER }}/petdex
-
+  
             export DATABASE_URI="${{ secrets.DATABASE_URI }}"
             export API_KEY="${{ secrets.API_KEY }}"
             export DOCKERHUB_USERNAME="${{ secrets.DOCKERHUB_USERNAME }}"
-
+  
             docker compose pull
             docker compose down
             docker compose up -d
-
+  
             echo "✅ Deploy concluído com sucesso!"
