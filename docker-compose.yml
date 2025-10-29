@@ -5,7 +5,7 @@ networks:
 
 services:
   api-java:
-    image: petdex/api-java:latest
+    image: petdex/api-java:main
     networks:
       - petdex-network
     ports:
@@ -17,7 +17,7 @@ services:
     restart: always
 
   api-python:
-    image: petdex/api-python:latest
+    image: petdex/api-python:main
     networks:
       - petdex-network
     ports:
