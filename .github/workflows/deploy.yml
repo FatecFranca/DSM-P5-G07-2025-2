@@ -31,7 +31,7 @@ jobs:
 
       - name: Build e Push da API Python
         run: |
-          cd ../api-python
+          cd api-python
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/api-python:${BRANCH_NAME} .
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/api-python:${BRANCH_NAME}
 
