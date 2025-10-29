@@ -1,62 +1,85 @@
-name: 🚀 Deploy PetDex
+name: Build e Deploy das APIs PetDex
 
 on:
   push:
     branches:
       - main
-      - master
-      - develop
+      - dev
+      - SCRUM-**
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Faz checkout do repositório
-      - name: Checkout repository
+      - name: Checkout do repositório
         uses: actions/checkout@v4
 
-      # 2️⃣ Conecta na VM e remove pasta antiga com nome errado
-      - name: Remover diretório docker-compose.yml se existir
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.AZURE_VM_HOST }}
-          username: ${{ secrets.AZURE_VM_USER }}
-          key: ${{ secrets.AZURE_VM_SSH_KEY }}
-          script: |
-            echo "🔹 Removendo diretório docker-compose.yml (se existir)..."
-            if [ -d "/home/${{ secrets.AZURE_VM_USER }}/petdex/docker-compose.yml" ]; then
-              rm -rf /home/${{ secrets.AZURE_VM_USER }}/petdex/docker-compose.yml
-              echo "✅ Diretório removido com sucesso."
-            else
-              echo "ℹ️ Nenhum diretório com esse nome encontrado."
-            fi
+      - name: Definir nome da branch
+        id: vars
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
-      # 3️⃣ Copia os arquivos do projeto e o docker-compose.yml para a VM
-      - name: Copiar arquivos para a VM
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.AZURE_VM_HOST }}
-          username: ${{ secrets.AZURE_VM_USER }}
-          key: ${{ secrets.AZURE_VM_SSH_KEY }}
-          source: |
-            docker-compose.yml
-            ./api-gateway/**
-            ./auth-service/**
-            ./pet-service/**
-          target: /home/${{ secrets.AZURE_VM_USER }}/petdex/
-          overwrite: true
+      - name: Login no Docker Hub
+        run: |
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-      # 4️⃣ Executa o deploy na VM
-      - name: Executar deploy via Docker Compose
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.AZURE_VM_HOST }}
-          username: ${{ secrets.AZURE_VM_USER }}
-          key: ${{ secrets.AZURE_VM_SSH_KEY }}
-          script: |
-            echo "🚀 Atualizando APIs da PetDex na VM..."
-            cd /home/${{ secrets.AZURE_VM_USER }}/petdex
-            docker compose pull
-            docker compose up -d --build
-            echo "✅ Deploy concluído com sucesso!"
+      - name: Build e Push da API Java
+        run: |
+          cd api-java
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/api-java:${BRANCH_NAME} .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/api-java:${BRANCH_NAME}
+
+      - name: Build e Push da API Python
+        run: |
+          cd api-python
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/api-python:${BRANCH_NAME} .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/api-python:${BRANCH_NAME}
+
+  deploy:
+      runs-on: ubuntu-latest
+  
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+  
+        - name: Remover diretório docker-compose.yml se existir
+          uses: appleboy/ssh-action@v1.2.0
+          with:
+            host: ${{ secrets.AZURE_VM_HOST }}
+            username: ${{ secrets.AZURE_VM_USER }}
+            key: ${{ secrets.AZURE_VM_SSH_KEY }}
+            script: |
+              echo "🔹 Removendo diretório docker-compose.yml (se existir)..."
+              if [ -d "/home/${{ secrets.AZURE_VM_USER }}/petdex/docker-compose.yml" ]; then
+                rm -rf /home/${{ secrets.AZURE_VM_USER }}/petdex/docker-compose.yml
+                echo "✅ Diretório removido com sucesso."
+              else
+                echo "ℹ️ Nenhum diretório com esse nome encontrado."
+              fi
+  
+        - name: Copiar arquivos para a VM
+          uses: appleboy/scp-action@v0.1.4
+          with:
+            host: ${{ secrets.AZURE_VM_HOST }}
+            username: ${{ secrets.AZURE_VM_USER }}
+            key: ${{ secrets.AZURE_VM_SSH_KEY }}
+            source: |
+              docker-compose.yml
+              ./api-gateway/**
+              ./auth-service/**
+              ./pet-service/**
+            target: /home/${{ secrets.AZURE_VM_USER }}/petdex/
+            overwrite: true
+  
+        - name: Executar deploy via Docker Compose
+          uses: appleboy/ssh-action@v1.2.0
+          with:
+            host: ${{ secrets.AZURE_VM_HOST }}
+            username: ${{ secrets.AZURE_VM_USER }}
+            key: ${{ secrets.AZURE_VM_SSH_KEY }}
+            script: |
+              echo "🚀 Atualizando APIs da PetDex na VM..."
+              cd /home/${{ secrets.AZURE_VM_USER }}/petdex
+              docker compose pull
+              docker compose up -d --build
+              echo "✅ Deploy concluído com sucesso!"
