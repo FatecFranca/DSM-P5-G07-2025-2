@@ -3,6 +3,8 @@ package com.petdex.api.application.services.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,8 @@ import java.util.function.Function;
  */
 @Service
 public class JwtService {
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -107,11 +111,19 @@ public class JwtService {
      * @return Claims do token
      */
     private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        try {
+            logger.debug("Extraindo claims do token...");
+            Claims claims = Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            logger.debug("Claims extraídas com sucesso");
+            return claims;
+        } catch (Exception e) {
+            logger.error("Erro ao extrair claims do token: " + e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**
@@ -136,9 +148,12 @@ public class JwtService {
      */
     public Boolean validateToken(String token) {
         try {
+            logger.info("Validando token JWT...");
             extractAllClaims(token);
+            logger.info("Token JWT válido!");
             return true;
         } catch (Exception e) {
+            logger.error("Token JWT inválido: " + e.getMessage(), e);
             return false;
         }
     }
