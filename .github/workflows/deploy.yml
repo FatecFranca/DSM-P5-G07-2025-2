@@ -12,28 +12,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Faz checkout do código-fonte
-      - name: Checkout
+      - name: Checkout do repositório
         uses: actions/checkout@v4
 
-      # 2️⃣ Define a variável com o nome da branch
       - name: Definir nome da branch
         id: vars
         run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
-      # 3️⃣ Login no Docker Hub usando secrets
       - name: Login no Docker Hub
         run: |
           echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-      # 4️⃣ Build e Push da API Java
       - name: Build e Push da API Java
         run: |
           cd api-java
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/api-java:${BRANCH_NAME} .
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/api-java:${BRANCH_NAME}
 
-      # 5️⃣ Build e Push da API Python
       - name: Build e Push da API Python
         run: |
           cd api-python
@@ -46,8 +41,13 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-      # 6️⃣ Copiar docker-compose.yml para a VM
-      - name: Copiar docker-compose.yml para VM
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Verificar estrutura antes da cópia (debug)
+        run: ls -R
+
+      - name: Copiar docker-compose.yml para a VM
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.AZURE_VM_HOST }}
@@ -55,9 +55,8 @@ jobs:
           key: ${{ secrets.AZURE_VM_SSH_KEY }}
           source: "docker-compose.yml"
           target: "/home/${{ secrets.AZURE_VM_USER }}/petdex/"
-          overwrite: true   # ✅ permite substituir o arquivo se já existir
+          overwrite: true
 
-      # 7️⃣ Conectar na VM e atualizar containers
       - name: Conectar na VM e atualizar containers
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -66,22 +65,17 @@ jobs:
           key: ${{ secrets.AZURE_VM_SSH_KEY }}
           envs: DATABASE_URI,API_KEY,DOCKERHUB_USERNAME
           script: |
-            echo "📦 Atualizando APIs da PetDex na VM..."
+            echo "🚀 Atualizando APIs da PetDex na VM..."
 
             cd /home/${{ secrets.AZURE_VM_USER }}/petdex
-            ls -lh
 
             export DATABASE_URI="${{ secrets.DATABASE_URI }}"
             export API_KEY="${{ secrets.API_KEY }}"
             export DOCKERHUB_USERNAME="${{ secrets.DOCKERHUB_USERNAME }}"
 
-            echo "▶️ Puxando novas imagens..."
+            echo "📦 Atualizando containers..."
             docker compose pull
-
-            echo "🧹 Removendo containers antigos..."
             docker compose down
-
-            echo "🚀 Subindo novas versões..."
             docker compose up -d
 
             echo "✅ Deploy concluído com sucesso!"
