@@ -1,11 +1,27 @@
 package com.petdex.api.domain.contracts.dto.usuario;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(
+        name = "Requisição Usuário",
+        description = "Dados necessários para criar ou atualizar um usuário no sistema",
+        example = "{\"nome\": \"João Silva\", \"cpf\": \"12345678900\", \"whatsApp\": \"11987654321\", \"email\": \"usuario@petdex.com\", \"senha\": \"senha123\"}"
+)
 public class UsuarioReqDTO {
 
+    @Schema(description = "Nome completo do usuário", example = "João Silva", requiredMode = Schema.RequiredMode.REQUIRED)
     private String nome;
+
+    @Schema(description = "CPF do usuário (apenas números)", example = "12345678900", requiredMode = Schema.RequiredMode.REQUIRED)
     private String cpf;
+
+    @Schema(description = "Número de WhatsApp do usuário", example = "11987654321", requiredMode = Schema.RequiredMode.REQUIRED)
     private String whatsApp;
+
+    @Schema(description = "Email do usuário", example = "usuario@petdex.com", requiredMode = Schema.RequiredMode.REQUIRED)
     private String email;
+
+    @Schema(description = "Senha do usuário", example = "senha123", requiredMode = Schema.RequiredMode.REQUIRED)
     private String senha;
 
     public UsuarioReqDTO() {

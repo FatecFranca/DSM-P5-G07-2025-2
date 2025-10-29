@@ -1,7 +1,18 @@
 package com.petdex.api.domain.contracts.dto.coleira;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(
+        name = "Requisição Coleira",
+        description = "Dados necessários para criar ou atualizar uma coleira no sistema",
+        example = "{\"descricao\": \"Coleira GPS Azul\", \"animal\": \"507f1f77bcf86cd799439011\"}"
+)
 public class ColeiraReqDTO {
+
+    @Schema(description = "Descrição ou identificação da coleira", example = "Coleira GPS Azul", requiredMode = Schema.RequiredMode.REQUIRED)
     private String descricao;
+
+    @Schema(description = "ID do animal ao qual a coleira está associada", example = "507f1f77bcf86cd799439011", requiredMode = Schema.RequiredMode.REQUIRED)
     private String animal;
 
 

@@ -23,15 +23,25 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
-        
+
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+        // Verifica se há uma mensagem de erro específica do JWT
+        String jwtError = (String) request.getAttribute("jwt_error");
+        String message;
+
+        if (jwtError != null) {
+            message = jwtError;
+        } else {
+            message = "Usuário não autenticado para efetuar a requisição. Por favor, forneça um token JWT válido.";
+        }
 
         Map<String, Object> errorDetails = new HashMap<>();
         errorDetails.put("timestamp", LocalDateTime.now().toString());
         errorDetails.put("status", 401);
         errorDetails.put("error", "Não Autenticado");
-        errorDetails.put("message", "Usuário não autenticado para efetuar a requisição. Por favor, forneça um token JWT válido.");
+        errorDetails.put("message", message);
         errorDetails.put("path", request.getRequestURI());
 
         ObjectMapper mapper = new ObjectMapper();

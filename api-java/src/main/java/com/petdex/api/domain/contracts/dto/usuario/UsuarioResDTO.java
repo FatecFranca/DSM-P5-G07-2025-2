@@ -1,10 +1,27 @@
 package com.petdex.api.domain.contracts.dto.usuario;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(
+        name = "Resposta Usuário",
+        description = "Informações detalhadas de um usuário retornadas pela API",
+        example = "{\"id\": \"507f1f77bcf86cd799439011\", \"nome\": \"João Silva\", \"cpf\": \"12345678900\", \"whatsApp\": \"11987654321\", \"email\": \"usuario@petdex.com\"}"
+)
 public class UsuarioResDTO {
+
+    @Schema(description = "Código único identificador do usuário", example = "507f1f77bcf86cd799439011")
     private String id;
+
+    @Schema(description = "Nome completo do usuário", example = "João Silva")
     private String nome;
+
+    @Schema(description = "CPF do usuário (apenas números)", example = "12345678900")
     private String cpf;
+
+    @Schema(description = "Número de WhatsApp do usuário", example = "11987654321")
     private String whatsApp;
+
+    @Schema(description = "Email do usuário", example = "usuario@petdex.com")
     private String email;
 
     public UsuarioResDTO() {

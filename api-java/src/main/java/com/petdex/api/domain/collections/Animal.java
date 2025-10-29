@@ -32,6 +32,8 @@ public class Animal {
     @NotBlank(message = "racaId não pode ser nulo ou vazio")
     private String raca;
 
+    private String urlImagem;
+
 
     public Animal() {
     }
@@ -47,6 +49,18 @@ public class Animal {
         this.raca = raca;
     }
 
+    public Animal(String id, String nome, Date dataNascimento, String sexo, Float peso, Boolean castrado, String usuario, String raca, String urlImagem) {
+        this.id = id;
+        this.nome = nome;
+        this.dataNascimento = dataNascimento;
+        this.sexo = sexo;
+        this.peso = peso;
+        this.castrado = castrado;
+        this.usuario = usuario;
+        this.raca = raca;
+        this.urlImagem = urlImagem;
+    }
+
     public Animal(String nome, Date dataNascimento, String sexo, Float peso, Boolean castrado, String usuario, String raca) {
         this.nome = nome;
         this.dataNascimento = dataNascimento;
@@ -56,6 +70,19 @@ public class Animal {
         this.usuario = usuario;
         this.raca = raca;
     }
+
+
+    public Animal(String nome, Date dataNascimento, String sexo, Float peso, Boolean castrado, String usuario, String raca, String urlImagem) {
+        this.nome = nome;
+        this.dataNascimento = dataNascimento;
+        this.sexo = sexo;
+        this.peso = peso;
+        this.castrado = castrado;
+        this.usuario = usuario;
+        this.raca = raca;
+        this.urlImagem = urlImagem;
+    }
+
 
     public String getId() {
         return id;
@@ -119,5 +146,13 @@ public class Animal {
 
     public void setRaca(String string) {
         this.raca = string;
+    }
+
+    public String getUrlImagem() {
+        return urlImagem;
+    }
+
+    public void setUrlImagem(String urlImagem) {
+        this.urlImagem = urlImagem;
     }
 }
