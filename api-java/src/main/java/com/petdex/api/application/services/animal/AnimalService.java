@@ -40,6 +40,8 @@ public class AnimalService implements IAnimalService{
 
     @Autowired
     RacaRepository racaRepository;
+    @Autowired
+    private IAnimalService iAnimalService;
 
     @Override
     public AnimalResDTO findById(String id) {
@@ -80,35 +82,27 @@ public class AnimalService implements IAnimalService{
 
         return new PageImpl<>(dtoList, pageDTO.mapPage(), animaisPage.getTotalElements());
     }
+
     @Override
-    public AnimalResDTO create(AnimalReqDTO animalReqDTO, MultipartFile imagem) throws IOException {
+    public AnimalResDTO create(AnimalReqDTO animalDTO) throws IOException {
 
-        Animal animal = mapper.map(animalReqDTO, Animal.class);
-
-        if(imagem != null && !imagem.isEmpty()) {
-            String urlImagem = this.saveImage(imagem);
-            animal.setUrlImagem(urlImagem);
-        }
+        Animal animal = mapper.map(animalDTO, Animal.class);
 
         return mapper.map(animalRepository.save(animal), AnimalResDTO.class);
     }
 
     @Override
-    public AnimalResDTO update(String id, AnimalReqDTO animalReqDTO, MultipartFile imagem) throws IOException {
+    public AnimalResDTO update(String id, AnimalReqDTO animalDTO) throws IOException {
 
         Animal animalUpdate = animalRepository.findById(id).orElseThrow(() -> new RuntimeException("Não foi possível achar o animal com o ID: " + id));
 
-        if(animalReqDTO.getNome() != null) animalUpdate.setNome(animalReqDTO.getNome());
-        if(animalReqDTO.getCastrado() != null) animalUpdate.setCastrado(animalReqDTO.getCastrado());
-        if(animalReqDTO.getPeso() != null) animalUpdate.setPeso(animalReqDTO.getPeso());
-        if(animalReqDTO.getRaca() != null) animalUpdate.setRaca(animalReqDTO.getRaca());
-        if(animalReqDTO.getDataNascimento() != null) animalUpdate.setDataNascimento(animalReqDTO.getDataNascimento());
-        if(animalReqDTO.getSexo() != null) animalUpdate.setSexo(animalReqDTO.getSexo());
+        if(animalDTO.getNome() != null) animalUpdate.setNome(animalDTO.getNome());
+        if(animalDTO.getCastrado() != null) animalUpdate.setCastrado(animalDTO.getCastrado());
+        if(animalDTO.getPeso() != null) animalUpdate.setPeso(animalDTO.getPeso());
+        if(animalDTO.getRaca() != null) animalUpdate.setRaca(animalDTO.getRaca());
+        if(animalDTO.getDataNascimento() != null) animalUpdate.setDataNascimento(animalDTO.getDataNascimento());
+        if(animalDTO.getSexo() != null) animalUpdate.setSexo(animalDTO.getSexo());
 
-        if(imagem != null && !imagem.isEmpty()) {
-            String urlImagem = this.saveImage(imagem);
-            animalUpdate.setUrlImagem(urlImagem);
-        }
 
         return mapper.map(animalRepository.save(animalUpdate), AnimalResDTO.class);
     }
@@ -140,7 +134,22 @@ public class AnimalService implements IAnimalService{
     }
 
     @Override
-    public String saveImage (MultipartFile file) throws IOException {
+    public String saveImage (String id, MultipartFile file) throws IOException {
+
+        Animal animal = animalRepository.findById(id).orElseThrow(() -> new RuntimeException("Não foi possível achar o animal com o ID: " + id));
+
+        // Verifica se existe uma imagem antiga e a exclui
+        String oldImageUrl = animal.getUrlImagem();
+        if (oldImageUrl != null && !oldImageUrl.isEmpty()) {
+            // Extrai o nome do arquivo da URL antiga
+            String oldFileName = oldImageUrl.substring(oldImageUrl.lastIndexOf("/") + 1);
+            Path oldFilePath = Paths.get("/uploads/animais/").resolve(oldFileName);
+
+            // Exclui o arquivo antigo se ele existir
+            if (Files.exists(oldFilePath)) {
+                Files.delete(oldFilePath);
+            }
+        }
 
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
         Path uploadPath = Paths.get("/uploads/animais/");
@@ -150,6 +159,9 @@ public class AnimalService implements IAnimalService{
         Path filePath = uploadPath.resolve(fileName);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         String imageUrl = "/uploads/animais/" + fileName;
+
+        animal.setUrlImagem(imageUrl);
+        animalRepository.save(animal);
 
         return imageUrl;
     }

@@ -12,10 +12,12 @@ import java.util.Optional;
 public interface IAnimalService {
     AnimalResDTO findById(String id);
     Page<AnimalResDTO> findAll(PageDTO pageDTO);
-    AnimalResDTO create (AnimalReqDTO animalReqDTO, MultipartFile imagem) throws IOException;
-    AnimalResDTO update (String id, AnimalReqDTO animalReqDTO,  MultipartFile imagem) throws IOException;
+    AnimalResDTO create (AnimalReqDTO animalReqDTO) throws IOException;
+    AnimalResDTO update (String id, AnimalReqDTO animalReqDTO) throws IOException;
     void delete (String id);
     Optional<AnimalResDTO> findByUsuarioId(String usuarioId);
 
-    String saveImage (MultipartFile file) throws IOException;
+    String saveImage (String id, MultipartFile file) throws IOException;
+
+
 }
