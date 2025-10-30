@@ -113,9 +113,8 @@ public class AnimalService implements IAnimalService{
 
     @Override
     public Optional<AnimalResDTO> findByUsuarioId(String usuarioId) {
-        // Converte String para ObjectId
-        ObjectId usuarioObjectId = new ObjectId(usuarioId);
-        Optional<Animal> animalOpt = animalRepository.findByUsuario(usuarioObjectId);
+        // Busca o animal pelo ID do usuário
+        Optional<Animal> animalOpt = animalRepository.findByUsuario(usuarioId);
 
         return animalOpt.map(animal -> {
             Raca raca = racaRepository.findById(animal.getRaca())

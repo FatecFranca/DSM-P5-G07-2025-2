@@ -4,31 +4,35 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Date;
 
-@Schema(name = "Resposta Localização", description = "Informações contidas nas respostas da API envolvendo a Localização")
+@Schema(
+        name = "Resposta Localização",
+        description = "Informações de uma localização retornadas pela API",
+        example = "{\"id\": \"507f1f77bcf86cd799439011\", \"data\": \"2024-01-20T14:30:00.000+00:00\", \"latitude\": -23.550520, \"longitude\": -46.633308, \"animal\": \"507f1f77bcf86cd799439011\", \"coleira\": \"507f1f77bcf86cd799439011\", \"isOutsideSafeZone\": false, \"distanciaDoPerimetro\": -50.0}"
+)
 public class LocalizacaoResDTO {
 
-    @Schema(description = "Código único identificador da localização", example = "")
+    @Schema(description = "Código único identificador da localização", example = "507f1f77bcf86cd799439011")
     private String id;
 
-    @Schema(description = "Data/Hora que foi realizado a coleta da localização", example = "")
+    @Schema(description = "Data e hora em que foi realizada a coleta da localização", example = "2024-01-20T14:30:00.000+00:00")
     private Date data;
 
-    @Schema(description = "Latitude que se encontra o animal no momento da coleta", example = "")
+    @Schema(description = "Latitude da posição geográfica onde o animal se encontra no momento da coleta", example = "-23.550520")
     private Double latitude;
 
-    @Schema(description = "Longitude que se encontra o animal no momento da coleta", example = "")
+    @Schema(description = "Longitude da posição geográfica onde o animal se encontra no momento da coleta", example = "-46.633308")
     private Double longitude;
 
-    @Schema(description = "ID do Animal que foi feito a coleta da localização", example = "")
+    @Schema(description = "ID do animal que teve a localização coletada", example = "507f1f77bcf86cd799439011")
     private String animal;
 
-    @Schema(description = "ID da coleira que fez a coleta da localização do animal", example = "")
+    @Schema(description = "ID da coleira que realizou a coleta da localização do animal", example = "507f1f77bcf86cd799439011")
     private String coleira;
 
-    @Schema(description = "Indica se o animal está fora da área segura", example = "false")
+    @Schema(description = "Indica se o animal está fora da área segura configurada", example = "false")
     private Boolean isOutsideSafeZone;
 
-    @Schema(description = "Distância em metros do perímetro da área segura (positivo se fora, negativo se dentro)", example = "")
+    @Schema(description = "Distância em metros do perímetro da área segura. Valor positivo indica que o animal está fora da área segura, valor negativo indica que está dentro", example = "-50.0")
     private Double distanciaDoPerimetro;
 
     public LocalizacaoResDTO() {

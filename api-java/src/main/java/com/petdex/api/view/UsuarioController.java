@@ -4,6 +4,8 @@ import com.petdex.api.application.services.usuario.IUsuarioService;
 import com.petdex.api.domain.contracts.dto.PageDTO;
 import com.petdex.api.domain.contracts.dto.usuario.UsuarioReqDTO;
 import com.petdex.api.domain.contracts.dto.usuario.UsuarioResDTO;
+import com.petdex.api.swagger.respostas.ExemploRespostaDeletarUsuario;
+import com.petdex.api.swagger.respostas.ExemploRespostaPageUsuario;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -27,20 +29,23 @@ public class UsuarioController {
     IUsuarioService usuarioService;
 
     @Operation(
-            summary = "Buscar usuário por ID",
-            description = "Retorna os detalhes de um usuário específico através do seu identificador único",
+            summary = "Consultar usuário",
+            description = "Consulta os detalhes de um usuário específico através do seu identificador único",
+            tags = {"Usuario"},
             parameters = {
-                    @Parameter(name = "id", description = "ID do usuário que se deseja consultar", required = true, example = "507f1f77bcf86cd799439011")
+                    @Parameter(name = "id", description = "Código identificador do usuário que será consultado", required = true, example = "507f1f77bcf86cd799439011")
+            },
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Solicitação bem-sucedida",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = UsuarioResDTO.class)
+                            )
+                    )
             }
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Usuário encontrado com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuarioResDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Usuário não encontrado",
-                    content = @Content),
-            @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
-                    content = @Content)
-    })
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResDTO> findById (@PathVariable String id) {
         return new ResponseEntity<>(
@@ -50,16 +55,44 @@ public class UsuarioController {
     }
 
     @Operation(
-            summary = "Listar todos os usuários",
-            description = "Retorna uma lista paginada de todos os usuários cadastrados no sistema. " +
-                    "É possível ordenar e filtrar os resultados através dos parâmetros de paginação."
+            summary = "Consultar usuários",
+            description = "Consulta uma lista paginada de todos os usuários cadastrados no sistema",
+            tags = {"Usuario"},
+            parameters = {
+                    @Parameter(name = "page", description = "Número da página que será feita a requisição", example = "0", schema = @Schema(implementation = Integer.class)),
+                    @Parameter(name = "size", description = "Quantidade máxima de elementos por página", example = "10", schema = @Schema(implementation = Integer.class)),
+                    @Parameter(
+                            name = "sortBy",
+                            description = "Atributo pelo qual as respostas serão ordenadas.\n\n" +
+                                    "**Atributos disponíveis para ordenação**\n" +
+                                    "- **nome**: Ordena pelo nome do usuário\n" +
+                                    "- **email**: Ordena pelo email do usuário\n" +
+                                    "- **cpf**: Ordena pelo CPF do usuário\n" +
+                                    "- **id**: Ordena pelo código identificador do usuário",
+                            example = "nome",
+                            schema = @Schema(implementation = String.class)
+                    ),
+                    @Parameter(
+                            name = "direction",
+                            description = "Direção da ordenação das respostas.\n\n" +
+                                    "**Direções disponíveis**\n" +
+                                    "- **asc**: Ordena de forma ascendente pelo atributo definido\n" +
+                                    "- **desc**: Ordena de forma descendente pelo atributo definido",
+                            example = "asc",
+                            schema = @Schema(implementation = String.class)
+                    )
+            },
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Solicitação bem-sucedida",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ExemploRespostaPageUsuario.class)
+                            )
+                    )
+            }
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de usuários retornada com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Page.class))),
-            @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
-                    content = @Content)
-    })
     @GetMapping()
     public ResponseEntity<Page<UsuarioResDTO>> findAll (@ParameterObject PageDTO pageDTO) {
         return new ResponseEntity<>(
@@ -69,17 +102,28 @@ public class UsuarioController {
     }
 
     @Operation(
-            summary = "Cadastrar um novo usuário",
-            description = "Cria um novo usuário no sistema. É necessário informar nome, email, senha e outros dados pessoais."
+            summary = "Cadastrar usuário",
+            description = "Cadastra um novo usuário no sistema",
+            tags = {"Usuario"},
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Dados do usuário que será cadastrado",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = UsuarioReqDTO.class)
+                    )
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Usuário cadastrado com sucesso",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = UsuarioResDTO.class)
+                            )
+                    )
+            }
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuarioResDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos na requisição",
-                    content = @Content),
-            @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
-                    content = @Content)
-    })
     @PostMapping("")
     public ResponseEntity<UsuarioResDTO> create (@RequestBody UsuarioReqDTO usuarioReqDTO) {
         return new ResponseEntity<>(
@@ -89,45 +133,57 @@ public class UsuarioController {
     }
 
     @Operation(
-            summary = "Atualizar o cadastro de um usuário",
-            description = "Atualiza as informações de um usuário existente no sistema através do seu ID",
+            summary = "Atualizar usuário",
+            description = "Atualiza as informações de um usuário existente no sistema",
+            tags = {"Usuario"},
             parameters = {
-                    @Parameter(name = "id", description = "ID do usuário que se deseja atualizar", required = true, example = "507f1f77bcf86cd799439011")
+                    @Parameter(name = "id", description = "Código identificador do usuário que será atualizado", required = true, example = "507f1f77bcf86cd799439011")
+            },
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Dados atualizados do usuário",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = UsuarioReqDTO.class)
+                    )
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Usuário atualizado com sucesso",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = UsuarioResDTO.class)
+                            )
+                    )
             }
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuarioResDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos na requisição",
-                    content = @Content),
-            @ApiResponse(responseCode = "404", description = "Usuário não encontrado",
-                    content = @Content),
-            @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
-                    content = @Content)
-    })
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioResDTO> update (@PathVariable String id, @RequestBody UsuarioReqDTO usuarioReqDTO){
         return new ResponseEntity<>(
                 usuarioService.update(id, usuarioReqDTO),
-                HttpStatus.CREATED
+                HttpStatus.OK
         );
     }
 
     @Operation(
-            summary = "Deletar um usuário",
-            description = "Remove um usuário do sistema através do seu ID",
+            summary = "Deletar usuário",
+            description = "Remove um usuário do sistema",
+            tags = {"Usuario"},
             parameters = {
-                    @Parameter(name = "id", description = "ID do usuário que se deseja deletar", required = true, example = "507f1f77bcf86cd799439011")
+                    @Parameter(name = "id", description = "Código identificador do usuário que será deletado", required = true, example = "507f1f77bcf86cd799439011")
+            },
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Usuário deletado com sucesso",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ExemploRespostaDeletarUsuario.class)
+                            )
+                    )
             }
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Usuário deletado com sucesso",
-                    content = @Content),
-            @ApiResponse(responseCode = "404", description = "Usuário não encontrado",
-                    content = @Content),
-            @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
-                    content = @Content)
-    })
     @DeleteMapping("/{id}")
     public ResponseEntity delete (@PathVariable String id) {
         usuarioService.delete(id);
