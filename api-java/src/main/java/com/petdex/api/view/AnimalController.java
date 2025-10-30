@@ -111,27 +111,10 @@ public class AnimalController {
     })
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<AnimalResDTO> create(
-            @RequestParam(required = false) MultipartFile imagem,
-            @RequestParam String nome,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataNascimento,
-            @RequestParam String sexo,
-            @RequestParam Float peso,
-            @RequestParam Boolean castrado,
-            @RequestParam String usuario,
-            @RequestParam String raca) throws IOException {
+           @RequestBody AnimalReqDTO animalDTO) throws IOException {
 
-        // Cria o DTO a partir dos parâmetros
-        AnimalReqDTO animalReqDTO = new AnimalReqDTO();
-        animalReqDTO.setNome(nome);
-        animalReqDTO.setCastrado(castrado);
-        animalReqDTO.setPeso(peso);
-        animalReqDTO.setRaca(raca);
-        animalReqDTO.setDataNascimento(dataNascimento);
-        animalReqDTO.setSexo(sexo);
-        animalReqDTO.setUsuario(usuario);
-
-        return new ResponseEntity<>(
-                animalService.create(animalReqDTO, imagem),
+       return new ResponseEntity<>(
+                animalService.create(animalDTO),
                 HttpStatus.CREATED
         );
     }
@@ -156,10 +139,10 @@ public class AnimalController {
     @PutMapping(value = "/{id}", consumes = "multipart/form-data")
     public ResponseEntity<AnimalResDTO> update(
             @PathVariable String id,
-            @RequestParam(required = false) AnimalReqDTO dto
+            @RequestBody AnimalReqDTO animalDTO
 ) throws IOException {
         return new ResponseEntity<>(
-                animalService.update(id, dto),
+                animalService.update(id, animalDTO),
                 HttpStatus.OK
         );
     }
