@@ -109,7 +109,7 @@ public class AnimalController {
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
                     content = @Content)
     })
-    @PostMapping(consumes = "multipart/form-data")
+    @PostMapping()
     public ResponseEntity<AnimalResDTO> create(
            @RequestBody AnimalReqDTO animalDTO) throws IOException {
 
@@ -136,7 +136,7 @@ public class AnimalController {
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
                     content = @Content)
     })
-    @PutMapping(value = "/{id}", consumes = "multipart/form-data")
+    @PutMapping(value = "/{id}")
     public ResponseEntity<AnimalResDTO> update(
             @PathVariable String id,
             @RequestBody AnimalReqDTO animalDTO
