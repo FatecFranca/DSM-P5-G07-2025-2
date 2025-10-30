@@ -6,6 +6,7 @@ import com.petdex.api.domain.collections.Raca;
 import com.petdex.api.domain.contracts.dto.PageDTO;
 import com.petdex.api.domain.contracts.dto.animal.AnimalReqDTO;
 import com.petdex.api.domain.contracts.dto.animal.AnimalResDTO;
+import com.petdex.api.infrastructure.exception.ResourceNotFoundException;
 import com.petdex.api.infrastructure.mongodb.AnimalRepository;
 import com.petdex.api.infrastructure.mongodb.EspecieRepository;
 import com.petdex.api.infrastructure.mongodb.RacaRepository;
@@ -40,14 +41,12 @@ public class AnimalService implements IAnimalService{
 
     @Autowired
     RacaRepository racaRepository;
-    @Autowired
-    private IAnimalService iAnimalService;
 
     @Override
     public AnimalResDTO findById(String id) {
-        Animal animal = animalRepository.findById(id).orElseThrow(() -> new RuntimeException("Não foi possível encontrar um animal com o ID " + id));
-        Raca raca = racaRepository.findById(animal.getRaca()).orElseThrow(() -> new RuntimeException("Não foi possível encontrar a raça do animal: " + animal.getRaca()));
-        Especie especie = especieRepository.findById(raca.getEspecie()).orElseThrow(()-> new RuntimeException("Não foi possível encontrar a especie do animal: " + raca.getEspecie()));
+        Animal animal = animalRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Animal", "ID", id));
+        Raca raca = racaRepository.findById(animal.getRaca()).orElseThrow(() -> new ResourceNotFoundException("Raça", "ID", animal.getRaca()));
+        Especie especie = especieRepository.findById(raca.getEspecie()).orElseThrow(()-> new ResourceNotFoundException("Espécie", "ID", raca.getEspecie()));
 
         AnimalResDTO animalResDTO = mapper.map(animal, AnimalResDTO.class);
 
@@ -68,11 +67,11 @@ public class AnimalService implements IAnimalService{
 
 
             Raca raca = racaRepository.findById(animal.getRaca())
-                    .orElseThrow(() -> new RuntimeException("Não foi possível encontrar a raça do animal: " + animal.getRaca()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Raça", "ID", animal.getRaca()));
 
 
             Especie especie = especieRepository.findById(raca.getEspecie())
-                    .orElseThrow(() -> new RuntimeException("Não foi possível encontrar a espécie do animal: " + raca.getEspecie()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Espécie", "ID", raca.getEspecie()));
 
             dto.setRacaNome(raca.getNome());
             dto.setEspecieNome(especie.getNome());
@@ -94,7 +93,7 @@ public class AnimalService implements IAnimalService{
     @Override
     public AnimalResDTO update(String id, AnimalReqDTO animalDTO) throws IOException {
 
-        Animal animalUpdate = animalRepository.findById(id).orElseThrow(() -> new RuntimeException("Não foi possível achar o animal com o ID: " + id));
+        Animal animalUpdate = animalRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Animal", "ID", id));
 
         if(animalDTO.getNome() != null) animalUpdate.setNome(animalDTO.getNome());
         if(animalDTO.getCastrado() != null) animalUpdate.setCastrado(animalDTO.getCastrado());
@@ -120,10 +119,10 @@ public class AnimalService implements IAnimalService{
 
         return animalOpt.map(animal -> {
             Raca raca = racaRepository.findById(animal.getRaca())
-                    .orElseThrow(() -> new RuntimeException("Não foi possível encontrar a raça do animal: " + animal.getRaca()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Raça", "ID", animal.getRaca()));
 
             Especie especie = especieRepository.findById(raca.getEspecie())
-                    .orElseThrow(() -> new RuntimeException("Não foi possível encontrar a espécie do animal: " + raca.getEspecie()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Espécie", "ID", raca.getEspecie()));
 
             AnimalResDTO animalResDTO = mapper.map(animal, AnimalResDTO.class);
             animalResDTO.setEspecieNome(especie.getNome());
@@ -136,7 +135,7 @@ public class AnimalService implements IAnimalService{
     @Override
     public String saveImage (String id, MultipartFile file) throws IOException {
 
-        Animal animal = animalRepository.findById(id).orElseThrow(() -> new RuntimeException("Não foi possível achar o animal com o ID: " + id));
+        Animal animal = animalRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Animal", "ID", id));
 
         // Verifica se existe uma imagem antiga e a exclui
         String oldImageUrl = animal.getUrlImagem();
