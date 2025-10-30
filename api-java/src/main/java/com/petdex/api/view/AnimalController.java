@@ -4,6 +4,9 @@ import com.petdex.api.application.services.animal.IAnimalService;
 import com.petdex.api.domain.contracts.dto.PageDTO;
 import com.petdex.api.domain.contracts.dto.animal.AnimalReqDTO;
 import com.petdex.api.domain.contracts.dto.animal.AnimalResDTO;
+import com.petdex.api.swagger.respostas.ExemploRespostaDeletarAnimal;
+import com.petdex.api.swagger.respostas.ExemploRespostaPageAnimal;
+import com.petdex.api.swagger.respostas.ExemploRespostaSalvarImagemAnimal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -41,11 +44,7 @@ public class AnimalController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Animal encontrado com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AnimalResDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Animal não encontrado",
-                    content = @Content),
-            @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
-                    content = @Content)
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AnimalResDTO.class)))
     })
     @GetMapping("/{id}")
     public ResponseEntity<AnimalResDTO> findById (@PathVariable String id) {
@@ -62,9 +61,7 @@ public class AnimalController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de animais retornada com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Page.class))),
-            @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
-                    content = @Content)
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExemploRespostaPageAnimal.class)))
     })
     @GetMapping
     public ResponseEntity<Page<AnimalResDTO>> findAll (@ParameterObject PageDTO pageDTO) {
@@ -83,11 +80,7 @@ public class AnimalController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Animal encontrado com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AnimalResDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Animal não encontrado para o usuário informado",
-                    content = @Content),
-            @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
-                    content = @Content)
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AnimalResDTO.class)))
     })
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<AnimalResDTO> findByUsuarioId(@PathVariable String usuarioId) {
@@ -103,11 +96,7 @@ public class AnimalController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Animal criado com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AnimalResDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos na requisição",
-                    content = @Content),
-            @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
-                    content = @Content)
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AnimalResDTO.class)))
     })
     @PostMapping()
     public ResponseEntity<AnimalResDTO> create(
@@ -128,13 +117,7 @@ public class AnimalController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Animal atualizado com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AnimalResDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos na requisição",
-                    content = @Content),
-            @ApiResponse(responseCode = "404", description = "Animal não encontrado",
-                    content = @Content),
-            @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
-                    content = @Content)
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AnimalResDTO.class)))
     })
     @PutMapping(value = "/{id}")
     public ResponseEntity<AnimalResDTO> update(
@@ -147,6 +130,46 @@ public class AnimalController {
         );
     }
 
+    @Operation(
+            summary = "Salvar imagem do animal",
+            description = "Salva ou atualiza a imagem de um animal no sistema. Se o animal já possuir uma imagem, " +
+                    "a imagem anterior será substituída pela nova. O arquivo é armazenado no servidor e a URL " +
+                    "de acesso é retornada.",
+            tags = {"Animal"},
+            parameters = {
+                    @Parameter(
+                            name = "id",
+                            description = "ID do animal que terá a imagem salva",
+                            required = true,
+                            example = "507f1f77bcf86cd799439011"
+                    ),
+                    @Parameter(
+                            name = "imagem",
+                            description = "Arquivo de imagem do animal. Deve ser enviado como multipart/form-data. " +
+                                    "Formatos comuns aceitos: JPG, JPEG, PNG, GIF.",
+                            required = true,
+                            schema = @Schema(type = "string", format = "binary")
+                    )
+            },
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Arquivo de imagem do animal enviado como multipart/form-data",
+                    required = false,
+                    content = @Content(
+                            mediaType = "multipart/form-data",
+                            schema = @Schema(type = "object")
+                    )
+            )
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Imagem salva com sucesso",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ExemploRespostaSalvarImagemAnimal.class)
+                    )
+            )
+    })
     @PostMapping(value = "/{id}/imagem", consumes = "multipart/form-data")
     public ResponseEntity<String> saveImagem(@PathVariable String id, @RequestParam(required = false) MultipartFile imagem) throws IOException {
         return new ResponseEntity<>(
@@ -164,11 +187,7 @@ public class AnimalController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Animal deletado com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "404", description = "Animal não encontrado",
-                    content = @Content),
-            @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
-                    content = @Content)
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExemploRespostaDeletarAnimal.class)))
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete (@PathVariable String id) {

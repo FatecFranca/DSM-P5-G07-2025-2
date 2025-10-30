@@ -28,17 +28,27 @@ public class AuthController {
 
     @Operation(
             summary = "Realizar login",
-            description = "Autentica um usuário no sistema através de email e senha, retornando um token JWT para acesso às rotas protegidas"
+            description = "Autentica um usuário no sistema através de email e senha, retornando um token JWT para acesso às rotas protegidas. " +
+                         "O token retornado deve ser incluído no header Authorization das próximas requisições no formato: Bearer {token}",
+            tags = {"Autenticação"},
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Credenciais de autenticação do usuário (email e senha)",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = LoginReqDTO.class)
+                    )
+            )
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Login realizado com sucesso, token JWT retornado",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginResDTO.class))),
-            @ApiResponse(responseCode = "401", description = "Credenciais inválidas - email ou senha incorretos",
-                    content = @Content),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos na requisição",
-                    content = @Content),
-            @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
-                    content = @Content)
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Login realizado com sucesso",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = LoginResDTO.class)
+                    )
+            )
     })
     @PostMapping("/login")
     public ResponseEntity<LoginResDTO> login(@Valid @RequestBody LoginReqDTO loginReqDTO) {

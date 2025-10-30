@@ -4,6 +4,8 @@ import com.petdex.api.application.services.raca.RacaService;
 import com.petdex.api.domain.contracts.dto.PageDTO;
 import com.petdex.api.domain.contracts.dto.raca.RacaReqDTO;
 import com.petdex.api.domain.contracts.dto.raca.RacaResDTO;
+import com.petdex.api.swagger.respostas.ExemploRespostaDeletarRaca;
+import com.petdex.api.swagger.respostas.ExemploRespostaPageRaca;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -27,20 +29,23 @@ public class RacaController {
     RacaService racaService;
 
     @Operation(
-            summary = "Buscar raça por ID",
-            description = "Retorna os detalhes de uma raça específica através do seu identificador único",
+            summary = "Consultar raça",
+            description = "Consulta os detalhes de uma raça específica através do seu identificador único",
+            tags = {"Raca"},
             parameters = {
-                    @Parameter(name = "id", description = "ID da raça que se deseja consultar", required = true, example = "507f1f77bcf86cd799439011")
+                    @Parameter(name = "id", description = "Código identificador da raça que será consultada", required = true, example = "507f1f77bcf86cd799439011")
+            },
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Solicitação bem-sucedida",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = RacaResDTO.class)
+                            )
+                    )
             }
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Raça encontrada com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = RacaResDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Raça não encontrada",
-                    content = @Content),
-            @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
-                    content = @Content)
-    })
     @GetMapping("/{id}")
     public ResponseEntity<RacaResDTO> findById(@PathVariable String id) {
         return new ResponseEntity<>(
@@ -49,16 +54,42 @@ public class RacaController {
     }
 
     @Operation(
-            summary = "Listar todas as raças",
-            description = "Retorna uma lista paginada de todas as raças cadastradas no sistema. " +
-                    "É possível ordenar e filtrar os resultados através dos parâmetros de paginação."
+            summary = "Consultar raças",
+            description = "Consulta uma lista paginada de todas as raças cadastradas no sistema",
+            tags = {"Raca"},
+            parameters = {
+                    @Parameter(name = "page", description = "Número da página que será feita a requisição", example = "0", schema = @Schema(implementation = Integer.class)),
+                    @Parameter(name = "size", description = "Quantidade máxima de elementos por página", example = "10", schema = @Schema(implementation = Integer.class)),
+                    @Parameter(
+                            name = "sortBy",
+                            description = "Atributo pelo qual as respostas serão ordenadas.\n\n" +
+                                    "**Atributos disponíveis para ordenação**\n" +
+                                    "- **nome**: Ordena pelo nome da raça\n" +
+                                    "- **id**: Ordena pelo código identificador da raça",
+                            example = "nome",
+                            schema = @Schema(implementation = String.class)
+                    ),
+                    @Parameter(
+                            name = "direction",
+                            description = "Direção da ordenação das respostas.\n\n" +
+                                    "**Direções disponíveis**\n" +
+                                    "- **asc**: Ordena de forma ascendente pelo atributo definido\n" +
+                                    "- **desc**: Ordena de forma descendente pelo atributo definido",
+                            example = "asc",
+                            schema = @Schema(implementation = String.class)
+                    )
+            },
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Solicitação bem-sucedida",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ExemploRespostaPageRaca.class)
+                            )
+                    )
+            }
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de raças retornada com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Page.class))),
-            @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
-                    content = @Content)
-    })
     @GetMapping()
     public ResponseEntity<Page<RacaResDTO>> findAll (@ParameterObject PageDTO pageDTO) {
         return new ResponseEntity<>(
@@ -68,17 +99,28 @@ public class RacaController {
     }
 
     @Operation(
-            summary = "Cadastrar uma nova raça",
-            description = "Cria uma nova raça no sistema. É necessário informar o nome da raça e a espécie à qual ela pertence."
+            summary = "Cadastrar raça",
+            description = "Cadastra uma nova raça no sistema",
+            tags = {"Raca"},
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Dados da raça que será cadastrada",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = RacaReqDTO.class)
+                    )
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Raça cadastrada com sucesso",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = RacaResDTO.class)
+                            )
+                    )
+            }
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Raça criada com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = RacaResDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos na requisição",
-                    content = @Content),
-            @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
-                    content = @Content)
-    })
     @PostMapping
     public ResponseEntity<RacaResDTO> create (@RequestBody RacaReqDTO racaReqDTO) {
         return new ResponseEntity(
@@ -89,45 +131,57 @@ public class RacaController {
 
 
     @Operation(
-            summary = "Atualizar o cadastro de uma raça",
-            description = "Atualiza as informações de uma raça existente no sistema através do seu ID",
+            summary = "Atualizar raça",
+            description = "Atualiza as informações de uma raça existente no sistema",
+            tags = {"Raca"},
             parameters = {
-                    @Parameter(name = "id", description = "ID da raça que se deseja atualizar", required = true, example = "507f1f77bcf86cd799439011")
+                    @Parameter(name = "id", description = "Código identificador da raça que será atualizada", required = true, example = "507f1f77bcf86cd799439011")
+            },
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Dados atualizados da raça",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = RacaReqDTO.class)
+                    )
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Raça atualizada com sucesso",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = RacaResDTO.class)
+                            )
+                    )
             }
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Raça atualizada com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = RacaResDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos na requisição",
-                    content = @Content),
-            @ApiResponse(responseCode = "404", description = "Raça não encontrada",
-                    content = @Content),
-            @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
-                    content = @Content)
-    })
     @PutMapping("/{id}")
     public ResponseEntity<RacaResDTO> update (@PathVariable String id, @RequestBody RacaReqDTO racaReqDTO){
         return new ResponseEntity<>(
                 racaService.update(id, racaReqDTO),
-                HttpStatus.CREATED
+                HttpStatus.OK
         );
     }
 
     @Operation(
-            summary = "Deletar uma raça",
-            description = "Remove uma raça do sistema através do seu ID",
+            summary = "Deletar raça",
+            description = "Remove uma raça do sistema",
+            tags = {"Raca"},
             parameters = {
-                    @Parameter(name = "id", description = "ID da raça que se deseja deletar", required = true, example = "507f1f77bcf86cd799439011")
+                    @Parameter(name = "id", description = "Código identificador da raça que será deletada", required = true, example = "507f1f77bcf86cd799439011")
+            },
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Raça deletada com sucesso",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ExemploRespostaDeletarRaca.class)
+                            )
+                    )
             }
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Raça deletada com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "404", description = "Raça não encontrada",
-                    content = @Content),
-            @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
-                    content = @Content)
-    })
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete (@PathVariable String id) {
         racaService.delete(id);

@@ -8,7 +8,6 @@ import com.petdex.api.domain.contracts.dto.auth.LoginReqDTO;
 import com.petdex.api.domain.contracts.dto.auth.LoginResDTO;
 import com.petdex.api.infrastructure.mongodb.AnimalRepository;
 import com.petdex.api.infrastructure.mongodb.UsuarioRepository;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,11 +53,10 @@ public class AuthService implements IAuthService {
         String token = jwtService.generateToken(usuario.getId(), usuario.getEmail());
 
         // Busca o animal vinculado ao usuário (se existir)
-        // Converte String para ObjectId
-        ObjectId usuarioObjectId = new ObjectId(usuario.getId());
-        Optional<Animal> animalOpt = animalRepository.findByUsuario(usuarioObjectId);
+        Optional<Animal> animalOpt = animalRepository.findByUsuario(usuario.getId());
         String animalId = animalOpt.map(Animal::getId).orElse(null);
         String petName = animalOpt.map(Animal::getNome).orElse(null);
+        String animalImagemUrl = animalOpt.map(Animal::getUrlImagem).orElse(null);
 
         // Cria e retorna a resposta do login
         return new LoginResDTO(
@@ -67,7 +65,8 @@ public class AuthService implements IAuthService {
                 usuario.getId(),
                 usuario.getNome(),
                 usuario.getEmail(),
-                petName
+                petName,
+                animalImagemUrl
         );
     }
 }
