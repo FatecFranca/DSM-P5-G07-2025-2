@@ -1,3 +1,4 @@
+// lib/services/auth_service.dart
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -5,87 +6,75 @@ import 'package:PetDex/models/auth_response.dart';
 import 'package:PetDex/services/auth_storage.dart';
 
 /// Serviço de autenticação responsável por:
-/// - Realizar login automático com credenciais do .env
-/// - Gerenciar token de autenticação
-/// - Fornecer token para requisições HTTP
+/// - Fazer login com email/senha (via rota POST /auth/login)
+/// - Gerenciar token de autenticação em memória
+/// - Persistir dados de autenticação via AuthStorage (SharedPreferences)
 class AuthService {
   String get _javaApiBaseUrl => dotenv.env['API_JAVA_URL']!;
-  
+
   final AuthStorage _authStorage = AuthStorage();
   AuthResponse? _currentAuthResponse;
 
-  /// Inicializa o serviço de autenticação
-  /// Deve ser chamado no main.dart antes de usar qualquer outro serviço
-  /// SEMPRE realiza login ao reiniciar o app para garantir token válido
+  /// Inicializa o storage e carrega dados persistidos (se houver)
+  /// Deve ser chamado no main.dart antes de usar qualquer outro serviço.
   Future<void> init() async {
     try {
-      debugPrint('🔐 Inicializando AuthService...');
-
-      // Inicializa o armazenamento
+      _debug('Inicializando AuthService...');
       await _authStorage.init();
 
-      // SEMPRE realiza login ao reiniciar o app para garantir token válido
-      debugPrint('🔄 Realizando login automático ao iniciar o app...');
-      await _performAutoLogin();
-
+      // Carrega credenciais/response salvos (se houver)
+      final saved = _authStorage.getAuthResponse();
+      if (saved != null) {
+        _currentAuthResponse = saved;
+        _debug('Credenciais carregadas do storage. usuario=${saved.email}');
+      } else {
+        _debug('Nenhuma credencial salva encontrada.');
+      }
     } catch (e) {
-      debugPrint('❌ Erro ao inicializar AuthService: $e');
+      _debug('Erro ao inicializar AuthService: $e');
       rethrow;
     }
   }
 
-  /// Realiza login automático usando credenciais do .env
-  Future<void> _performAutoLogin() async {
+  /// Faz login com email e senha digitados pelo usuário.
+  ///
+  /// Retorna true quando login for bem-sucedido (status 200) e os dados forem salvos.
+  /// Retorna false quando a API devolver erro (ex.: 401).
+  Future<bool> login(String email, String senha) async {
     try {
-      final email = dotenv.env['LOGIN_EMAIL'];
-      final senha = dotenv.env['LOGIN_SENHA'];
-      
-      if (email == null || email.isEmpty || senha == null || senha.isEmpty) {
-        throw Exception('Credenciais de login não configuradas no .env');
-      }
-      
-      debugPrint('🔑 Tentando login com email: $email');
-      
+      _debug('Tentando login com email: $email');
+
       final response = await http.post(
         Uri.parse('$_javaApiBaseUrl/auth/login'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'email': email,
-          'senha': senha,
-        }),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'senha': senha}),
       );
-      
+
       if (response.statusCode == 200) {
-        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        final Map<String, dynamic> json = jsonDecode(response.body) as Map<String, dynamic>;
         _currentAuthResponse = AuthResponse.fromJson(json);
 
-        // Salva os dados de autenticação
+        // Salva em storage para persistência
         await _authStorage.saveAuthData(_currentAuthResponse!);
 
-        debugPrint('✅ Login automático realizado com sucesso');
+        _debug('Login realizado com sucesso. userId=${_currentAuthResponse!.userId} animalId=${_currentAuthResponse!.animalId}');
+        return true;
       } else {
-        throw Exception(
-          'Falha no login automático. Status: ${response.statusCode}. '
-          'Resposta: ${response.body}'
-        );
+        _debug('Falha no login. status=${response.statusCode} body=${response.body}');
+        return false;
       }
     } catch (e) {
-      debugPrint('❌ Erro ao realizar login automático: $e');
-      rethrow;
+      _debug('Erro ao realizar login: $e');
+      return false;
     }
   }
 
   /// Retorna o token de autenticação atual
-  /// Deve ser usado em todas as requisições HTTP
   String? getToken() {
-    final token = _currentAuthResponse?.token ?? _authStorage.getToken();
-    return token;
+    return _currentAuthResponse?.token ?? _authStorage.getToken();
   }
 
   /// Retorna o ID do animal do usuário autenticado
-  /// Deve ser usado em rotas que requerem o ID do animal
   String? getAnimalId() {
     return _currentAuthResponse?.animalId ?? _authStorage.getAnimalId();
   }
@@ -117,38 +106,45 @@ class AuthService {
 
   /// Verifica se o usuário está autenticado
   bool isAuthenticated() {
-    return getToken() != null && getToken()!.isNotEmpty;
+    final token = getToken();
+    return token != null && token.isNotEmpty;
   }
 
   /// Realiza logout limpando os dados de autenticação
   Future<void> logout() async {
     try {
-      debugPrint('🚪 Realizando logout...');
+      _debug('Realizando logout...');
       _currentAuthResponse = null;
       await _authStorage.clearAuthData();
-      debugPrint('✅ Logout realizado com sucesso');
+      _debug('Logout realizado com sucesso');
     } catch (e) {
-      debugPrint('❌ Erro ao realizar logout: $e');
+      _debug('Erro ao realizar logout: $e');
       rethrow;
     }
   }
 
-  /// Realiza novo login (útil para refresh de token)
+  /// Tenta "relogar" quando uma requisição recebeu 401.
+  /// Neste projeto não temos refresh token — então tentamos recarregar os dados do storage.
+  /// Se não houver dados persistidos, lança uma exceção para o caller decidir (ex.: forçar login).
   Future<void> relogin() async {
     try {
-      debugPrint('🔄 Realizando novo login...');
-      _currentAuthResponse = null;
-      await _authStorage.clearAuthData();
-      await _performAutoLogin();
+      _debug('Tentando relogin (recarregar dados do storage)...');
+      final saved = _authStorage.getAuthResponse();
+      if (saved != null && saved.token.isNotEmpty) {
+        _currentAuthResponse = saved;
+        _debug('Credenciais recarregadas do storage, token reaplicado.');
+        return;
+      }
+      // Não temos como relogar automaticamente aqui
+      throw Exception('Nenhum dado de login salvo para relogar.');
     } catch (e) {
-      debugPrint('❌ Erro ao realizar novo login: $e');
+      _debug('Erro em relogin: $e');
       rethrow;
     }
   }
 }
 
-// Função auxiliar para debug
-void debugPrint(String message) {
+void _debug(String message) {
+  // evita colisão com flutter.debugPrint, mantém log simples
   print('[AuthService] $message');
 }
-
