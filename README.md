@@ -32,8 +32,8 @@ Repositório do **Grupo 07** do Projeto Interdisciplinar do **5º semestre** do 
 ## 🔗 Acesso ao Projeto
 
 * **🎨 FIGMA:** [Protótipo da Interface](https://www.figma.com/design/BZOrhXmiYHgesIZf1Ex3Pw/PetDex.?node-id=0-1&t=8nuIhASiCYaiae4f-1)
-* **🐍 API de Análise (FastAPI - Python):** [https://petdex-api-estatistica.onrender.com/docs](https://petdex-api-estatistica.onrender.com/docs)
-* **☕ API Principal (Java - Spring Boot):** [https://petdex-api-d75e.onrender.com/swagger](https://petdex-api-d75e.onrender.com/swagger)
+* **🐍 API de Análise (FastAPI - Python):** [https://api-python-petdex.onrender.com/docs](https://api-python-petdex.onrender.com/docs)
+* **☕ API Principal (Java - Spring Boot):** [https://api-java-petdex.onrender.com/swagger-ui/index.html](https://api-java-petdex.onrender.com/swagger-ui/index.html)
 
 ---
 
