@@ -27,7 +27,7 @@ Repositório do **Grupo 07** do Projeto Interdisciplinar do **4º semestre** do 
 
 ## 🔗 Acesso ao Projeto
 
-* **💻 Aplicação Web:** [https://petdex-puce.vercel.app/welcome](https://petdex-puce.vercel.app/welcome)
+* **💻 FIGMA:** [https://petdex-puce.vercel.app/welcome](https://www.figma.com/design/BZOrhXmiYHgesIZf1Ex3Pw/PetDex.?node-id=0-1&t=8nuIhASiCYaiae4f-1)
 * **🐍 Documentação da API de Análise (Python):** [https://petdex-api-estatistica.onrender.com/docs](https://petdex-api-estatistica.onrender.com/docs)
 * **☕ Documentação da API Principal (Java):** [https://petdex-api-d75e.onrender.com/swagger](https://petdex-api-d75e.onrender.com/swagger)
 
@@ -44,13 +44,13 @@ O **PetDex** é uma solução completa para o monitoramento da saúde e seguran�
   <img src="./docs/img/petdex-coleira-3.jpg" alt="Coleira PetDex - 3" width="49%" />
 </p>
 
-As informações são enviadas para um sistema integrado, acessível através de uma **plataforma web** e um **aplicativo móvel**, onde o dono pode acompanhar a saúde e a localização do seu pet em tempo real. O projeto também inclui uma API de análise de dados que fornece estatísticas, correlações e até previsões sobre a frequência cardíaca do animal com base em seus movimentos.
+As informações são enviadas para um sistema integrado, acessível através de um **aplicativo móvel**, onde o dono pode acompanhar a saúde e a localização do seu pet em tempo real. O projeto também inclui uma API de análise de dados que fornece estatísticas, correlações e até previsões sobre a frequência cardíaca do animal com base em seus movimentos.
 
 Para a validação do projeto, foi criado um protótipo 3D e realizamos testes de coleta de dados reais com nosso Pet chamado Uno.
 
 ## 📱 Nossa Plataforma
 
-A plataforma PetDex, disponível em versão web e mobile, oferece uma experiência completa para o usuário acompanhar seu pet de onde estiver. Com uma interface intuitiva, é possível acessar dados vitais e a localização em tempo real.
+O aplicativo da PetDex, oferece uma experiência completa para o usuário acompanhar seu pet de onde estiver. Com uma interface intuitiva, é possível acessar dados vitais e a localização em tempo real.
 
 ### **Funcionalidades**
 
@@ -120,8 +120,7 @@ O projeto foi construído com uma arquitetura de microsserviços e tecnologias m
 
 ### **Frontend**
 
-* **Aplicação Web:** Next.JS
-* **Aplicativo Móvel:** React Native
+* **Aplicativo Móvel:** Flutter
 
 ---
 
