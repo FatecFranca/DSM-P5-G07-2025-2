@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:PetDex/main.dart';
+import 'package:PetDex/screens/app_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -47,7 +49,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
 
     try {
-      // 1️⃣ CADASTRAR USUÁRIO
+      // CADASTRAR USUÁRIO
       final userResponse = await http.post(
         Uri.parse('$_javaApiBaseUrl/usuarios'),
         headers: {'Content-Type': 'application/json'},
@@ -59,83 +61,98 @@ class _SignUpScreenState extends State<SignUpScreen> {
           "senha": _senhaController.text.trim(),
         }),
       );
-
-      if (userResponse.statusCode != 201) {
-        throw Exception("Erro ao criar usuário (${userResponse.statusCode})");
-      }
-
+      debugPrint(userResponse.body);
+      
       final usuario = jsonDecode(userResponse.body);
       final String usuarioId = usuario["id"];
 
       // 2️⃣ CADASTRAR ANIMAL
-      final animalResponse = await http.post(
-        Uri.parse('$_javaApiBaseUrl/animais'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          "nome": "Rex",
-          "dataNascimento": "2022-01-01",
-          "sexo": "Macho",
-          "peso": 10.0,
-          "castrado": false,
-          "usuario": usuarioId,
-          "raca": "507f1f77bcf86cd799439011",
-        }),
-      );
+      // final animalResponse = await http.post(
+      //   Uri.parse('www.mudarurl.com.br/animais'),
+      //   // Uri.parse('$_javaApiBaseUrl/animais'),
+      //   headers: {'Content-Type': 'application/json'},
+      //   body: jsonEncode({
+      //     "nome": "Rex",
+      //     "dataNascimento": "2022-01-01",
+      //     "sexo": "Macho",
+      //     "peso": 10.0,
+      //     "castrado": false,
+      //     "usuario": usuarioId,
+      //     "raca": "507f1f77bcf86cd799439011",
+      //   }),
+      // );
 
-      if (animalResponse.statusCode != 201) {
-        throw Exception("Erro ao cadastrar animal (${animalResponse.statusCode})");
-      }
+      // if (animalResponse.statusCode != 201) {
+      //   throw Exception("Erro ao cadastrar animal (${animalResponse.statusCode})");
+      // }
 
-      final animal = jsonDecode(animalResponse.body);
-      final String animalId = animal["id"];
+      // final animal = jsonDecode(animalResponse.body);
+      // final String animalId = animal["id"];
 
-      // 3️⃣ ENVIAR IMAGEM DO ANIMAL (caso o usuário tenha selecionado)
-      if (_animalImage != null) {
-        final imageRequest = http.MultipartRequest(
-          'POST',
-          Uri.parse('$_javaApiBaseUrl/animais/$animalId/imagem'),
-        );
-        imageRequest.files.add(await http.MultipartFile.fromPath('file', _animalImage!.path));
-        final imageResponse = await imageRequest.send();
+      // // 3️⃣ ENVIAR IMAGEM DO ANIMAL (caso o usuário tenha selecionado)
+      // if (_animalImage != null) {
+      //   final imageRequest = http.MultipartRequest(
+      //     'POST',
+      //     // Uri.parse('$_javaApiBaseUrl/animais/$animalId/imagem'),
+      //     Uri.parse('www.mudarurl.com.br/animais/$animalId/imagem'),
+      //   );
+      //   imageRequest.files.add(await http.MultipartFile.fromPath('file', _animalImage!.path));
+      //   final imageResponse = await imageRequest.send();
 
-        if (imageResponse.statusCode != 201) {
-          throw Exception("Erro ao enviar imagem (${imageResponse.statusCode})");
-        }
-      }
+      //   if (imageResponse.statusCode != 201) {
+      //     throw Exception("Erro ao enviar imagem (${imageResponse.statusCode})");
+      //   }
+      // }
 
-      // 4️⃣ CRIAR COLEIRA
-      final coleiraResponse = await http.post(
-        Uri.parse('$_javaApiBaseUrl/coleiras'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          "descricao": "Coleira GPS Azul",
-          "animal": animalId,
-        }),
-      );
+      // // 4️⃣ CRIAR COLEIRA
+      // final coleiraResponse = await http.post(
+      //   Uri.parse('$_javaApiBaseUrl/coleiras'),
+      //   headers: {'Content-Type': 'application/json'},
+      //   body: jsonEncode({
+      //     "descricao": "Coleira GPS Azul",
+      //     "animal": animalId,
+      //   }),
+      // );
 
-      if (coleiraResponse.statusCode != 201) {
-        throw Exception("Erro ao criar coleira (${coleiraResponse.statusCode})");
-      }
+      // if (coleiraResponse.statusCode != 201) {
+      //   throw Exception("Erro ao criar coleira (${coleiraResponse.statusCode})");
+      // }
 
       // 5️⃣ LOGIN AUTOMÁTICO
-      final loginResponse = await http.post(
-        Uri.parse('$_javaApiBaseUrl/auth/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          "email": _emailController.text.trim(),
-          "senha": _senhaController.text.trim(),
-        }),
-      );
+      // final loginResponse = await http.post(
+      //   Uri.parse('$_javaApiBaseUrl/auth/login'),
+      //   headers: {'Content-Type': 'application/json'},
+      //   body: jsonEncode({
+      //     "email": _emailController.text.trim(),
+      //     "senha": _senhaController.text.trim(),
+      //   }),
+      // );
 
-      if (loginResponse.statusCode != 200) {
-        throw Exception("Erro ao autenticar usuário (${loginResponse.statusCode})");
-      }
+      await Future.delayed(Duration(seconds: 2));
+
+      debugPrint(_emailController.text.trim());
+      debugPrint(_senhaController.text.trim());
+
+      final bool success = await authService.login(
+        _emailController.text.trim(),
+        _senhaController.text.trim(),
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Cadastro realizado com sucesso!")),
         );
-        Navigator.pushReplacementNamed(context, '/home');
+        if (success) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const AppShell()),
+            (route) => false,
+          );
+        } else {
+          setState(() {
+            _errorMessage = 'E-mail ou senha inválidos. Tente novamente.';
+          });
+        }
       }
     } catch (e) {
       setState(() {
@@ -228,20 +245,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // --- IMAGEM DO ANIMAL ---
-                    TextButton.icon(
-                      onPressed: _pickImage,
-                      icon: const Icon(Icons.add_a_photo, color: AppColors.orange900),
-                      label: Text(
-                        _animalImage == null ? 'Selecionar imagem do animal' : 'Imagem selecionada!',
-                        style: GoogleFonts.poppins(
-                          color: AppColors.orange900,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
                     if (_errorMessage != null)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 10.0),
@@ -257,7 +260,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                     _isLoading
                         ? const Center(
-                            child: CircularProgressIndicator(color: AppColors.orange),
+                            child: CircularProgressIndicator(
+                              color: AppColors.orange,
+                            ),
                           )
                         : ElevatedButton(
                             style: ElevatedButton.styleFrom(
@@ -331,11 +336,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
       style: GoogleFonts.poppins(color: AppColors.black400, fontSize: 16),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: GoogleFonts.poppins(
-          color: AppColors.black200,
-          fontSize: 16,
+        hintStyle: GoogleFonts.poppins(color: AppColors.black200, fontSize: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 16,
+          horizontal: 24,
         ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
           borderSide: const BorderSide(color: AppColors.orange, width: 2.0),
