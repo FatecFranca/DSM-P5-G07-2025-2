@@ -8,6 +8,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:PetDex/theme/app_theme.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:PetDex/screens/animal_sign_up_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -64,69 +65,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
       debugPrint(userResponse.body);
       
       final usuario = jsonDecode(userResponse.body);
-      final String usuarioId = usuario["id"];
+final String usuarioId = usuario["id"];
 
-      // 2️⃣ CADASTRAR ANIMAL
-      // final animalResponse = await http.post(
-      //   Uri.parse('www.mudarurl.com.br/animais'),
-      //   // Uri.parse('$_javaApiBaseUrl/animais'),
-      //   headers: {'Content-Type': 'application/json'},
-      //   body: jsonEncode({
-      //     "nome": "Rex",
-      //     "dataNascimento": "2022-01-01",
-      //     "sexo": "Macho",
-      //     "peso": 10.0,
-      //     "castrado": false,
-      //     "usuario": usuarioId,
-      //     "raca": "507f1f77bcf86cd799439011",
-      //   }),
-      // );
-
-      // if (animalResponse.statusCode != 201) {
-      //   throw Exception("Erro ao cadastrar animal (${animalResponse.statusCode})");
-      // }
-
-      // final animal = jsonDecode(animalResponse.body);
-      // final String animalId = animal["id"];
-
-      // // 3️⃣ ENVIAR IMAGEM DO ANIMAL (caso o usuário tenha selecionado)
-      // if (_animalImage != null) {
-      //   final imageRequest = http.MultipartRequest(
-      //     'POST',
-      //     // Uri.parse('$_javaApiBaseUrl/animais/$animalId/imagem'),
-      //     Uri.parse('www.mudarurl.com.br/animais/$animalId/imagem'),
-      //   );
-      //   imageRequest.files.add(await http.MultipartFile.fromPath('file', _animalImage!.path));
-      //   final imageResponse = await imageRequest.send();
-
-      //   if (imageResponse.statusCode != 201) {
-      //     throw Exception("Erro ao enviar imagem (${imageResponse.statusCode})");
-      //   }
-      // }
-
-      // // 4️⃣ CRIAR COLEIRA
-      // final coleiraResponse = await http.post(
-      //   Uri.parse('$_javaApiBaseUrl/coleiras'),
-      //   headers: {'Content-Type': 'application/json'},
-      //   body: jsonEncode({
-      //     "descricao": "Coleira GPS Azul",
-      //     "animal": animalId,
-      //   }),
-      // );
-
-      // if (coleiraResponse.statusCode != 201) {
-      //   throw Exception("Erro ao criar coleira (${coleiraResponse.statusCode})");
-      // }
-
-      // 5️⃣ LOGIN AUTOMÁTICO
-      // final loginResponse = await http.post(
-      //   Uri.parse('$_javaApiBaseUrl/auth/login'),
-      //   headers: {'Content-Type': 'application/json'},
-      //   body: jsonEncode({
-      //     "email": _emailController.text.trim(),
-      //     "senha": _senhaController.text.trim(),
-      //   }),
-      // );
+    // Redirecionar para tela de cadastro do animal
+    if (mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AnimalSignUpScreen(usuarioId: usuarioId),
+        ),
+      );
+      return; 
+    }
 
       await Future.delayed(Duration(seconds: 2));
 
