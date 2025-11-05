@@ -1,9 +1,10 @@
-// lib/screens/animal_sign_up_screen.dart
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:PetDex/theme/app_theme.dart';
 import 'package:PetDex/screens/app_shell.dart';
 import 'package:PetDex/services/auth_service.dart';
@@ -24,11 +25,23 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
 
   String? _sexoSelecionado;
   bool _castrado = false;
-  String? _racaId; // pode vir de dropdown depois
+  String? _racaId;
   bool _isLoading = false;
   String? _errorMessage;
+  File? _animalImage;
 
   String get _javaApiBaseUrl => dotenv.env['API_JAVA_URL']!;
+
+  // 📸 Selecionar imagem
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _animalImage = File(pickedFile.path);
+      });
+    }
+  }
 
   Future<void> _cadastrarAnimal() async {
     if (!_formKey.currentState!.validate()) return;
@@ -47,14 +60,12 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
         throw Exception("Token JWT não encontrado. Faça login novamente.");
       }
 
-      // ✅ Log para verificar se o token está sendo recuperado corretamente
-      print('[AnimalSignUp] Token atual: $token');
-
+      // 🐾 Cadastrar o animal
       final response = await http.post(
         Uri.parse('$_javaApiBaseUrl/animais'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token', // ✅ token JWT
+          'Authorization': 'Bearer $token',
         },
         body: jsonEncode({
           "nome": _nomeController.text.trim(),
@@ -63,11 +74,33 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
           "peso": double.parse(_pesoController.text.trim()),
           "castrado": _castrado,
           "usuario": widget.usuarioId,
-          "raca": _racaId ?? "507f1f77bcf86cd799439011", // temporário
+          "raca": _racaId ?? "507f1f77bcf86cd799439011",
         }),
       );
 
       if (response.statusCode == 201) {
+        final jsonResponse = jsonDecode(response.body);
+        final animalId = jsonResponse["id"];
+
+        // 🖼️ Se tiver imagem, envia
+        if (_animalImage != null && animalId != null) {
+          final uploadUrl = Uri.parse('$_javaApiBaseUrl/animais/$animalId/imagem');
+          final request = http.MultipartRequest('POST', uploadUrl)
+            ..headers['Authorization'] = 'Bearer $token'
+            ..files.add(await http.MultipartFile.fromPath(
+              'imagem',
+              _animalImage!.path,
+            ));
+
+          final uploadResponse = await request.send();
+
+          if (uploadResponse.statusCode == 200) {
+            print('[AnimalSignUp] Imagem enviada com sucesso!');
+          } else {
+            print('[AnimalSignUp] Falha ao enviar imagem: ${uploadResponse.statusCode}');
+          }
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Animal cadastrado com sucesso!")),
         );
@@ -122,6 +155,40 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // 📸 Imagem do animal
+                Center(
+                  child: Column(
+                    children: [
+                      GestureDetector(
+                        onTap: _pickImage,
+                        child: CircleAvatar(
+                          radius: 60,
+                          backgroundColor: AppColors.orange200,
+                          backgroundImage: _animalImage != null
+                              ? FileImage(_animalImage!)
+                              : null,
+                          child: _animalImage == null
+                              ? const Icon(Icons.camera_alt,
+                                  size: 40, color: AppColors.orange900)
+                              : null,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextButton(
+                        onPressed: _pickImage,
+                        child: Text(
+                          "Selecionar Imagem",
+                          style: GoogleFonts.poppins(
+                            color: AppColors.orange900,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
                 _buildLabel('Nome do Animal', Icons.pets),
                 const SizedBox(height: 8),
                 _buildTextField(
