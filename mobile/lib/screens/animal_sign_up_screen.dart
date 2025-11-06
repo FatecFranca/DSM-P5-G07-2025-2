@@ -81,6 +81,7 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
       if (response.statusCode == 201) {
         final jsonResponse = jsonDecode(response.body);
         final animalId = jsonResponse["id"];
+        print('[AnimalSignUp] Animal criado com ID: $animalId');
 
         // 🖼️ Se tiver imagem, envia
         if (_animalImage != null && animalId != null) {
@@ -93,13 +94,15 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
             ));
 
           final uploadResponse = await request.send();
-
           if (uploadResponse.statusCode == 200) {
             print('[AnimalSignUp] Imagem enviada com sucesso!');
           } else {
             print('[AnimalSignUp] Falha ao enviar imagem: ${uploadResponse.statusCode}');
           }
         }
+
+        // 🐕‍🦺 Criar e vincular coleira automaticamente
+        await _criarColeiraParaAnimal(token, animalId);
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Animal cadastrado com sucesso!")),
@@ -125,6 +128,36 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
       setState(() => _errorMessage = "Erro inesperado: $e");
     } finally {
       setState(() => _isLoading = false);
+    }
+  }
+
+  /// 🔗 Cria uma coleira vinculada ao animal recém cadastrado
+  Future<void> _criarColeiraParaAnimal(String token, String? animalId) async {
+    if (animalId == null) {
+      print('[Coleira] ID do animal é nulo, não foi possível criar a coleira.');
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('$_javaApiBaseUrl/coleiras'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          "descricao": "Coleira GPS padrão",
+          "animal": animalId,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        print('[Coleira] Coleira criada e vinculada ao animal $animalId com sucesso!');
+      } else {
+        print('[Coleira] Falha ao criar coleira: ${response.statusCode} ${response.body}');
+      }
+    } catch (e) {
+      print('[Coleira] Erro ao criar coleira: $e');
     }
   }
 
