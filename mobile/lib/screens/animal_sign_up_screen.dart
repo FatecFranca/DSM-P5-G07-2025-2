@@ -56,9 +56,14 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
       await authService.init();
       final token = authService.getToken();
 
+      print('[AnimalSignUp] Token atual recuperado: $token');
+
       if (token == null || token.isEmpty) {
         throw Exception("Token JWT não encontrado. Faça login novamente.");
       }
+
+      // 🐾 Delay de segurança para garantir inicialização completa
+      await Future.delayed(const Duration(milliseconds: 500));
 
       // 🐾 Cadastrar o animal
       final response = await http.post(
@@ -78,31 +83,40 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
         }),
       );
 
-      if (response.statusCode == 201) {
-        final jsonResponse = jsonDecode(response.body);
-        final animalId = jsonResponse["id"];
-        print('[AnimalSignUp] Animal criado com ID: $animalId');
+      print('[AnimalSignUp] Resposta do servidor (${response.statusCode}): ${response.body}');
 
-        // 🖼️ Se tiver imagem, envia
-        if (_animalImage != null && animalId != null) {
-          final uploadUrl = Uri.parse('$_javaApiBaseUrl/animais/$animalId/imagem');
-          final request = http.MultipartRequest('POST', uploadUrl)
-            ..headers['Authorization'] = 'Bearer $token'
-            ..files.add(await http.MultipartFile.fromPath(
-              'imagem',
-              _animalImage!.path,
-            ));
+     if (response.statusCode == 201) {
+  final jsonResponse = jsonDecode(response.body);
+  final animalId = jsonResponse["id"];
+  print('[AnimalSignUp] Animal criado com ID: $animalId');
 
-          final uploadResponse = await request.send();
-          if (uploadResponse.statusCode == 200) {
-            print('[AnimalSignUp] Imagem enviada com sucesso!');
-          } else {
-            print('[AnimalSignUp] Falha ao enviar imagem: ${uploadResponse.statusCode}');
-          }
-        }
+  // 🔗 Atualiza o usuário com o animal criado
+  await authService.updateUserWithAnimal(widget.usuarioId, animalId);
+  print('[AnimalSignUp] Usuário atualizado com o animal vinculado.');
 
-        // 🐕‍🦺 Criar e vincular coleira automaticamente
-        await _criarColeiraParaAnimal(token, animalId);
+  // 🖼️ Se tiver imagem, envia
+  if (_animalImage != null && animalId != null) {
+    final uploadUrl = Uri.parse('$_javaApiBaseUrl/animais/$animalId/imagem');
+    final request = http.MultipartRequest('POST', uploadUrl)
+      ..headers['Authorization'] = 'Bearer $token'
+      ..files.add(await http.MultipartFile.fromPath(
+        'imagem',
+        _animalImage!.path,
+      ));
+
+    final uploadResponse = await request.send();
+    if (uploadResponse.statusCode == 200) {
+      print('[AnimalSignUp] Imagem enviada com sucesso!');
+    } else {
+      print('[AnimalSignUp] Falha ao enviar imagem: ${uploadResponse.statusCode}');
+    }
+  }
+
+  // 🐕‍🦺 Criar e vincular coleira automaticamente
+  await _criarColeiraParaAnimal(token, animalId);
+
+        // 🕒 Delay para estabilidade antes da navegação
+        await Future.delayed(const Duration(milliseconds: 700));
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Animal cadastrado com sucesso!")),
@@ -114,6 +128,10 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
           (route) => false,
         );
       } else if (response.statusCode == 401) {
+        // Se o token estiver expirado, tenta relogin
+        print('[AnimalSignUp] Token inválido, tentando relogar...');
+        await authService.relogin();
+
         setState(() {
           _errorMessage =
               "Usuário não autenticado. Faça login novamente.\n${response.body}";
@@ -126,6 +144,7 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
       }
     } catch (e) {
       setState(() => _errorMessage = "Erro inesperado: $e");
+      print('[AnimalSignUp] Erro: $e');
     } finally {
       setState(() => _isLoading = false);
     }
