@@ -77,7 +77,7 @@ O **aplicativo PetDex**, desenvolvido em **Flutter**, entrega uma experiência c
   <img src="./docs/img/tela2.gif" alt="Tela de Saúde" width="250px" />
 </p>
 <p align="center">
-  <em><b>Tela de Saúde (Figura 9b):</b> exibe a média de batimentos diários e análises estatísticas completas (média, mediana, moda, desvio padrão, assimetria e curtose).</em>
+  <em><b>Tela de Saúde (Figura 9b):</b> exibe a média de batimentos diários, por data e análises estatísticas referente ao último batimento registrado.</em>
 </p>
 
 ---
@@ -86,7 +86,7 @@ O **aplicativo PetDex**, desenvolvido em **Flutter**, entrega uma experiência c
   <img src="./docs/img/tela3.gif" alt="Tela de Checkup" width="250px" />
 </p>
 <p align="center">
-  <em><b>Tela Checkup Inteligente (Figura 9c):</b> o tutor responde sintomas observados, e a IA da PetDex sugere possíveis condições com base nos dados coletados — sem emitir diagnósticos, apenas orientações preventivas.</em>
+  <em><b>Tela Checkup Inteligente (Figura 9c):</b> o tutor responde sintomas observados, e a IA da PetDex sugere possíveis condições com base nos dados coletados mas sem emitir diagnósticos, apenas orientações preventivas.</em>
 </p>
 
 ---
@@ -95,7 +95,7 @@ O **aplicativo PetDex**, desenvolvido em **Flutter**, entrega uma experiência c
   <img src="./docs/img/tela4.gif" alt="Tela de Localização" width="250px" />
 </p>
 <p align="center">
-  <em><b>Tela de Localização (Figura 9d):</b> mostra o mapa em tempo real e permite configurar uma <b>área segura</b>. O app envia alertas automáticos caso o pet saia do perímetro.</em>
+  <em><b>Tela de Localização (Figura 9d):</b> mostra o mapa em tempo real e permite configurar uma <b>área segura</b>. O app envia alertas automáticos caso o pet saia ou retorne ao perímetro.</em>
 </p>
 
 ---
