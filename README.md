@@ -65,7 +65,7 @@ O **aplicativo PetDex**, desenvolvido em **Flutter**, entrega uma experiência c
 ### **Principais Funcionalidades**
 
 <p align="center">
-  <img src="./docs/img/mobile/mobile-home.gif" alt="Tela Inicial do App" width="250px" />
+  <img src="./docs/img/tela1.gif" alt="Tela Inicial do App" width="250px" />
 </p>
 <p align="center">
   <em><b>Tela Inicial (Figura 9a):</b> mostra a última localização e o batimento cardíaco mais recente do pet, além de um gráfico com as médias das últimas horas.</em>
@@ -74,7 +74,7 @@ O **aplicativo PetDex**, desenvolvido em **Flutter**, entrega uma experiência c
 ---
 
 <p align="center">
-  <img src="./docs/img/mobile/mobile-saude.gif" alt="Tela de Saúde" width="250px" />
+  <img src="./docs/img/tela2.gif" alt="Tela de Saúde" width="250px" />
 </p>
 <p align="center">
   <em><b>Tela de Saúde (Figura 9b):</b> exibe a média de batimentos diários e análises estatísticas completas (média, mediana, moda, desvio padrão, assimetria e curtose).</em>
@@ -83,7 +83,7 @@ O **aplicativo PetDex**, desenvolvido em **Flutter**, entrega uma experiência c
 ---
 
 <p align="center">
-  <img src="./docs/img/mobile/mobile-checkup.gif" alt="Tela de Checkup" width="250px" />
+  <img src="./docs/img/tela3.gif" alt="Tela de Checkup" width="250px" />
 </p>
 <p align="center">
   <em><b>Tela Checkup Inteligente (Figura 9c):</b> o tutor responde sintomas observados, e a IA da PetDex sugere possíveis condições com base nos dados coletados — sem emitir diagnósticos, apenas orientações preventivas.</em>
@@ -92,7 +92,7 @@ O **aplicativo PetDex**, desenvolvido em **Flutter**, entrega uma experiência c
 ---
 
 <p align="center">
-  <img src="./docs/img/mobile/mobile-localizacao.gif" alt="Tela de Localização" width="250px" />
+  <img src="./docs/img/tela4.gif" alt="Tela de Localização" width="250px" />
 </p>
 <p align="center">
   <em><b>Tela de Localização (Figura 9d):</b> mostra o mapa em tempo real e permite configurar uma <b>área segura</b>. O app envia alertas automáticos caso o pet saia do perímetro.</em>
