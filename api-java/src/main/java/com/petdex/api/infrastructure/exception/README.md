@@ -10,6 +10,7 @@ Agora, com o `GlobalExceptionHandler`, cada tipo de erro retorna o código HTTP 
 
 - **404 (Not Found)**: Recurso não encontrado
 - **400 (Bad Request)**: Dados inválidos na requisição
+- **409 (Conflict)**: Conflito de dados (ex: email ou CPF duplicado)
 - **500 (Internal Server Error)**: Erro no servidor
 - **401 (Unauthorized)**: Apenas para problemas de autenticação JWT
 - **403 (Forbidden)**: Apenas para problemas de permissão
@@ -36,6 +37,19 @@ Use quando os dados da requisição forem inválidos.
 ```java
 if (email == null || email.isEmpty()) {
     throw new BadRequestException("O email é obrigatório");
+}
+```
+
+### ConflictException
+Use quando houver conflito de dados (ex: email ou CPF duplicado).
+
+**Retorna**: HTTP 409 (Conflict)
+
+**Exemplo de uso**:
+```java
+Optional<Usuario> usuarioExistente = usuarioRepository.findByEmail(email);
+if (usuarioExistente.isPresent()) {
+    throw new ConflictException("Usuário", "email", email);
 }
 ```
 
@@ -83,6 +97,7 @@ Todas as respostas de erro seguem o mesmo formato JSON:
 
 1. **Use ResourceNotFoundException** para recursos não encontrados
 2. **Use BadRequestException** para validações de negócio
-3. **Deixe RuntimeException** apenas para erros inesperados (será tratado como 500)
-4. **Nunca use RuntimeException** para recursos não encontrados (isso causava o bug do 401)
+3. **Use ConflictException** para conflitos de dados (email/CPF duplicado)
+4. **Deixe RuntimeException** apenas para erros inesperados (será tratado como 500)
+5. **Nunca use RuntimeException** para recursos não encontrados (isso causava o bug do 401)
 

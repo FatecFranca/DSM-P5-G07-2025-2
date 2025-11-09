@@ -62,6 +62,24 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Trata exceções de conflito de dados
+     * Retorna 409 (Conflict)
+     */
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<Map<String, Object>> handleConflictException(ConflictException ex, WebRequest request) {
+        logger.error("Conflito de dados: " + ex.getMessage());
+
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("timestamp", LocalDateTime.now().toString());
+        errorDetails.put("status", 409);
+        errorDetails.put("error", "Conflito de Dados");
+        errorDetails.put("message", ex.getMessage());
+        errorDetails.put("path", request.getDescription(false).replace("uri=", ""));
+
+        return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
+    }
+
+    /**
      * Trata exceções genéricas de RuntimeException
      * Retorna 500 (Internal Server Error)
      */
