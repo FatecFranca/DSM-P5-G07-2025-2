@@ -39,10 +39,12 @@ class AuthService {
         final Map<String, dynamic> json = jsonDecode(response.body);
         _currentAuthResponse = AuthResponse.fromJson(json);
         await _authStorage.saveAuthData(_currentAuthResponse!);
-        _debug('Login realizado com sucesso. userId=${_currentAuthResponse!.userId} animalId=${_currentAuthResponse!.animalId}');
+        _debug(
+            'Login realizado com sucesso. userId=${_currentAuthResponse!.userId} animalId=${_currentAuthResponse!.animalId}');
         return true;
       } else {
-        _debug('Falha no login. status=${response.statusCode} body=${response.body}');
+        _debug(
+            'Falha no login. status=${response.statusCode} body=${response.body}');
         return false;
       }
     } catch (e) {
@@ -51,12 +53,13 @@ class AuthService {
     }
   }
 
-  /// 🔄 Atualiza o animalId localmente e na API
+  /// 🔄 Atualiza o animalId localmente e no backend
   Future<void> setAnimalId(String animalId) async {
     try {
       _debug('Atualizando animalId localmente para $animalId...');
       if (_currentAuthResponse != null) {
-        _currentAuthResponse = _currentAuthResponse!.copyWith(animalId: animalId);
+        _currentAuthResponse =
+            _currentAuthResponse!.copyWith(animalId: animalId);
       }
       await _authStorage.updateAnimalId(animalId);
       _debug('animalId atualizado com sucesso no storage e em memória.');
@@ -82,7 +85,8 @@ class AuthService {
         _debug('Usuário atualizado com o animalId na API com sucesso.');
         await setAnimalId(animalId);
       } else {
-        _debug('Falha ao atualizar o usuário na API: ${response.statusCode} ${response.body}');
+        _debug(
+            'Falha ao atualizar o usuário na API: ${response.statusCode} ${response.body}');
       }
     } catch (e) {
       _debug('Erro ao atualizar usuário com animalId: $e');
@@ -90,12 +94,16 @@ class AuthService {
   }
 
   String? getToken() => _currentAuthResponse?.token ?? _authStorage.getToken();
-  String? getAnimalId() => _currentAuthResponse?.animalId ?? _authStorage.getAnimalId();
-  String? getUserId() => _currentAuthResponse?.userId ?? _authStorage.getUserId();
+  String? getAnimalId() =>
+      _currentAuthResponse?.animalId ?? _authStorage.getAnimalId();
+  String? getUserId() =>
+      _currentAuthResponse?.userId ?? _authStorage.getUserId();
   String? getNome() => _currentAuthResponse?.nome ?? _authStorage.getNome();
   String? getEmail() => _currentAuthResponse?.email ?? _authStorage.getEmail();
-  String? getPetName() => _currentAuthResponse?.petName ?? _authStorage.getPetName();
-  AuthResponse? getAuthResponse() => _currentAuthResponse ?? _authStorage.getAuthResponse();
+  String? getPetName() =>
+      _currentAuthResponse?.petName ?? _authStorage.getPetName();
+  AuthResponse? getAuthResponse() =>
+      _currentAuthResponse ?? _authStorage.getAuthResponse();
 
   bool isAuthenticated() {
     final token = getToken();

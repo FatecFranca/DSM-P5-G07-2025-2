@@ -43,6 +43,34 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
     }
   }
 
+  // 📅 Selecionar data — com tema igual ao HealthScreen
+  Future<void> _selectDate(BuildContext context) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.orange,
+              onPrimary: Colors.white,
+              onSurface: AppColors.brown,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        _dataController.text = picked.toIso8601String().split('T').first;
+      });
+    }
+  }
+
   Future<void> _cadastrarAnimal() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -62,10 +90,8 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
         throw Exception("Token JWT não encontrado. Faça login novamente.");
       }
 
-      // 🐾 Delay de segurança para garantir inicialização completa
       await Future.delayed(const Duration(milliseconds: 500));
 
-      // 🐾 Cadastrar o animal
       final response = await http.post(
         Uri.parse('$_javaApiBaseUrl/animais'),
         headers: {
@@ -85,37 +111,33 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
 
       print('[AnimalSignUp] Resposta do servidor (${response.statusCode}): ${response.body}');
 
-     if (response.statusCode == 201) {
-  final jsonResponse = jsonDecode(response.body);
-  final animalId = jsonResponse["id"];
-  print('[AnimalSignUp] Animal criado com ID: $animalId');
+      if (response.statusCode == 201) {
+        final jsonResponse = jsonDecode(response.body);
+        final animalId = jsonResponse["id"];
+        print('[AnimalSignUp] Animal criado com ID: $animalId');
 
-  // 🔗 Atualiza o usuário com o animal criado
-  await authService.updateUserWithAnimal(widget.usuarioId, animalId);
-  print('[AnimalSignUp] Usuário atualizado com o animal vinculado.');
+        await authService.updateUserWithAnimal(widget.usuarioId, animalId);
+        print('[AnimalSignUp] Usuário atualizado com o animal vinculado.');
 
-  // 🖼️ Se tiver imagem, envia
-  if (_animalImage != null && animalId != null) {
-    final uploadUrl = Uri.parse('$_javaApiBaseUrl/animais/$animalId/imagem');
-    final request = http.MultipartRequest('POST', uploadUrl)
-      ..headers['Authorization'] = 'Bearer $token'
-      ..files.add(await http.MultipartFile.fromPath(
-        'imagem',
-        _animalImage!.path,
-      ));
+        if (_animalImage != null && animalId != null) {
+          final uploadUrl = Uri.parse('$_javaApiBaseUrl/animais/$animalId/imagem');
+          final request = http.MultipartRequest('POST', uploadUrl)
+            ..headers['Authorization'] = 'Bearer $token'
+            ..files.add(await http.MultipartFile.fromPath(
+              'imagem',
+              _animalImage!.path,
+            ));
 
-    final uploadResponse = await request.send();
-    if (uploadResponse.statusCode == 200) {
-      print('[AnimalSignUp] Imagem enviada com sucesso!');
-    } else {
-      print('[AnimalSignUp] Falha ao enviar imagem: ${uploadResponse.statusCode}');
-    }
-  }
+          final uploadResponse = await request.send();
+          if (uploadResponse.statusCode == 200) {
+            print('[AnimalSignUp] Imagem enviada com sucesso!');
+          } else {
+            print('[AnimalSignUp] Falha ao enviar imagem: ${uploadResponse.statusCode}');
+          }
+        }
 
-  // 🐕‍🦺 Criar e vincular coleira automaticamente
-  await _criarColeiraParaAnimal(token, animalId);
+        await _criarColeiraParaAnimal(token, animalId);
 
-        // 🕒 Delay para estabilidade antes da navegação
         await Future.delayed(const Duration(milliseconds: 700));
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -128,7 +150,6 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
           (route) => false,
         );
       } else if (response.statusCode == 401) {
-        // Se o token estiver expirado, tenta relogin
         print('[AnimalSignUp] Token inválido, tentando relogar...');
         await authService.relogin();
 
@@ -150,7 +171,6 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
     }
   }
 
-  /// 🔗 Cria uma coleira vinculada ao animal recém cadastrado
   Future<void> _criarColeiraParaAnimal(String token, String? animalId) async {
     if (animalId == null) {
       print('[Coleira] ID do animal é nulo, não foi possível criar a coleira.');
@@ -207,7 +227,6 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // 📸 Imagem do animal
                 Center(
                   child: Column(
                     children: [
@@ -239,8 +258,8 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 24),
+
                 _buildLabel('Nome do Animal', Icons.pets),
                 const SizedBox(height: 8),
                 _buildTextField(
@@ -251,9 +270,14 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
 
                 _buildLabel('Data de Nascimento', Icons.calendar_today),
                 const SizedBox(height: 8),
-                _buildTextField(
-                  hintText: 'AAAA-MM-DD',
-                  controller: _dataController,
+                GestureDetector(
+                  onTap: () => _selectDate(context),
+                  child: AbsorbPointer(
+                    child: _buildTextField(
+                      hintText: 'AAAA-MM-DD',
+                      controller: _dataController,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
 
