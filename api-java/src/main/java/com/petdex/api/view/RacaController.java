@@ -99,6 +99,52 @@ public class RacaController {
     }
 
     @Operation(
+            summary = "Consultar raças por espécie",
+            description = "Consulta uma lista paginada de raças filtradas pelo identificador da espécie",
+            tags = {"Raca"},
+            parameters = {
+                    @Parameter(name = "idEspecie", description = "Código identificador da espécie que terá as raças consultadas", required = true, example = "507f1f77bcf86cd799439011"),
+                    @Parameter(name = "page", description = "Número da página que será feita a requisição", example = "0", schema = @Schema(implementation = Integer.class)),
+                    @Parameter(name = "size", description = "Quantidade máxima de elementos por página", example = "10", schema = @Schema(implementation = Integer.class)),
+                    @Parameter(
+                            name = "sortBy",
+                            description = "Atributo pelo qual as respostas serão ordenadas.\n\n" +
+                                    "**Atributos disponíveis para ordenação**\n" +
+                                    "- **nome**: Ordena pelo nome da raça\n" +
+                                    "- **id**: Ordena pelo código identificador da raça",
+                            example = "nome",
+                            schema = @Schema(implementation = String.class)
+                    ),
+                    @Parameter(
+                            name = "direction",
+                            description = "Direção da ordenação das respostas.\n\n" +
+                                    "**Direções disponíveis**\n" +
+                                    "- **asc**: Ordena de forma ascendente pelo atributo definido\n" +
+                                    "- **desc**: Ordena de forma descendente pelo atributo definido",
+                            example = "asc",
+                            schema = @Schema(implementation = String.class)
+                    )
+            },
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Solicitação bem-sucedida",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ExemploRespostaPageRaca.class)
+                            )
+                    )
+            }
+    )
+    @GetMapping("/especie/{idEspecie}")
+    public ResponseEntity<Page<RacaResDTO>> findAllByEspecie(@PathVariable String idEspecie, @ParameterObject PageDTO pageDTO) {
+        return new ResponseEntity<>(
+                racaService.findAllByEspecieId(idEspecie, pageDTO),
+                HttpStatus.OK
+        );
+    }
+
+    @Operation(
             summary = "Cadastrar raça",
             description = "Cadastra uma nova raça no sistema",
             tags = {"Raca"},

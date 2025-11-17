@@ -68,6 +68,19 @@ public class RacaService implements IRacaService{
     }
 
     @Override
+    public Page<RacaResDTO> findAllByEspecieId(String especieId, PageDTO pageDTO) {
+
+        pageDTO.sortByName();
+
+        Page<Raca> racaPage = racaRepository.findAllByEspecie(especieId, pageDTO.mapPage());
+        List<RacaResDTO> dtoList = racaPage.getContent().stream()
+                .map(r -> mapper.map(r, RacaResDTO.class))
+                .toList();
+
+        return new PageImpl<RacaResDTO>(dtoList, pageDTO.mapPage(), racaPage.getTotalElements());
+    }
+
+    @Override
     public void delete(String id) {
        Raca racaDelete =  racaRepository.findById(id)
                .orElseThrow(() -> new RuntimeException("Não foi possível encontrar uma raça com o ID: " + id));
