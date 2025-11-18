@@ -34,7 +34,6 @@ Repositório do **Grupo 07** do Projeto Interdisciplinar do **5º semestre** do 
 * **🎨 FIGMA:** [Protótipo da Interface](https://www.figma.com/design/BZOrhXmiYHgesIZf1Ex3Pw/PetDex.?node-id=0-1&t=8nuIhASiCYaiae4f-1)
 * **🐍 API de Análise (FastAPI - Python):** [http://172.206.27.122:8083/docs](http://172.206.27.122:8083/docs)
 * **☕ API Principal (Java - Spring Boot):** [http://172.206.27.122:8080/swagger](http://172.206.27.122:8080/swagger)
-* **📱 Aplicativo Mobile (APK Android):** [Baixar petdex.apk](./mobile/petdex.apk)
 
 ### **🔑 Credenciais de Teste**
 
@@ -109,31 +108,6 @@ O **aplicativo PetDex**, desenvolvido em **Flutter**, entrega uma experiência c
 <p align="center">
   <em><b>Tela de Localização (Figura 9d):</b> mostra o mapa em tempo real e permite configurar uma <b>área segura</b>. O app envia alertas automáticos caso o pet saia ou retorne ao perímetro.</em>
 </p>
-
----
-
-## 📥 Baixe o Aplicativo Agora!
-
-**Quer testar o PetDex no seu celular Android?**
-
-Você pode baixar o aplicativo pronto para instalação sem precisar compilar o código:
-
-<p align="center">
-  <a href="./mobile/petdex.apk" download>
-    <img src="https://img.shields.io/badge/Download-PetDex.apk-green?style=for-the-badge&logo=android" alt="Download APK" />
-  </a>
-</p>
-
-### **📲 Como Instalar:**
-
-1. **Baixe o arquivo APK** clicando no botão acima ou [neste link](./mobile/petdex.apk)
-2. **Transfira para seu Android** (se baixou no computador)
-3. **Abra o arquivo APK** no dispositivo
-4. **Permita a instalação** de fontes desconhecidas (se solicitado nas configurações)
-5. **Instale e abra** o aplicativo
-6. **Faça login** com as [credenciais de teste](#-credenciais-de-teste) fornecidas acima
-
-**Observação:** O aplicativo já está configurado para se conectar ao servidor Azure em produção.
 
 ---
 
