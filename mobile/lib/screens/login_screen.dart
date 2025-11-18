@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:PetDex/services/auth_service.dart';
 import '/theme/app_theme.dart';
@@ -42,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       } else {
         setState(() {
-          _errorMessage = 'E-mail ou senha inválidos. Tente novamente.';
+          _errorMessage = 'E-mail ou senha inv├ílidos. Tente novamente.';
         });
       }
     }
@@ -59,10 +59,11 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.sand100,
+      resizeToAvoidBottomInset: false, // Mantém a imagem de fundo fixa quando o teclado abre
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        automaticallyImplyLeading: false, // Remove o botão de voltar
+        automaticallyImplyLeading: false, // Remove o bot├úo de voltar
       ),
       body: Stack(
         children: [
@@ -83,7 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
 
-          // --- CONTEÚDO PRINCIPAL ---
+          // --- CONTE├ÜDO PRINCIPAL ---
           SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -134,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 200),
 
-                // --- BOTÃO DE ENTRAR ---
+                // --- BOT├âO DE ENTRAR ---
                 _isLoading
                     ? const Center(
                         child: CircularProgressIndicator(
@@ -162,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 16),
 
-                // --- BOTÃO DE CADASTRAR ---
+                // --- BOT├âO DE CADASTRAR ---
                 TextButton(
                   onPressed: () {
                     Navigator.push(

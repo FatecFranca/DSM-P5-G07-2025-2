@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'dart:io';
 import 'package:PetDex/main.dart';
 import 'package:PetDex/screens/app_shell.dart';
@@ -50,7 +50,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
 
     try {
-      // CADASTRAR USUÁRIO
+      // CADASTRAR USU├üRIO
       final userResponse = await http.post(
         Uri.parse('$_javaApiBaseUrl/usuarios'),
         headers: {'Content-Type': 'application/json'},
@@ -63,7 +63,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         }),
       );
 
-      debugPrint("Cadastrando usuário!!!!!!");
+      debugPrint("Cadastrando usu├írio!!!!!!");
       debugPrint(userResponse.body);
 
       final usuario = jsonDecode(userResponse.body);
@@ -102,7 +102,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           );
         } else {
           setState(() {
-            _errorMessage = 'E-mail ou senha inválidos. Tente novamente.';
+            _errorMessage = 'E-mail ou senha inv├ílidos. Tente novamente.';
           });
         }
       }
@@ -119,6 +119,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.sand100,
+      resizeToAvoidBottomInset: false, // Mantém a imagem de fundo fixa quando o teclado abre
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -129,20 +130,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
       body: Stack(
         children: [
+          // --- IMAGEM DE FUNDO ---
           Positioned(
-            bottom: 0,
+            bottom: -150,
             left: -50,
             right: 0,
-            child: Opacity(
-              opacity: 0.2,
-              child: Image.asset(
-                'assets/images/cao-dex.png',
-                fit: BoxFit.cover,
-                height: MediaQuery.of(context).size.height * 0.6,
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.7,
+              child: Opacity(
+                opacity: 0.15,
+                child: Image.asset(
+                  'assets/images/cao-dex.png',
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
           ),
 
+          // --- CONTEÚDO PRINCIPAL ---
           Padding(
             padding: const EdgeInsets.all(24.0),
             child: Form(
@@ -173,7 +178,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     _buildLabel('Telefone', Icons.phone_outlined),
                     const SizedBox(height: 8),
                     _buildTextField(
-                      hintText: 'Insira seu número de telefone',
+                      hintText: 'Insira seu n├║mero de telefone',
                       controller: _telefoneController,
                       keyboardType: TextInputType.phone,
                     ),
@@ -240,7 +245,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     TextButton(
                       onPressed: () => Navigator.pop(context),
                       child: Text(
-                        'Já tem conta? Entrar',
+                        'J├í tem conta? Entrar',
                         style: GoogleFonts.poppins(
                           color: AppColors.orange900,
                           fontSize: 16,
