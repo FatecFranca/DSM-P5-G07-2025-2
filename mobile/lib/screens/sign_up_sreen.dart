@@ -62,21 +62,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
           "senha": _senhaController.text.trim(),
         }),
       );
-      debugPrint(userResponse.body);
-      
-      final usuario = jsonDecode(userResponse.body);
-final String usuarioId = usuario["id"];
 
-    // Redirecionar para tela de cadastro do animal
-    if (mounted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AnimalSignUpScreen(usuarioId: usuarioId),
-        ),
-      );
-      return; 
-    }
+      debugPrint("Cadastrando usuário!!!!!!");
+      debugPrint(userResponse.body);
+
+      final usuario = jsonDecode(userResponse.body);
+      final String usuarioId = usuario["id"];
 
       await Future.delayed(Duration(seconds: 2));
 
@@ -87,6 +78,17 @@ final String usuarioId = usuario["id"];
         _emailController.text.trim(),
         _senhaController.text.trim(),
       );
+
+      // Redirecionar para tela de cadastro do animal
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AnimalSignUpScreen(usuarioId: usuarioId),
+          ),
+        );
+        return;
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

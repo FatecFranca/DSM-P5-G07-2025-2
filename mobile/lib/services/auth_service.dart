@@ -11,24 +11,24 @@ class AuthService {
 
   Future<void> init() async {
     try {
-      _debug('Inicializando AuthService...');
+      debugPrint('Inicializando AuthService...');
       await _authStorage.init();
       final saved = _authStorage.getAuthResponse();
       if (saved != null) {
         _currentAuthResponse = saved;
-        _debug('Credenciais carregadas do storage. usuario=${saved.email}');
+        debugPrint('Credenciais carregadas do storage. usuario=${saved.email}');
       } else {
-        _debug('Nenhuma credencial salva encontrada.');
+        debugPrint('Nenhuma credencial salva encontrada.');
       }
     } catch (e) {
-      _debug('Erro ao inicializar AuthService: $e');
+      debugPrint('Erro ao inicializar AuthService: $e');
       rethrow;
     }
   }
 
   Future<bool> login(String email, String senha) async {
     try {
-      _debug('Tentando login com email: $email');
+      debugPrint('‼️‼️‼️‼️Tentando login com email: $email');
       final response = await http.post(
         Uri.parse('$_javaApiBaseUrl/auth/login'),
         headers: {'Content-Type': 'application/json'},
@@ -39,16 +39,16 @@ class AuthService {
         final Map<String, dynamic> json = jsonDecode(response.body);
         _currentAuthResponse = AuthResponse.fromJson(json);
         await _authStorage.saveAuthData(_currentAuthResponse!);
-        _debug(
+        debugPrint(
             'Login realizado com sucesso. userId=${_currentAuthResponse!.userId} animalId=${_currentAuthResponse!.animalId}');
         return true;
       } else {
-        _debug(
+        debugPrint(
             'Falha no login. status=${response.statusCode} body=${response.body}');
         return false;
       }
     } catch (e) {
-      _debug('Erro ao realizar login: $e');
+      debugPrint('Erro ao realizar login: $e');
       return false;
     }
   }
@@ -56,15 +56,15 @@ class AuthService {
   /// 🔄 Atualiza o animalId localmente e no backend
   Future<void> setAnimalId(String animalId) async {
     try {
-      _debug('Atualizando animalId localmente para $animalId...');
+      debugPrint('Atualizando animalId localmente para $animalId...');
       if (_currentAuthResponse != null) {
         _currentAuthResponse =
             _currentAuthResponse!.copyWith(animalId: animalId);
       }
       await _authStorage.updateAnimalId(animalId);
-      _debug('animalId atualizado com sucesso no storage e em memória.');
+      debugPrint('animalId atualizado com sucesso no storage e em memória.');
     } catch (e) {
-      _debug('Erro ao atualizar animalId: $e');
+      debugPrint('Erro ao atualizar animalId: $e');
     }
   }
 
@@ -82,14 +82,14 @@ class AuthService {
       );
 
       if (response.statusCode == 200) {
-        _debug('Usuário atualizado com o animalId na API com sucesso.');
+        debugPrint('Usuário atualizado com o animalId na API com sucesso.');
         await setAnimalId(animalId);
       } else {
-        _debug(
+        debugPrint(
             'Falha ao atualizar o usuário na API: ${response.statusCode} ${response.body}');
       }
     } catch (e) {
-      _debug('Erro ao atualizar usuário com animalId: $e');
+      debugPrint('Erro ao atualizar usuário com animalId: $e');
     }
   }
 
@@ -112,33 +112,33 @@ class AuthService {
 
   Future<void> logout() async {
     try {
-      _debug('Realizando logout...');
+      debugPrint('Realizando logout...');
       _currentAuthResponse = null;
       await _authStorage.clearAuthData();
-      _debug('Logout realizado com sucesso');
+      debugPrint('Logout realizado com sucesso');
     } catch (e) {
-      _debug('Erro ao realizar logout: $e');
+      debugPrint('Erro ao realizar logout: $e');
       rethrow;
     }
   }
 
   Future<void> relogin() async {
     try {
-      _debug('Tentando relogin...');
+      debugPrint('Tentando relogin...');
       final saved = _authStorage.getAuthResponse();
       if (saved != null && saved.token.isNotEmpty) {
         _currentAuthResponse = saved;
-        _debug('Credenciais recarregadas do storage.');
+        debugPrint('Credenciais recarregadas do storage.');
         return;
       }
       throw Exception('Nenhum dado de login salvo para relogar.');
     } catch (e) {
-      _debug('Erro em relogin: $e');
+      debugPrint('Erro em relogin: $e');
       rethrow;
     }
   }
 }
 
-void _debug(String message) {
+void debugPrint(String message) {
   print('[AuthService] $message');
 }
