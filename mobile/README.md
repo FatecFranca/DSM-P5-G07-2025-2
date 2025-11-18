@@ -8,6 +8,27 @@ Aplicativo móvel desenvolvido em **Flutter** para monitoramento em tempo real d
 
 ---
 
+## 📥 Download do Aplicativo (APK)
+
+**Quer testar o aplicativo sem precisar compilar o código?**
+
+Você pode baixar o arquivo APK pronto para instalação em dispositivos Android:
+
+📦 **[Baixar PetDex.apk](./petdex.apk)**
+
+### **Como Instalar:**
+
+1. Baixe o arquivo `petdex.apk` no link acima
+2. Transfira o arquivo para seu dispositivo Android (se baixou no computador)
+3. No dispositivo Android, abra o arquivo APK
+4. Permita a instalação de aplicativos de fontes desconhecidas (se solicitado)
+5. Siga as instruções na tela para concluir a instalação
+6. Abra o aplicativo e faça login com as [credenciais de teste](#-credenciais-de-teste)
+
+**Observação:** O APK está configurado para se conectar ao servidor Azure em produção (`http://172.206.27.122`).
+
+---
+
 ## 📋 Pré-requisitos
 
 Antes de começar, certifique-se de ter instalado em sua máquina:
