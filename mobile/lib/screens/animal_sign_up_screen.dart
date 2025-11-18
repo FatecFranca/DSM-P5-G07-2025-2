@@ -142,18 +142,22 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
     });
 
     try {
+
       final response = await _httpClient.post(
         Uri.parse("$_javaApiBaseUrl/animais"),
         body: jsonEncode({
           "nome": _nomeController.text.trim(),
           "dataNascimento": _dataController.text.trim(),
-          "sexo": _sexoSelecionado,
+          "sexo": _sexoSelecionado == "Macho" ? "M" : "F",
           "peso": peso,
           "castrado": _castrado,
           "usuario": widget.usuarioId,
           "especie": _especieSelecionada,
           "raca": _racaSelecionada,
         }),
+        headers: {
+          "Content-Type": "application/json"
+        }
       );
 
       if (response.statusCode == 201) {
