@@ -31,8 +31,8 @@ class _AppShellState extends State<AppShell> {
     super.initState();
 
     // Obtém o ID do animal do serviço de autenticação
-    _animalId = authService.getAnimalId()!;
-    _animalName = authService.getPetName()!;
+    _animalId = authService.getAnimalId() ?? '';
+    _animalName = authService.getPetName() ?? 'Pet';
 
     print('🐾 AppShell inicializado com animalId: $_animalId');
 
