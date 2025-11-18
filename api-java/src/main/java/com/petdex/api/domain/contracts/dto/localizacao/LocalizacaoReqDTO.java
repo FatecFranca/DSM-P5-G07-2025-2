@@ -4,22 +4,26 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Date;
 
-@Schema(name = "Requisição Localização", description = "Informações contidas nas requisições da API envolvendo a Localização")
+@Schema(
+        name = "Requisição Localização",
+        description = "Dados necessários para registrar uma nova localização no sistema",
+        example = "{\"data\": \"2024-01-20T14:30:00.000+00:00\", \"latitude\": -23.550520, \"longitude\": -46.633308, \"animal\": \"507f1f77bcf86cd799439011\", \"coleira\": \"507f1f77bcf86cd799439011\"}"
+)
 public class LocalizacaoReqDTO {
 
-    @Schema(description = "Data/Hora que foi realizado a coleta da localização", example = "")
+    @Schema(description = "Data e hora em que foi realizada a coleta da localização", example = "2024-01-20T14:30:00.000+00:00", requiredMode = Schema.RequiredMode.REQUIRED)
     private Date data;
 
-    @Schema(description = "Latitude que se encontra o animal no momento da coleta", example = "")
+    @Schema(description = "Latitude da posição geográfica onde o animal se encontra no momento da coleta", example = "-23.550520", requiredMode = Schema.RequiredMode.REQUIRED)
     private Double latitude;
 
-    @Schema(description = "Longitude que se encontra o animal no momento da coleta", example = "")
+    @Schema(description = "Longitude da posição geográfica onde o animal se encontra no momento da coleta", example = "-46.633308", requiredMode = Schema.RequiredMode.REQUIRED)
     private Double longitude;
 
-    @Schema(description = "ID do Animal que foi feito a coleta da localização", example = "")
+    @Schema(description = "ID do animal que teve a localização coletada", example = "507f1f77bcf86cd799439011", requiredMode = Schema.RequiredMode.REQUIRED)
     private String animal;
 
-    @Schema(description = "ID da coleira que fez a coleta da localização do animal", example = "")
+    @Schema(description = "ID da coleira que realizou a coleta da localização do animal", example = "507f1f77bcf86cd799439011", requiredMode = Schema.RequiredMode.REQUIRED)
     private String coleira;
 
     public LocalizacaoReqDTO() {

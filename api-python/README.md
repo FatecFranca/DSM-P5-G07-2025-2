@@ -15,10 +15,11 @@ Bem-vindo à API de Análise de Dados da PetDex! Desenvolvida com **Python** e *
 * **Pandas** (Análise e manipulação de dados)
 * **NumPy** (Cálculos numéricos e estatísticos)
 * **SciPy** (Cálculos científicos, como a distribuição normal)
-* **Scikit-learn** (Modelos de Regressão Linear)
+* **Scikit-learn** (Modelos de Regressão Linear e Classificação)
+* **PyPMML** (Carregamento e execução de modelos PMML)
 * **httpx** (Cliente HTTP assíncrono para comunicação com a API Java)
 * **Uvicorn** (Servidor ASGI)
-* **Render** (Plataforma de hospedagem da API)
+* **Azure** (Plataforma de hospedagem da API)
 
 ---
 
@@ -56,21 +57,36 @@ Calcular a **probabilidade de um determinado batimento cardíaco ocorrer** é um
 
 ## 📡 Endpoints e sua Aplicação Visual
 
-A API está documentada e acessível para testes através da plataforma Render:
+A API está hospedada em um servidor **Azure** (Ubuntu, Standard B1ms) e pode ser acessada através do link:
 
-🔗 **[Documentação Interativa (Swagger): https://api-petdex-estatistica.onrender.com/docs](https://api-petdex-estatistica.onrender.com/docs)**
+🔗 **API Base:** [http://172.206.27.122:8083](http://172.206.27.122:8083)
+
+📘 **Documentação Interativa (Swagger):** [http://172.206.27.122:8083/docs](http://172.206.27.122:8083/docs)
 
 ### 🔐 Autenticação JWT
 
 Todos os endpoints (exceto `/health`) requerem autenticação via **JWT (JSON Web Tokens)**.
 
+### **🔑 Credenciais de Teste**
+
+Para obter um token JWT, utilize as seguintes credenciais na API Java:
+
+```json
+{
+  "email": "henriquealmeidaflorentino@gmail.com",
+  "senha": "senha123"
+}
+```
+
 **Como usar no Swagger:**
 
-1. Obtenha um token JWT da API Java (endpoint de login)
-2. Clique no botão **"Authorize"** (cadeado) no topo do Swagger
-3. Cole o token no campo de texto (apenas o token, sem "Bearer")
-4. Clique em **"Authorize"**
-5. Todos os seus requests incluirão automaticamente o header `Authorization: Bearer <token>`
+1. Obtenha um token JWT da API Java (endpoint `POST /auth/login` em [http://172.206.27.122:8080/swagger](http://172.206.27.122:8080/swagger))
+2. Use as credenciais acima para fazer login
+3. Copie o token JWT retornado
+4. Clique no botão **"Authorize"** (cadeado) no topo do Swagger da API Python
+5. Cole o token no campo de texto (apenas o token, sem "Bearer")
+6. Clique em **"Authorize"**
+7. Todos os seus requests incluirão automaticamente o header `Authorization: Bearer <token>`
 
 Para mais detalhes, consulte:
 
@@ -135,11 +151,54 @@ A resposta do endpoint `/batimentos/regressao` alimenta diretamente a funcionali
 
 ---
 
+## 🧠 Modelo de Inteligência Artificial: CART
+
+A API Python é responsável por carregar e executar o **modelo de classificação de espécies** da PetDex, que identifica se um animal é um cão ou gato com base em características físicas.
+
+### **O Modelo Escolhido: CART (Árvore de Decisão)**
+
+Após um rigoroso processo de desenvolvimento e validação, o modelo **CART (Classification and Regression Trees)** foi selecionado como o "cérebro" oficial da PetDex.
+
+### **Processo de Seleção**
+
+1. **Desafio Inicial:** Decidir entre um modelo **generalista** (8 espécies) ou **especialista** (apenas cães e gatos)
+
+2. **Treinamento Extensivo:** Foram treinados **12 modelos classificadores diferentes**, incluindo:
+   - SVM (Support Vector Machine)
+   - Logistic Regression
+   - Árvores de Decisão (CART)
+   - Random Forest
+   - E outros algoritmos do Scikit-learn
+
+3. **Validação Rigorosa:**
+   - Análise com **Cross-Validation** para avaliar a performance
+   - Gráficos **Boxplot** para comparar a distribuição de acurácia
+   - Teste final com **20 casos reais de cães e gatos**
+
+4. **Resultado:** O modelo CART treinado **APENAS com cães e gatos** atingiu **100% de acerto** no teste final
+
+### **Formato PMML: Portabilidade Universal**
+
+Todos os modelos foram exportados para o formato **PMML (Predictive Model Markup Language)**, um padrão universal que permite:
+
+- Compatibilidade com múltiplas plataformas e linguagens
+- Independência do framework de treinamento (Scikit-learn)
+- Fácil integração com a API Python via biblioteca PyPMML
+- Portabilidade para outros sistemas futuros
+
+O arquivo `modelo_CART.pmml` está localizado na raiz do projeto da API Python e é carregado automaticamente na inicialização da aplicação.
+
+### **Integração com o Aplicativo**
+
+O aplicativo Flutter consome os endpoints da API Python que utilizam o modelo CART para realizar classificações em tempo real, permitindo que os usuários identifiquem a espécie de seus pets de forma rápida e precisa.
+
+---
+
 ## 📁 Como Executar Localmente
 
 ```bash
 # Clone o repositório principal
-git clone [https://github.com/FatecFranca/DSM-P4-G07-2025-1.git](https://github.com/FatecFranca/DSM-P4-G07-2025-1.git)
+git clone https://github.com/FatecFranca/DSM-P4-G07-2025-1.git
 
 # Navegue até o diretório da API Python
 cd DSM-P4-G07-2025-1/api-python
@@ -148,10 +207,8 @@ cd DSM-P4-G07-2025-1/api-python
 python -m venv .venv
 source .venv/bin/activate  # ou .venv\Scripts\activate no Windows
 
-# Crie um arquivo .env e dentro dele coloque as duas variáveis abaixo
-API_BATIMENTOS_URL=https://petdex-api-d75e.onrender.com/batimentos/animal/68194120636f719fcd5ee5fd
-API_MOVIMENTOS_URL=https://petdex-api-d75e.onrender.com/movimentos/animal/68194120636f719fcd5ee5fd
-
+# Configure o arquivo .env (copie do .env.example e ajuste as variáveis)
+cp .env.example .env
 
 # Instale as dependências
 pip install -r requirements.txt
@@ -159,6 +216,21 @@ pip install -r requirements.txt
 # Execute o servidor de desenvolvimento
 uvicorn app.main:app --reload
 ```
+
+A API estará disponível em `http://localhost:8000` e a documentação Swagger em `http://localhost:8000/docs`.
+
+---
+
+## 🚀 Infraestrutura de Hospedagem
+
+A API está hospedada em um servidor **Microsoft Azure** com as seguintes especificações:
+
+- **Sistema Operacional:** Ubuntu
+- **Tipo de Máquina:** Standard B1ms
+- **IP Público:** 172.206.27.122
+- **Porta:** 8083
+
+Esta infraestrutura garante alta disponibilidade e performance para o processamento analítico e execução do modelo de IA em tempo real.
 
 ---
 

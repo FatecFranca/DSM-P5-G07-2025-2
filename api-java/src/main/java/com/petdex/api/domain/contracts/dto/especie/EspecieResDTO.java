@@ -1,8 +1,18 @@
 package com.petdex.api.domain.contracts.dto.especie;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(
+        name = "Resposta Espécie",
+        description = "Informações de uma espécie retornadas pela API",
+        example = "{\"id\": \"507f1f77bcf86cd799439011\", \"nome\": \"Cachorro\"}"
+)
 public class EspecieResDTO {
 
+    @Schema(description = "Código único identificador da espécie", example = "507f1f77bcf86cd799439011")
     private String id;
+
+    @Schema(description = "Nome da espécie", example = "Cachorro")
     private String nome;
 
     public EspecieResDTO() {

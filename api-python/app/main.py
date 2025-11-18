@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query, HTTPException, APIRouter, Depends
+from fastapi import FastAPI, Query, Path, HTTPException, APIRouter, Depends
 from fastapi.openapi.utils import get_openapi
 from app.clients import java_api
 from app.services import stats
@@ -6,6 +6,12 @@ from app.security import get_current_user
 from typing import Tuple
 from app.services import pmml_predictor
 from app.models.sintomas import AnimalSintomasInput, SintomasInput
+from app.schemas.respostas_ia import RespostaCheckupAnimal, RespostaCheckupTeste
+from app.schemas.respostas_batimentos import (
+    EstatisticasBatimentos, MediaPorIntervalo, ProbabilidadeBatimento,
+    AnaliseBatimentoUltimo, MediaUltimos5Dias, MediaUltimas5Horas
+)
+from app.schemas.respostas_regressao import AnaliseRegressao, PredicaoBatimento
 from datetime import date, datetime
 from pydantic import BaseModel
 from typing import Optional
@@ -136,7 +142,22 @@ def calcular_idade(data_nascimento_str: str):
 # --------------------- Health ---------------------
 
 
-@app.get("/health", tags=["Status"])
+@app.get(
+    "/health",
+    tags=["Status"],
+    summary="Verificar status da API",
+    description="Verifica se a API está operacional e respondendo corretamente.\n\n**Não requer autenticação.**",
+    responses={
+        200: {
+            "description": "API está operacional",
+            "content": {
+                "application/json": {
+                    "example": {"status": "Ok"}
+                }
+            }
+        }
+    }
+)
 async def health_check():
     """
     Verifica o status da API.
@@ -164,8 +185,27 @@ async def analisar_animal(id_animal: str, sintomas: SintomasInput):
     return {"animalId": id_animal, "resultado": resultado} """
 
 
-@app.post("/ia/checkup/animal/{id_animal}", tags=["IA"])
-async def checkup_animal(id_animal: str, sintomas: SintomasInput, credentials: Tuple[str, str] = Depends(get_current_user)):
+@app.post(
+    "/ia/checkup/animal/{id_animal}",
+    tags=["IA"],
+    summary="Analisar sintomas de um animal",
+    description="Analisa os sintomas de um animal específico e retorna a predição de diagnóstico utilizando o modelo PMML.\n\n**Requer autenticação JWT.**",
+    responses={
+        200: {
+            "description": "Análise realizada com sucesso",
+            "content": {
+                "application/json": {
+                    "schema": {"$ref": "#/components/schemas/RespostaCheckupAnimal"}
+                }
+            }
+        }
+    }
+)
+async def checkup_animal(
+    id_animal: str = Path(..., description="Identificador único do animal a ser analisado", example="123"),
+    sintomas: SintomasInput = None,
+    credentials: Tuple[str, str] = Depends(get_current_user)
+):
     """
     Analisa sintomas de um animal e retorna a predição de problema/doença via PMML.
 
@@ -259,7 +299,22 @@ async def checkup_animal(id_animal: str, sintomas: SintomasInput, credentials: T
     return {"animalId": id_animal, "dados_entrada": dados_modelo, "probabilidades": resultado_sanitizado, "resultado": classe_prevista}
 
 
-@app.post("/ia/checkup", tags=["IA"])
+@app.post(
+    "/ia/checkup",
+    tags=["IA"],
+    summary="Testar predição de diagnóstico",
+    description="Rota de teste para validar a predição da IA com base em dados diretos, sem necessidade de integração com a API Java.\n\n**Não requer autenticação JWT** - Use esta rota para testar o modelo PMML.",
+    responses={
+        200: {
+            "description": "Teste de predição realizado com sucesso",
+            "content": {
+                "application/json": {
+                    "schema": {"$ref": "#/components/schemas/RespostaCheckupTeste"}
+                }
+            }
+        }
+    }
+)
 async def checkup(sintomas: AnimalSintomasInput):
     """
     Rota de teste para validar a predição da IA com base em dados diretos (sem API Java).
@@ -317,8 +372,26 @@ async def checkup(sintomas: AnimalSintomasInput):
 
 
 # --------------------- Batimentos - Estatísticas ---------------------
-@app.get("/batimentos/animal/{animalId}/estatisticas", tags=["Batimentos"])
-async def get_estatisticas(animalId: str, credentials: Tuple[str, str] = Depends(get_current_user)):
+@app.get(
+    "/batimentos/animal/{animalId}/estatisticas",
+    tags=["Batimentos"],
+    summary="Consultar estatísticas de batimentos",
+    description="Obtém estatísticas gerais dos batimentos cardíacos de um animal, incluindo média, mediana, desvio padrão e outras medidas descritivas.\n\n**Requer autenticação JWT.**",
+    responses={
+        200: {
+            "description": "Estatísticas calculadas com sucesso",
+            "content": {
+                "application/json": {
+                    "schema": {"$ref": "#/components/schemas/EstatisticasBatimentos"}
+                }
+            }
+        }
+    }
+)
+async def get_estatisticas(
+    animalId: str = Path(..., description="Identificador único do animal", example="123"),
+    credentials: Tuple[str, str] = Depends(get_current_user)
+):
     """
     Obtém estatísticas gerais dos batimentos cardíacos de um animal.
 
@@ -333,16 +406,31 @@ async def get_estatisticas(animalId: str, credentials: Tuple[str, str] = Depends
     Raises:
         401: Token JWT ausente, inválido ou expirado
     """
-    user_id, token = credentials
+    _, token = credentials
     dados = await java_api.buscar_todos_batimentos(animalId, token)
     resultado = stats.calcular_estatisticas(dados)
     return resultado
 
-@app.get("/batimentos/animal/{animalId}/batimentos/media-por-data", tags=["Batimentos"])
+@app.get(
+    "/batimentos/animal/{animalId}/batimentos/media-por-data",
+    tags=["Batimentos"],
+    summary="Consultar média de batimentos por intervalo de datas",
+    description="Calcula a média de batimentos cardíacos de um animal em um intervalo de datas específico.\n\n**Requer autenticação JWT.**",
+    responses={
+        200: {
+            "description": "Média calculada com sucesso",
+            "content": {
+                "application/json": {
+                    "schema": {"$ref": "#/components/schemas/MediaPorIntervalo"}
+                }
+            }
+        }
+    }
+)
 async def media_batimentos_por_data(
-    animalId: str,
-    inicio: date = Query(..., description="Data de início YYYY-MM-DD"),
-    fim: date = Query(..., description="Data de fim YYYY-MM-DD"),
+    animalId: str = Path(..., description="Identificador único do animal", example="123"),
+    inicio: date = Query(..., description="Data de início do intervalo (formato: YYYY-MM-DD)", example="2024-01-15"),
+    fim: date = Query(..., description="Data de fim do intervalo (formato: YYYY-MM-DD)", example="2024-01-19"),
     credentials: Tuple[str, str] = Depends(get_current_user)
 ):
     """
@@ -361,13 +449,32 @@ async def media_batimentos_por_data(
     Raises:
         401: Token JWT ausente, inválido ou expirado
     """
-    user_id, token = credentials
+    _, token = credentials
     dados = await java_api.buscar_todos_batimentos(animalId, token)
     resultado = stats.media_por_intervalo(dados, inicio, fim)
     return resultado
 
-@app.get("/batimentos/animal/{animalId}/probabilidade", tags=["Batimentos"])
-async def probabilidade_batimento(animalId: str, valor: int = Query(..., gt=0), credentials: Tuple[str, str] = Depends(get_current_user)):
+@app.get(
+    "/batimentos/animal/{animalId}/probabilidade",
+    tags=["Batimentos"],
+    summary="Calcular probabilidade de um valor de batimento",
+    description="Calcula a probabilidade estatística de um determinado valor de batimento cardíaco ocorrer com base no histórico do animal.\n\n**Requer autenticação JWT.**",
+    responses={
+        200: {
+            "description": "Probabilidade calculada com sucesso",
+            "content": {
+                "application/json": {
+                    "schema": {"$ref": "#/components/schemas/ProbabilidadeBatimento"}
+                }
+            }
+        }
+    }
+)
+async def probabilidade_batimento(
+    animalId: str = Path(..., description="Identificador único do animal", example="123"),
+    valor: int = Query(..., gt=0, description="Valor de batimento para calcular a probabilidade em BPM (deve ser > 0)", example="85"),
+    credentials: Tuple[str, str] = Depends(get_current_user)
+):
     """
     Calcula a probabilidade de um valor de batimento ocorrer.
 
@@ -383,7 +490,7 @@ async def probabilidade_batimento(animalId: str, valor: int = Query(..., gt=0), 
     Raises:
         401: Token JWT ausente, inválido ou expirado
     """
-    user_id, token = credentials
+    _, token = credentials
     dados = await java_api.buscar_todos_batimentos(animalId, token)
     valores = [bat["frequenciaMedia"] for bat in dados if isinstance(bat.get("frequenciaMedia"), (int, float))]
     if not valores:
@@ -391,8 +498,26 @@ async def probabilidade_batimento(animalId: str, valor: int = Query(..., gt=0), 
     resultado = stats.calcular_probabilidade(valor, valores)
     return resultado
 
-@app.get("/batimentos/animal/{animalId}/ultimo/analise", tags=["Batimentos"])
-async def probabilidade_ultimo_batimento(animalId: str, credentials: Tuple[str, str] = Depends(get_current_user)):
+@app.get(
+    "/batimentos/animal/{animalId}/ultimo/analise",
+    tags=["Batimentos"],
+    summary="Analisar último batimento registrado",
+    description="Analisa o último batimento cardíaco registrado pela coleira e calcula sua probabilidade em relação ao histórico do animal.\n\n**Requer autenticação JWT.**",
+    responses={
+        200: {
+            "description": "Análise realizada com sucesso",
+            "content": {
+                "application/json": {
+                    "schema": {"$ref": "#/components/schemas/AnaliseBatimentoUltimo"}
+                }
+            }
+        }
+    }
+)
+async def probabilidade_ultimo_batimento(
+    animalId: str = Path(..., description="Identificador único do animal", example="123"),
+    credentials: Tuple[str, str] = Depends(get_current_user)
+):
     """
     Analisa o último batimento registrado e calcula sua probabilidade.
 
@@ -407,7 +532,7 @@ async def probabilidade_ultimo_batimento(animalId: str, credentials: Tuple[str, 
     Raises:
         401: Token JWT ausente, inválido ou expirado
     """
-    user_id, token = credentials
+    _, token = credentials
     dados = await java_api.buscar_todos_batimentos(animalId, token)
     ultimo = await java_api.buscar_ultimo_batimento(animalId, token)
     ultimo_valor = ultimo.get("frequenciaMedia") if ultimo else None
@@ -421,8 +546,26 @@ async def probabilidade_ultimo_batimento(animalId: str, credentials: Tuple[str, 
     resultado = stats.calcular_probabilidade_ultimo_batimento(ultimo_valor, valores)
     return resultado
 
-@app.get("/batimentos/animal/{animalId}/media-ultimos-5-dias", tags=["Batimentos"])
-async def media_batimentos_ultimos_5_dias(animalId: str, credentials: Tuple[str, str] = Depends(get_current_user)):
+@app.get(
+    "/batimentos/animal/{animalId}/media-ultimos-5-dias",
+    tags=["Batimentos"],
+    summary="Consultar média de batimentos dos últimos 5 dias",
+    description="Calcula a média de batimentos cardíacos de um animal para cada um dos últimos 5 dias com dados disponíveis.\n\n**Requer autenticação JWT.**",
+    responses={
+        200: {
+            "description": "Médias calculadas com sucesso",
+            "content": {
+                "application/json": {
+                    "schema": {"$ref": "#/components/schemas/MediaUltimos5Dias"}
+                }
+            }
+        }
+    }
+)
+async def media_batimentos_ultimos_5_dias(
+    animalId: str = Path(..., description="Identificador único do animal", example="123"),
+    credentials: Tuple[str, str] = Depends(get_current_user)
+):
     """
     Calcula a média de batimentos dos últimos 5 dias válidos.
 
@@ -437,15 +580,33 @@ async def media_batimentos_ultimos_5_dias(animalId: str, credentials: Tuple[str,
     Raises:
         401: Token JWT ausente, inválido ou expirado
     """
-    user_id, token = credentials
+    _, token = credentials
     batimentos = await java_api.buscar_todos_batimentos(animalId, token)
     if not batimentos:
         return {"medias": {}}
     medias = stats.media_ultimos_5_dias_validos(batimentos)
     return {"medias": medias}
 
-@app.get("/batimentos/animal/{animalId}/media-ultimas-5-horas-registradas", tags=["Batimentos"])
-async def media_batimentos_ultimas_5_horas(animalId: str, credentials: Tuple[str, str] = Depends(get_current_user)):
+@app.get(
+    "/batimentos/animal/{animalId}/media-ultimas-5-horas-registradas",
+    tags=["Batimentos"],
+    summary="Consultar média de batimentos das últimas 5 horas",
+    description="Calcula a média de batimentos cardíacos de um animal para cada uma das últimas 5 horas com dados registrados.\n\n**Requer autenticação JWT.**",
+    responses={
+        200: {
+            "description": "Médias calculadas com sucesso",
+            "content": {
+                "application/json": {
+                    "schema": {"$ref": "#/components/schemas/MediaUltimas5Horas"}
+                }
+            }
+        }
+    }
+)
+async def media_batimentos_ultimas_5_horas(
+    animalId: str = Path(..., description="Identificador único do animal", example="123"),
+    credentials: Tuple[str, str] = Depends(get_current_user)
+):
     """
     Calcula a média de batimentos das últimas 5 horas registradas.
 
@@ -460,15 +621,33 @@ async def media_batimentos_ultimas_5_horas(animalId: str, credentials: Tuple[str
     Raises:
         401: Token JWT ausente, inválido ou expirado
     """
-    user_id, token = credentials
+    _, token = credentials
     dados = await java_api.buscar_todos_batimentos(animalId, token)
     resultado = stats.media_ultimas_5_horas_registradas(dados)
     return resultado
 
 
 # --------------------- Batimentos - Regressão ---------------------
-@app.get("/batimentos/animal/{animalId}/regressao", tags=["Batimentos"])
-async def analise_regressao_batimentos(animalId: str, credentials: Tuple[str, str] = Depends(get_current_user)):
+@app.get(
+    "/batimentos/animal/{animalId}/regressao",
+    tags=["Batimentos"],
+    summary="Analisar regressão entre batimentos e movimentos",
+    description="Realiza análise de regressão linear entre os batimentos cardíacos e os dados de movimento (aceleração) de um animal, fornecendo coeficientes e correlações.\n\n**Requer autenticação JWT.**",
+    responses={
+        200: {
+            "description": "Análise de regressão realizada com sucesso",
+            "content": {
+                "application/json": {
+                    "schema": {"$ref": "#/components/schemas/AnaliseRegressao"}
+                }
+            }
+        }
+    }
+)
+async def analise_regressao_batimentos(
+    animalId: str = Path(..., description="Identificador único do animal", example="123"),
+    credentials: Tuple[str, str] = Depends(get_current_user)
+):
     """
     Realiza análise de regressão entre batimentos e movimentos.
 
@@ -483,7 +662,7 @@ async def analise_regressao_batimentos(animalId: str, credentials: Tuple[str, st
     Raises:
         401: Token JWT ausente, inválido ou expirado
     """
-    user_id, token = credentials
+    _, token = credentials
     batimentos = await java_api.buscar_todos_batimentos(animalId, token)
     movimentos = await java_api.buscar_todos_movimentos(animalId, token)
     if not batimentos or not movimentos:
@@ -491,12 +670,27 @@ async def analise_regressao_batimentos(animalId: str, credentials: Tuple[str, st
     resultado = stats.executar_regressao(batimentos, movimentos)
     return resultado
 
-@app.get("/batimentos/animal/{animalId}/predizer", tags=["Batimentos"])
+@app.get(
+    "/batimentos/animal/{animalId}/predizer",
+    tags=["Batimentos"],
+    summary="Prever frequência cardíaca baseada em aceleração",
+    description="Prediz a frequência cardíaca de um animal baseado em valores de aceleração (acelerômetro) utilizando um modelo de regressão linear treinado com dados históricos.\n\n**Requer autenticação JWT.**",
+    responses={
+        200: {
+            "description": "Predição realizada com sucesso",
+            "content": {
+                "application/json": {
+                    "schema": {"$ref": "#/components/schemas/PredicaoBatimento"}
+                }
+            }
+        }
+    }
+)
 async def predizer_batimento(
-    animalId: str,
-    acelerometroX: float = Query(..., description="Valor do acelerômetro no eixo X"),
-    acelerometroY: float = Query(..., description="Valor do acelerômetro no eixo Y"),
-    acelerometroZ: float = Query(..., description="Valor do acelerômetro no eixo Z"),
+    animalId: str = Path(..., description="Identificador único do animal", example="123"),
+    acelerometroX: float = Query(..., description="Valor do acelerômetro no eixo X", example="0.5"),
+    acelerometroY: float = Query(..., description="Valor do acelerômetro no eixo Y", example="0.3"),
+    acelerometroZ: float = Query(..., description="Valor do acelerômetro no eixo Z", example="0.2"),
     credentials: Tuple[str, str] = Depends(get_current_user)
 ):
     """
@@ -519,7 +713,7 @@ async def predizer_batimento(
     Raises:
         401: Token JWT ausente, inválido ou expirado
     """
-    user_id, token = credentials
+    _, token = credentials
     batimentos = await java_api.buscar_todos_batimentos(animalId, token)
     movimentos = await java_api.buscar_todos_movimentos(animalId, token)
     if not batimentos or not movimentos:

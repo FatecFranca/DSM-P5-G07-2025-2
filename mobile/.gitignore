@@ -45,4 +45,11 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 .env
+
+# APK files
+*.apk
+*.aab
+
+.env
+.env.example2
 .env.example3

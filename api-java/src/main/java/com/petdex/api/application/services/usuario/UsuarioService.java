@@ -5,6 +5,7 @@ import com.petdex.api.domain.collections.Usuario;
 import com.petdex.api.domain.contracts.dto.PageDTO;
 import com.petdex.api.domain.contracts.dto.usuario.UsuarioReqDTO;
 import com.petdex.api.domain.contracts.dto.usuario.UsuarioResDTO;
+import com.petdex.api.infrastructure.exception.ConflictException;
 import com.petdex.api.infrastructure.mongodb.UsuarioRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UsuarioService implements IUsuarioService {
@@ -44,6 +46,12 @@ public class UsuarioService implements IUsuarioService {
 
     @Override
     public UsuarioResDTO create(UsuarioReqDTO usuarioReqDTO) {
+        // Verifica se o email já está cadastrado
+        Optional<Usuario> usuarioExistente = usuarioRepository.findByEmail(usuarioReqDTO.getEmail());
+        if (usuarioExistente.isPresent()) {
+            throw new ConflictException("Usuário", "email", usuarioReqDTO.getEmail());
+        }
+
         // Criptografa a senha antes de salvar
         Usuario usuario = mapper.map(usuarioReqDTO, Usuario.class);
         usuario.setSenha(passwordService.hashPassword(usuarioReqDTO.getSenha()));

@@ -4,19 +4,23 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Date;
 
-@Schema(name = "Requisição Batimento", description = "Informações contidas nas requisições da API envolvendo os batimentos cardíacos")
+@Schema(
+        name = "Requisição Batimento",
+        description = "Dados necessários para registrar um novo batimento cardíaco no sistema",
+        example = "{\"data\": \"2024-01-20T14:30:00.000+00:00\", \"frequenciaMedia\": 75, \"animal\": \"507f1f77bcf86cd799439011\", \"coleira\": \"507f1f77bcf86cd799439011\"}"
+)
 public class BatimentoReqDTO {
 
-    @Schema(description = "Data/Hora que foi coletado o batimento cardíaco", example = "", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Data e hora em que foi coletado o batimento cardíaco", example = "2024-01-20T14:30:00.000+00:00", requiredMode = Schema.RequiredMode.REQUIRED)
     private Date data;
 
-    @Schema(description = "Frequência média que foi coletada do animal", example = "60", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Frequência cardíaca média coletada do animal em batimentos por minuto (BPM)", example = "75", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer frequenciaMedia;
 
-    @Schema(description = "ID do Animal que foi coletado o batimento cardíaco", example = "60", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "ID do animal que teve o batimento cardíaco coletado", example = "507f1f77bcf86cd799439011", requiredMode = Schema.RequiredMode.REQUIRED)
     private String animal;
 
-    @Schema(description = "ID da coleira que fez a coleta do batimento cardíaco", example = "60", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "ID da coleira que realizou a coleta do batimento cardíaco", example = "507f1f77bcf86cd799439011", requiredMode = Schema.RequiredMode.REQUIRED)
     private String coleira;
 
     public BatimentoReqDTO() {

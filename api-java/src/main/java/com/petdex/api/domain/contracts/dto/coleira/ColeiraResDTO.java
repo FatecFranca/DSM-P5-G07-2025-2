@@ -1,8 +1,21 @@
 package com.petdex.api.domain.contracts.dto.coleira;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(
+        name = "Resposta Coleira",
+        description = "Informações detalhadas de uma coleira retornadas pela API",
+        example = "{\"id\": \"507f1f77bcf86cd799439011\", \"descricao\": \"Coleira GPS Azul\", \"animal\": \"507f1f77bcf86cd799439011\"}"
+)
 public class ColeiraResDTO {
+
+    @Schema(description = "Código único identificador da coleira", example = "507f1f77bcf86cd799439011")
     private String id;
+
+    @Schema(description = "Descrição ou identificação da coleira", example = "Coleira GPS Azul")
     private String descricao;
+
+    @Schema(description = "ID do animal ao qual a coleira está associada", example = "507f1f77bcf86cd799439011")
     private String animal;
 
 

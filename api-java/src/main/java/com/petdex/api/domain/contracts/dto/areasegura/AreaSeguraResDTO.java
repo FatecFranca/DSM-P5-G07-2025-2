@@ -1,18 +1,38 @@
 package com.petdex.api.domain.contracts.dto.areasegura;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.Date;
 
 /**
  * DTO para respostas de área segura
  */
+@Schema(
+        name = "Resposta Área Segura",
+        description = "Informações detalhadas de uma área segura retornadas pela API",
+        example = "{\"id\": \"507f1f77bcf86cd799439011\", \"animal\": \"507f1f77bcf86cd799439011\", \"latitude\": -23.550520, \"longitude\": -46.633308, \"raio\": 500.0, \"dataCriacao\": \"2024-01-15T10:30:00.000+00:00\", \"dataAtualizacao\": \"2024-01-20T14:45:00.000+00:00\"}"
+)
 public class AreaSeguraResDTO {
 
+    @Schema(description = "Código único identificador da área segura", example = "507f1f77bcf86cd799439011")
     private String id;
+
+    @Schema(description = "ID do animal associado à área segura", example = "507f1f77bcf86cd799439011")
     private String animal;
+
+    @Schema(description = "Latitude do ponto central da área segura", example = "-23.550520")
     private Double latitude;
+
+    @Schema(description = "Longitude do ponto central da área segura", example = "-46.633308")
     private Double longitude;
-    private Double raio; // Raio em metros
+
+    @Schema(description = "Raio da área segura em metros", example = "500.0")
+    private Double raio;
+
+    @Schema(description = "Data e hora de criação da área segura", example = "2024-01-15T10:30:00.000+00:00")
     private Date dataCriacao;
+
+    @Schema(description = "Data e hora da última atualização da área segura", example = "2024-01-20T14:45:00.000+00:00")
     private Date dataAtualizacao;
 
     public AreaSeguraResDTO() {

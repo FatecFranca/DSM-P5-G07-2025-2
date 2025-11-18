@@ -12,7 +12,7 @@ logger = logging.getLogger("PMMLPredictor")
 
 API_BASE_URL = os.getenv("API_URL")
 TOKEN_JAVA = os.getenv("JAVA_API_TOKEN")
-MODEL_PATH = "modelo_random_forest.pmml"
+MODEL_PATH = "modelo_CART.pmml"
 
 # Variável global para armazenar o modelo
 model = None
