@@ -245,7 +245,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     TextButton(
                       onPressed: () => Navigator.pop(context),
                       child: Text(
-                        'J├í tem conta? Entrar',
+                        'Já tem conta? Entrar',
                         style: GoogleFonts.poppins(
                           color: AppColors.orange900,
                           fontSize: 16,

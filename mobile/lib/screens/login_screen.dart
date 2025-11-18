@@ -42,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       } else {
         setState(() {
-          _errorMessage = 'E-mail ou senha inv├ílidos. Tente novamente.';
+          _errorMessage = 'E-mail ou senha inválidos. Tente novamente.';
         });
       }
     }
