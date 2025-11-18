@@ -30,11 +30,8 @@ class _AppShellState extends State<AppShell> {
   void initState() {
     super.initState();
 
-    // Obtém o ID do animal do serviço de autenticação
-    _animalId = authService.getAnimalId()!;
-    _animalName = authService.getPetName()!;
-
-    print('🐾 AppShell inicializado com animalId: $_animalId');
+    _animalId = authService.getAnimalId() ?? '';
+    _animalName = authService.getPetName() ?? 'Pet';
 
     _pages = [
       MapScreen(
@@ -43,8 +40,11 @@ class _AppShellState extends State<AppShell> {
         animalSpecies: SpeciesEnum.dog,
         animalImageUrl: "assets/images/uno.png",
       ),
-      HealthScreen(animalId: _animalId, animalName: _animalName,),
-      CheckupScreen(),
+      HealthScreen(
+        animalId: _animalId,
+        animalName: _animalName,
+      ),
+      const CheckupScreen(),
       LocationScreen(
         animalId: _animalId,
         animalName: _animalName,
@@ -53,10 +53,8 @@ class _AppShellState extends State<AppShell> {
       ),
     ];
 
-    // Escuta mudanças no estado de conexão WebSocket
-    _connectionSubscription = _webSocketService.connectionStream.listen((
-      isConnected,
-    ) {
+    _connectionSubscription =
+        _webSocketService.connectionStream.listen((isConnected) {
       if (mounted) {
         setState(() {
           _isWebSocketConnected = isConnected;
@@ -72,9 +70,7 @@ class _AppShellState extends State<AppShell> {
   }
 
   void _onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+    setState(() => _currentIndex = index);
   }
 
   @override
@@ -82,9 +78,9 @@ class _AppShellState extends State<AppShell> {
     return Scaffold(
       body: Stack(
         children: [
-          // Conteúdo das páginas (ocupa toda a tela)
           IndexedStack(index: _currentIndex, children: _pages),
-          // Overlay do BottomNavWithStatus (posicionado na parte inferior)
+
+          /// 🔻 Bottom Navigation fixado
           Positioned(
             left: 0,
             right: 0,
@@ -92,7 +88,7 @@ class _AppShellState extends State<AppShell> {
             child: BottomNavWithStatus(
               currentIndex: _currentIndex,
               onTap: _onTabTapped,
-              animalId: _animalId, // ID do animal obtido do login
+              animalId: _animalId,
               isConnected: _isWebSocketConnected,
             ),
           ),

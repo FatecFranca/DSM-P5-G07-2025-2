@@ -59,7 +59,7 @@ class _LocationScreenState extends State<LocationScreen> with AutomaticKeepAlive
   String? _errorMessage;
   String? _address; // Endereço formatado
   bool _isInitialized = false; // Flag para evitar inicializações duplicadas
-  String? _animalName; // Nome do animal (buscado da API)
+  String? _animalName; // Nome do pet (buscado da API)
 
   // Informações de área segura
   bool? _isOutsideSafeZone;

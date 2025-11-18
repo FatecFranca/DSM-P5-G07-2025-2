@@ -18,13 +18,18 @@ class AuthResponse {
   });
 
   /// Factory para criar AuthResponse a partir de JSON
-  /// Suporta diferentes nomes de campos para maior compatibilidade
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
     return AuthResponse(
       token: json['token'] as String? ?? json['jwt'] as String? ?? '',
       animalId: json['animalId'] as String? ?? json['animal_id'] as String?,
-      userId: json['userId'] as String? ?? json['user_id'] as String? ?? json['id'] as String? ?? '',
-      nome: json['nome'] as String? ?? json['name'] as String? ?? json['username'] as String? ?? '',
+      userId: json['userId'] as String? ??
+          json['user_id'] as String? ??
+          json['id'] as String? ??
+          '',
+      nome: json['nome'] as String? ??
+          json['name'] as String? ??
+          json['username'] as String? ??
+          '',
       email: json['email'] as String? ?? json['mail'] as String? ?? '',
       petName: json['petName'] as String? ?? json['pet_name'] as String?,
     );
@@ -41,5 +46,23 @@ class AuthResponse {
       'petName': petName,
     };
   }
-}
 
+  /// ✅ Permite atualizar apenas campos desejados
+  AuthResponse copyWith({
+    String? token,
+    String? animalId,
+    String? userId,
+    String? nome,
+    String? email,
+    String? petName,
+  }) {
+    return AuthResponse(
+      token: token ?? this.token,
+      animalId: animalId ?? this.animalId,
+      userId: userId ?? this.userId,
+      nome: nome ?? this.nome,
+      email: email ?? this.email,
+      petName: petName ?? this.petName,
+    );
+  }
+}
