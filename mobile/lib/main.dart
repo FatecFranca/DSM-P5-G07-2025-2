@@ -26,56 +26,16 @@ class MyApp extends StatelessWidget {
       home: FutureBuilder(
         future: authService.init(),
         builder: (context, snapshot) {
-          // Enquanto inicializa
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             );
           }
 
-          // Se o usuário já estiver autenticado, vai direto pro app
           if (authService.isAuthenticated()) {
-            return Stack(
-              children: [
-                const AppShell(),
-
-                /// 🔹 Botão de Logout de Teste
-                Positioned(
-                  right: 16,
-                  top: 40,
-                  child: FloatingActionButton.extended(
-                    heroTag: 'logoutButton',
-                    backgroundColor: Colors.redAccent,
-                    icon: const Icon(Icons.logout),
-                    label: const Text('Logout (teste)'),
-                    onPressed: () async {
-                      await authService.logout();
-
-                      // Mostra confirmação visual
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('✅ Logout realizado com sucesso'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-
-                        // Redireciona para a tela de login
-                        Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(
-                            builder: (_) => const LoginScreen(),
-                          ),
-                          (route) => false,
-                        );
-                      }
-                    },
-                  ),
-                ),
-              ],
-            );
+            return const AppShell();
           }
 
-          // Caso contrário, volta pra tela de login
           return const LoginScreen();
         },
       ),

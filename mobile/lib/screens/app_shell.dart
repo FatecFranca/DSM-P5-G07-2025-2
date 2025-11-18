@@ -8,6 +8,8 @@ import 'package:PetDex/screens/location_screen.dart';
 import 'package:PetDex/data/enums/species.dart';
 import 'package:PetDex/services/websocket_service.dart';
 import 'package:PetDex/main.dart';
+import 'package:PetDex/theme/app_theme.dart';
+import 'package:PetDex/screens/login_screen.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -30,11 +32,8 @@ class _AppShellState extends State<AppShell> {
   void initState() {
     super.initState();
 
-    // Obtém o ID do animal do serviço de autenticação
     _animalId = authService.getAnimalId() ?? '';
     _animalName = authService.getPetName() ?? 'Pet';
-
-    print('🐾 AppShell inicializado com animalId: $_animalId');
 
     _pages = [
       MapScreen(
@@ -43,8 +42,11 @@ class _AppShellState extends State<AppShell> {
         animalSpecies: SpeciesEnum.dog,
         animalImageUrl: "assets/images/uno.png",
       ),
-      HealthScreen(animalId: _animalId, animalName: _animalName,),
-      CheckupScreen(),
+      HealthScreen(
+        animalId: _animalId,
+        animalName: _animalName,
+      ),
+      const CheckupScreen(),
       LocationScreen(
         animalId: _animalId,
         animalName: _animalName,
@@ -53,10 +55,8 @@ class _AppShellState extends State<AppShell> {
       ),
     ];
 
-    // Escuta mudanças no estado de conexão WebSocket
-    _connectionSubscription = _webSocketService.connectionStream.listen((
-      isConnected,
-    ) {
+    _connectionSubscription =
+        _webSocketService.connectionStream.listen((isConnected) {
       if (mounted) {
         setState(() {
           _isWebSocketConnected = isConnected;
@@ -72,9 +72,7 @@ class _AppShellState extends State<AppShell> {
   }
 
   void _onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+    setState(() => _currentIndex = index);
   }
 
   @override
@@ -82,9 +80,47 @@ class _AppShellState extends State<AppShell> {
     return Scaffold(
       body: Stack(
         children: [
-          // Conteúdo das páginas (ocupa toda a tela)
           IndexedStack(index: _currentIndex, children: _pages),
-          // Overlay do BottomNavWithStatus (posicionado na parte inferior)
+
+          Positioned(
+            top: 40,
+            right: 16,
+            child: GestureDetector(
+              onTap: () async {
+                await authService.logout();
+
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Você saiu da conta.'),
+                      backgroundColor: AppColors.orange200,
+                    ),
+                  );
+
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (_) => const LoginScreen(),
+                    ),
+                    (route) => false,
+                  );
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: const BoxDecoration(
+                  color: AppColors.orange400,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.logout,
+                  color: Colors.white,
+                  size: 22,
+                ),
+              ),
+            ),
+          ),
+
+          /// 🔻 Bottom Navigation fixado
           Positioned(
             left: 0,
             right: 0,
@@ -92,7 +128,7 @@ class _AppShellState extends State<AppShell> {
             child: BottomNavWithStatus(
               currentIndex: _currentIndex,
               onTap: _onTabTapped,
-              animalId: _animalId, // ID do animal obtido do login
+              animalId: _animalId,
               isConnected: _isWebSocketConnected,
             ),
           ),
