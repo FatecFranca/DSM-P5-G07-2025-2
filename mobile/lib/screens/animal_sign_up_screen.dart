@@ -8,6 +8,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:PetDex/theme/app_theme.dart';
 import 'package:PetDex/screens/app_shell.dart';
 import 'package:PetDex/services/auth_service.dart';
+// 🚨 Importação CRÍTICA do cliente autenticado
+import 'package:PetDex/services/http_client.dart'; 
 
 class AnimalSignUpScreen extends StatefulWidget {
   final String usuarioId;
@@ -35,15 +37,40 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
   String? _errorMessage;
   File? _animalImage;
 
+  // 🔑 Futuro que controlará a inicialização do AuthService
+  late Future<void> _initializationFuture;
+  
+  // ✅ Usando o cliente HTTP que injeta o token
+  final http.Client _httpClient = AuthenticatedHttpClient();
+  final AuthService _authService = AuthService();
+
   String get _javaApiBaseUrl => dotenv.env['API_JAVA_URL']!;
 
+  @override
+  void initState() {
+    super.initState();
+    // 🎯 Captura o Future do init do AuthService para ser esperado pelo FutureBuilder
+    // Embora o main.dart já chame o init, chamamos aqui para garantir que o FutureBuilder espere.
+    _initializationFuture = _authService.init(); 
+  }
+
+  @override
+  void dispose() {
+    _httpClient.close();
+    _nomeController.dispose();
+    _dataController.dispose();
+    _pesoController.dispose();
+    super.dispose();
+  }
+
+  // --- Lógica de Imagem e Data ---
+  
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(
       source: ImageSource.gallery,
       imageQuality: 80,
     );
-
     if (pickedFile != null) {
       setState(() => _animalImage = File(pickedFile.path));
     }
@@ -75,19 +102,20 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
     }
   }
 
-  Future<void> _buscarRacas(String especieId) async {
-    try {
-      final auth = AuthService();
-      await auth.init();
-      final token = auth.getToken();
+  // --- Lógica de Requisições (USA CLIENTE AUTENTICADO) ---
 
+  Future<void> _buscarRacas(String especieId) async {
+    setState(() {
+      _errorMessage = null;
+    });
+    try {
       final url =
           "$_javaApiBaseUrl/racas/especie/$especieId?page=0&size=50&sortBy=nome&direction=asc";
 
-      final response = await http.get(
+      // ✅ Usa o cliente autenticado (_httpClient)
+      final response = await _httpClient.get(
         Uri.parse(url),
         headers: {
-          "Authorization": "Bearer $token",
           "accept": "application/json",
         },
       );
@@ -99,14 +127,15 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
         setState(() {
           _racas = lista
               .map((r) => {
-                    "id": r["id"].toString(), // 🔥 AQUI — resolve o erro
+                    "id": r["id"].toString(),
                     "nome": r["nome"],
                   })
               .toList();
-          _racaSelecionada = null;
+          _racaSelecionada = null; // Reinicia a raça
         });
       } else {
-        setState(() => _errorMessage = "Erro ao buscar raças: ${response.body}");
+        setState(() => _errorMessage = 
+            "Erro ao buscar raças (${response.statusCode}): ${response.body}");
       }
     } catch (e) {
       setState(() => _errorMessage = "Erro inesperado ao buscar raças: $e");
@@ -116,14 +145,15 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
   Future<void> _cadastrarAnimal() async {
     if (!_formKey.currentState!.validate()) return;
 
-    if (_especieSelecionada == null) {
-      setState(() => _errorMessage = "Selecione a espécie do animal.");
+    if (_especieSelecionada == null || _racaSelecionada == null) {
+      setState(() => _errorMessage = "Selecione a espécie e a raça do animal.");
       return;
     }
-
-    if (_racaSelecionada == null) {
-      setState(() => _errorMessage = "Selecione a raça do animal.");
-      return;
+    
+    final peso = double.tryParse(_pesoController.text.trim().replaceAll(',', '.'));
+    if (peso == null) {
+        setState(() => _errorMessage = "Peso inválido. Use um formato numérico.");
+        return;
     }
 
     setState(() {
@@ -132,21 +162,14 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
     });
 
     try {
-      final authService = AuthService();
-      await authService.init();
-      final token = authService.getToken();
-
-      final response = await http.post(
+      // ✅ Usa o cliente autenticado para o POST principal
+      final response = await _httpClient.post(
         Uri.parse("$_javaApiBaseUrl/animais"),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $token",
-        },
         body: jsonEncode({
           "nome": _nomeController.text.trim(),
           "dataNascimento": _dataController.text.trim(),
           "sexo": _sexoSelecionado,
-          "peso": double.parse(_pesoController.text.trim()),
+          "peso": peso,
           "castrado": _castrado,
           "usuario": widget.usuarioId,
           "especie": _especieSelecionada,
@@ -158,25 +181,21 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
         final parsed = jsonDecode(response.body);
         final animalId = parsed["id"];
 
+        // --- Upload de Imagem ---
         if (_animalImage != null) {
           final upload = http.MultipartRequest(
             "POST",
             Uri.parse("$_javaApiBaseUrl/animais/$animalId/imagem"),
-          )
-            ..headers["Authorization"] = "Bearer $token"
-            ..files.add(
+          );
+          upload.files.add(
               await http.MultipartFile.fromPath("imagem", _animalImage!.path),
             );
-
-          await upload.send();
+          await _httpClient.send(upload); 
         }
 
-        await http.post(
+        // --- Criação da Coleira ---
+        await _httpClient.post( 
           Uri.parse("$_javaApiBaseUrl/coleiras"),
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer $token",
-          },
           body: jsonEncode({
             "descricao": "Coleira GPS padrão",
             "animal": animalId,
@@ -201,6 +220,8 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
     }
   }
 
+  // --- Estrutura da Tela (com FutureBuilder) ---
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -220,183 +241,209 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Center(
-                  child: Column(
-                    children: [
-                      GestureDetector(
-                        onTap: _pickImage,
-                        child: CircleAvatar(
-                          radius: 60,
-                          backgroundColor: AppColors.orange200,
-                          backgroundImage:
-                              _animalImage != null ? FileImage(_animalImage!) : null,
-                          child: _animalImage == null
-                              ? const Icon(Icons.camera_alt,
-                                  size: 40, color: AppColors.orange900)
-                              : null,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextButton(
-                        onPressed: _pickImage,
-                        child: Text(
-                          "Selecionar Imagem",
-                          style: GoogleFonts.poppins(
-                            color: AppColors.orange900,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+      // 🧱 Espera o token ser carregado antes de renderizar o formulário
+      body: FutureBuilder(
+        future: _initializationFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            // Renderiza o formulário (o AuthenticatedHttpClient lida com 401s posteriores)
+            return _buildForm();
+          } else {
+            return const Center(
+              child: CircularProgressIndicator(color: AppColors.orange),
+            );
+          }
+        },
+      ),
+    );
+  }
 
-                const SizedBox(height: 24),
+  // --- Método que Constroi o Formulário ---
 
-                _label("Nome do Animal", Icons.pets),
-                const SizedBox(height: 8),
-                _input(hint: "Ex: Rex", controller: _nomeController),
-                const SizedBox(height: 16),
-
-                _label("Data de Nascimento", Icons.calendar_today),
-                const SizedBox(height: 8),
-                GestureDetector(
-                  onTap: () => _selectDate(context),
-                  child: AbsorbPointer(
-                    child: _input(
-                      hint: "AAAA-MM-DD",
-                      controller: _dataController,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                _label("Espécie", Icons.pets),
-                const SizedBox(height: 8),
-                DropdownButtonFormField<String>(
-                  value: _especieSelecionada,
-                  decoration: _selectDecoration(),
-                  items: const [
-                    DropdownMenuItem(
-                      value: "68193ec5636f719fcd5ee598",
-                      child: Text("Cachorro"),
-                    ),
-                    DropdownMenuItem(
-                      value: "68193ec5636f719fcd5ee597",
-                      child: Text("Gato"),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _especieSelecionada = value;
-                      _racas = [];
-                      _racaSelecionada = null;
-                    });
-                    _buscarRacas(value!);
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                _label("Raça", Icons.list),
-                const SizedBox(height: 8),
-                DropdownButtonFormField<String>(
-                  value: _racaSelecionada,
-                  decoration: _selectDecoration(),
-                  items: _racas
-                      .map(
-                        (r) => DropdownMenuItem<String>(
-                          value: r["id"], // já é String
-                          child: Text(r["nome"]),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() => _racaSelecionada = value);
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                _label("Sexo", Icons.transgender),
-                const SizedBox(height: 8),
-                DropdownButtonFormField<String>(
-                  value: _sexoSelecionado,
-                  decoration: _selectDecoration(),
-                  items: const [
-                    DropdownMenuItem(value: "Macho", child: Text("Macho")),
-                    DropdownMenuItem(value: "Fêmea", child: Text("Fêmea")),
-                  ],
-                  onChanged: (value) => setState(() => _sexoSelecionado = value),
-                ),
-                const SizedBox(height: 16),
-
-                _label("Peso (kg)", Icons.monitor_weight),
-                const SizedBox(height: 8),
-                _input(
-                  hint: "Ex: 12.5",
-                  controller: _pesoController,
-                  keyboard: TextInputType.number,
-                ),
-
-                const SizedBox(height: 16),
-
-                Row(
+  Widget _buildForm() {
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // ... (Imagem, Botão, Campos de Nome e Data)
+              Center(
+                child: Column(
                   children: [
-                    Checkbox(
-                      value: _castrado,
-                      activeColor: AppColors.orange900,
-                      onChanged: (v) => setState(() => _castrado = v ?? false),
+                    GestureDetector(
+                      onTap: _pickImage,
+                      child: CircleAvatar(
+                        radius: 60,
+                        backgroundColor: AppColors.orange200,
+                        backgroundImage:
+                            _animalImage != null ? FileImage(_animalImage!) : null,
+                        child: _animalImage == null
+                            ? const Icon(Icons.camera_alt,
+                                size: 40, color: AppColors.orange900)
+                            : null,
+                      ),
                     ),
-                    Text("Castrado", style: GoogleFonts.poppins(fontSize: 16)),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-
-                if (_errorMessage != null)
-                  Text(
-                    _errorMessage!,
-                    style: const TextStyle(color: Colors.red),
-                    textAlign: TextAlign.center,
-                  ),
-
-                const SizedBox(height: 8),
-
-                _isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(color: AppColors.orange),
-                      )
-                    : ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.orange900,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        onPressed: _cadastrarAnimal,
-                        child: Text(
-                          "Cadastrar Animal",
-                          style: GoogleFonts.poppins(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: _pickImage,
+                      child: Text(
+                        "Selecionar Imagem",
+                        style: GoogleFonts.poppins(
+                          color: AppColors.orange900,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-              ],
-            ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              _label("Nome do Animal", Icons.pets),
+              const SizedBox(height: 8),
+              _input(hint: "Ex: Rex", controller: _nomeController),
+              const SizedBox(height: 16),
+
+              _label("Data de Nascimento", Icons.calendar_today),
+              const SizedBox(height: 8),
+              GestureDetector(
+                onTap: () => _selectDate(context),
+                child: AbsorbPointer(
+                  child: _input(
+                    hint: "AAAA-MM-DD",
+                    controller: _dataController,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // --- ESPÉCIE ---
+              _label("Espécie", Icons.pets),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                value: _especieSelecionada,
+                decoration: _selectDecoration(),
+                items: const [
+                  DropdownMenuItem(
+                    value: "68193ec5636f719fcd5ee598",
+                    child: Text("Cachorro"),
+                  ),
+                  DropdownMenuItem(
+                    value: "68193ec5636f719fcd5ee597",
+                    child: Text("Gato"),
+                  ),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _especieSelecionada = value;
+                    _racas = [];
+                    _racaSelecionada = null;
+                  });
+                  if (value != null) {
+                    _buscarRacas(value); // 🚩 Chama a função para popular Raças
+                  }
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // --- RAÇA (Dependente da Espécie) ---
+              _label("Raça", Icons.list),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                value: _racaSelecionada,
+                decoration: _selectDecoration(),
+                items: _racas
+                    .map(
+                      (r) => DropdownMenuItem<String>(
+                        value: r["id"],
+                        child: Text(r["nome"]),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  setState(() => _racaSelecionada = value);
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // --- Outros Campos ---
+              _label("Sexo", Icons.transgender),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                value: _sexoSelecionado,
+                decoration: _selectDecoration(),
+                items: const [
+                  DropdownMenuItem(value: "Macho", child: Text("Macho")),
+                  DropdownMenuItem(value: "Fêmea", child: Text("Fêmea")),
+                ],
+                onChanged: (value) => setState(() => _sexoSelecionado = value),
+              ),
+              const SizedBox(height: 16),
+
+              _label("Peso (kg)", Icons.monitor_weight),
+              const SizedBox(height: 8),
+              _input(
+                hint: "Ex: 12.5",
+                controller: _pesoController,
+                keyboard: TextInputType.number,
+              ),
+
+              const SizedBox(height: 16),
+
+              Row(
+                children: [
+                  Checkbox(
+                    value: _castrado,
+                    activeColor: AppColors.orange900,
+                    onChanged: (v) => setState(() => _castrado = v ?? false),
+                  ),
+                  Text("Castrado", style: GoogleFonts.poppins(fontSize: 16)),
+                ],
+              ),
+
+              const SizedBox(height: 24),
+
+              if (_errorMessage != null)
+                Text(
+                  _errorMessage!,
+                  style: const TextStyle(color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+
+              const SizedBox(height: 8),
+
+              _isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(color: AppColors.orange),
+                    )
+                  : ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.orange900,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      onPressed: _cadastrarAnimal,
+                      child: Text(
+                        "Cadastrar Animal",
+                        style: GoogleFonts.poppins(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+            ],
           ),
         ),
       ),
     );
   }
 
+  // --- Métodos Auxiliares ---
   Widget _label(String text, IconData icon) {
     return Row(
       children: [
