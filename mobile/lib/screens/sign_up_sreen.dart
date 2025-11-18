@@ -178,7 +178,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     _buildLabel('Telefone', Icons.phone_outlined),
                     const SizedBox(height: 8),
                     _buildTextField(
-                      hintText: 'Insira seu n├║mero de telefone',
+                      hintText: 'Insira seu número de telefone',
                       controller: _telefoneController,
                       keyboardType: TextInputType.phone,
                     ),
