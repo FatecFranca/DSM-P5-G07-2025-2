@@ -19,44 +19,48 @@ class AnimalSignUpScreen extends StatefulWidget {
 
 class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
   final _formKey = GlobalKey<FormState>();
+
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _dataController = TextEditingController();
   final TextEditingController _pesoController = TextEditingController();
 
   String? _sexoSelecionado;
   bool _castrado = false;
-  String? _racaId;
+
+  String? _especieSelecionada;
+  String? _racaSelecionada;
+  List<Map<String, dynamic>> _racas = [];
+
   bool _isLoading = false;
   String? _errorMessage;
   File? _animalImage;
 
   String get _javaApiBaseUrl => dotenv.env['API_JAVA_URL']!;
 
-  // 📸 Selecionar imagem
   Future<void> _pickImage() async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+
     if (pickedFile != null) {
-      setState(() {
-        _animalImage = File(pickedFile.path);
-      });
+      setState(() => _animalImage = File(pickedFile.path));
     }
   }
 
-  // 📅 Selecionar data — com tema igual ao HealthScreen
   Future<void> _selectDate(BuildContext context) async {
     final picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
-      builder: (BuildContext context, Widget? child) {
+      builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
               primary: AppColors.orange,
               onPrimary: Colors.white,
-              onSurface: AppColors.brown,
             ),
           ),
           child: child!,
@@ -71,8 +75,56 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
     }
   }
 
+  Future<void> _buscarRacas(String especieId) async {
+    try {
+      final auth = AuthService();
+      await auth.init();
+      final token = auth.getToken();
+
+      final url =
+          "$_javaApiBaseUrl/racas/especie/$especieId?page=0&size=50&sortBy=nome&direction=asc";
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          "Authorization": "Bearer $token",
+          "accept": "application/json",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final lista = data["content"] as List;
+
+        setState(() {
+          _racas = lista
+              .map((r) => {
+                    "id": r["id"].toString(), // 🔥 AQUI — resolve o erro
+                    "nome": r["nome"],
+                  })
+              .toList();
+          _racaSelecionada = null;
+        });
+      } else {
+        setState(() => _errorMessage = "Erro ao buscar raças: ${response.body}");
+      }
+    } catch (e) {
+      setState(() => _errorMessage = "Erro inesperado ao buscar raças: $e");
+    }
+  }
+
   Future<void> _cadastrarAnimal() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (_especieSelecionada == null) {
+      setState(() => _errorMessage = "Selecione a espécie do animal.");
+      return;
+    }
+
+    if (_racaSelecionada == null) {
+      setState(() => _errorMessage = "Selecione a raça do animal.");
+      return;
+    }
 
     setState(() {
       _isLoading = true;
@@ -84,19 +136,11 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
       await authService.init();
       final token = authService.getToken();
 
-      print('[AnimalSignUp] Token atual recuperado: $token');
-
-      if (token == null || token.isEmpty) {
-        throw Exception("Token JWT não encontrado. Faça login novamente.");
-      }
-
-      await Future.delayed(const Duration(milliseconds: 500));
-
       final response = await http.post(
-        Uri.parse('$_javaApiBaseUrl/animais'),
+        Uri.parse("$_javaApiBaseUrl/animais"),
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
         },
         body: jsonEncode({
           "nome": _nomeController.text.trim(),
@@ -105,98 +149,55 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
           "peso": double.parse(_pesoController.text.trim()),
           "castrado": _castrado,
           "usuario": widget.usuarioId,
-          "raca": _racaId ?? "507f1f77bcf86cd799439011",
+          "especie": _especieSelecionada,
+          "raca": _racaSelecionada,
         }),
       );
 
-      print('[AnimalSignUp] Resposta do servidor (${response.statusCode}): ${response.body}');
-
       if (response.statusCode == 201) {
-        final jsonResponse = jsonDecode(response.body);
-        final animalId = jsonResponse["id"];
-        print('[AnimalSignUp] Animal criado com ID: $animalId');
+        final parsed = jsonDecode(response.body);
+        final animalId = parsed["id"];
 
-        await authService.updateUserWithAnimal(widget.usuarioId, animalId);
-        print('[AnimalSignUp] Usuário atualizado com o animal vinculado.');
+        if (_animalImage != null) {
+          final upload = http.MultipartRequest(
+            "POST",
+            Uri.parse("$_javaApiBaseUrl/animais/$animalId/imagem"),
+          )
+            ..headers["Authorization"] = "Bearer $token"
+            ..files.add(
+              await http.MultipartFile.fromPath("imagem", _animalImage!.path),
+            );
 
-        if (_animalImage != null && animalId != null) {
-          final uploadUrl = Uri.parse('$_javaApiBaseUrl/animais/$animalId/imagem');
-          final request = http.MultipartRequest('POST', uploadUrl)
-            ..headers['Authorization'] = 'Bearer $token'
-            ..files.add(await http.MultipartFile.fromPath(
-              'imagem',
-              _animalImage!.path,
-            ));
-
-          final uploadResponse = await request.send();
-          if (uploadResponse.statusCode == 200) {
-            print('[AnimalSignUp] Imagem enviada com sucesso!');
-          } else {
-            print('[AnimalSignUp] Falha ao enviar imagem: ${uploadResponse.statusCode}');
-          }
+          await upload.send();
         }
 
-        await _criarColeiraParaAnimal(token, animalId);
-
-        await Future.delayed(const Duration(milliseconds: 700));
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Animal cadastrado com sucesso!")),
+        await http.post(
+          Uri.parse("$_javaApiBaseUrl/coleiras"),
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer $token",
+          },
+          body: jsonEncode({
+            "descricao": "Coleira GPS padrão",
+            "animal": animalId,
+          }),
         );
 
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const AppShell()),
-          (route) => false,
+          MaterialPageRoute(builder: (_) => const AppShell()),
+          (_) => false,
         );
-      } else if (response.statusCode == 401) {
-        print('[AnimalSignUp] Token inválido, tentando relogar...');
-        await authService.relogin();
-
-        setState(() {
-          _errorMessage =
-              "Usuário não autenticado. Faça login novamente.\n${response.body}";
-        });
       } else {
         setState(() {
           _errorMessage =
-              "Erro ao cadastrar animal: ${response.statusCode} ${response.body}";
+              "Erro ao cadastrar animal (${response.statusCode}): ${response.body}";
         });
       }
     } catch (e) {
       setState(() => _errorMessage = "Erro inesperado: $e");
-      print('[AnimalSignUp] Erro: $e');
     } finally {
       setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _criarColeiraParaAnimal(String token, String? animalId) async {
-    if (animalId == null) {
-      print('[Coleira] ID do animal é nulo, não foi possível criar a coleira.');
-      return;
-    }
-
-    try {
-      final response = await http.post(
-        Uri.parse('$_javaApiBaseUrl/coleiras'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({
-          "descricao": "Coleira GPS padrão",
-          "animal": animalId,
-        }),
-      );
-
-      if (response.statusCode == 201) {
-        print('[Coleira] Coleira criada e vinculada ao animal $animalId com sucesso!');
-      } else {
-        print('[Coleira] Falha ao criar coleira: ${response.statusCode} ${response.body}');
-      }
-    } catch (e) {
-      print('[Coleira] Erro ao criar coleira: $e');
     }
   }
 
@@ -235,9 +236,8 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
                         child: CircleAvatar(
                           radius: 60,
                           backgroundColor: AppColors.orange200,
-                          backgroundImage: _animalImage != null
-                              ? FileImage(_animalImage!)
-                              : null,
+                          backgroundImage:
+                              _animalImage != null ? FileImage(_animalImage!) : null,
                           child: _animalImage == null
                               ? const Icon(Icons.camera_alt,
                                   size: 40, color: AppColors.orange900)
@@ -258,37 +258,77 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
                     ],
                   ),
                 ),
+
                 const SizedBox(height: 24),
 
-                _buildLabel('Nome do Animal', Icons.pets),
+                _label("Nome do Animal", Icons.pets),
                 const SizedBox(height: 8),
-                _buildTextField(
-                  hintText: 'Ex: Rex',
-                  controller: _nomeController,
-                ),
+                _input(hint: "Ex: Rex", controller: _nomeController),
                 const SizedBox(height: 16),
 
-                _buildLabel('Data de Nascimento', Icons.calendar_today),
+                _label("Data de Nascimento", Icons.calendar_today),
                 const SizedBox(height: 8),
                 GestureDetector(
                   onTap: () => _selectDate(context),
                   child: AbsorbPointer(
-                    child: _buildTextField(
-                      hintText: 'AAAA-MM-DD',
+                    child: _input(
+                      hint: "AAAA-MM-DD",
                       controller: _dataController,
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
 
-                _buildLabel('Sexo', Icons.transgender),
+                _label("Espécie", Icons.pets),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: _especieSelecionada,
+                  decoration: _selectDecoration(),
+                  items: const [
+                    DropdownMenuItem(
+                      value: "68193ec5636f719fcd5ee598",
+                      child: Text("Cachorro"),
+                    ),
+                    DropdownMenuItem(
+                      value: "68193ec5636f719fcd5ee597",
+                      child: Text("Gato"),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _especieSelecionada = value;
+                      _racas = [];
+                      _racaSelecionada = null;
+                    });
+                    _buscarRacas(value!);
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                _label("Raça", Icons.list),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: _racaSelecionada,
+                  decoration: _selectDecoration(),
+                  items: _racas
+                      .map(
+                        (r) => DropdownMenuItem<String>(
+                          value: r["id"], // já é String
+                          child: Text(r["nome"]),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() => _racaSelecionada = value);
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                _label("Sexo", Icons.transgender),
+                const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
                   value: _sexoSelecionado,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
+                  decoration: _selectDecoration(),
                   items: const [
                     DropdownMenuItem(value: "Macho", child: Text("Macho")),
                     DropdownMenuItem(value: "Fêmea", child: Text("Fêmea")),
@@ -297,13 +337,14 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                _buildLabel('Peso (kg)', Icons.monitor_weight),
+                _label("Peso (kg)", Icons.monitor_weight),
                 const SizedBox(height: 8),
-                _buildTextField(
-                  hintText: 'Ex: 12.5',
+                _input(
+                  hint: "Ex: 12.5",
                   controller: _pesoController,
-                  keyboardType: TextInputType.number,
+                  keyboard: TextInputType.number,
                 ),
+
                 const SizedBox(height: 16),
 
                 Row(
@@ -311,18 +352,12 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
                     Checkbox(
                       value: _castrado,
                       activeColor: AppColors.orange900,
-                      onChanged: (value) =>
-                          setState(() => _castrado = value ?? false),
+                      onChanged: (v) => setState(() => _castrado = v ?? false),
                     ),
-                    Text(
-                      "Castrado",
-                      style: GoogleFonts.poppins(
-                        color: AppColors.orange900,
-                        fontSize: 16,
-                      ),
-                    ),
+                    Text("Castrado", style: GoogleFonts.poppins(fontSize: 16)),
                   ],
                 ),
+
                 const SizedBox(height: 24),
 
                 if (_errorMessage != null)
@@ -332,27 +367,26 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
                     textAlign: TextAlign.center,
                   ),
 
+                const SizedBox(height: 8),
+
                 _isLoading
                     ? const Center(
-                        child:
-                            CircularProgressIndicator(color: AppColors.orange),
+                        child: CircularProgressIndicator(color: AppColors.orange),
                       )
                     : ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.orange900,
                           foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 15),
                         ),
                         onPressed: _cadastrarAnimal,
                         child: Text(
-                          'Cadastrar Animal',
+                          "Cadastrar Animal",
                           style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                              fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                       ),
               ],
@@ -363,7 +397,7 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
     );
   }
 
-  Widget _buildLabel(String text, IconData icon) {
+  Widget _label(String text, IconData icon) {
     return Row(
       children: [
         Icon(icon, color: AppColors.orange, size: 20),
@@ -380,28 +414,33 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
     );
   }
 
-  Widget _buildTextField({
-    required String hintText,
+  Widget _input({
+    required String hint,
     required TextEditingController controller,
-    TextInputType keyboardType = TextInputType.text,
+    TextInputType keyboard = TextInputType.text,
   }) {
     return TextFormField(
       controller: controller,
-      keyboardType: keyboardType,
+      keyboardType: keyboard,
       decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: GoogleFonts.poppins(color: AppColors.black200, fontSize: 16),
+        hintText: hint,
         contentPadding:
             const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30.0),
-          borderSide: const BorderSide(color: AppColors.orange, width: 2.0),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30.0),
-          borderSide: const BorderSide(color: AppColors.orange900, width: 2.5),
+          borderRadius: BorderRadius.circular(30),
+          borderSide: const BorderSide(color: AppColors.orange),
         ),
       ),
+    );
+  }
+
+  InputDecoration _selectDecoration() {
+    return InputDecoration(
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(30),
+      ),
+      contentPadding:
+          const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
     );
   }
 }
