@@ -32,8 +32,19 @@ Repositório do **Grupo 07** do Projeto Interdisciplinar do **5º semestre** do 
 ## 🔗 Acesso ao Projeto
 
 * **🎨 FIGMA:** [Protótipo da Interface](https://www.figma.com/design/BZOrhXmiYHgesIZf1Ex3Pw/PetDex.?node-id=0-1&t=8nuIhASiCYaiae4f-1)
-* **🐍 API de Análise (FastAPI - Python):** [https://api-python-petdex.onrender.com/docs](https://api-python-petdex.onrender.com/docs)
-* **☕ API Principal (Java - Spring Boot):** [https://api-java-petdex.onrender.com/swagger-ui/index.html](https://api-java-petdex.onrender.com/swagger-ui/index.html)
+* **🐍 API de Análise (FastAPI - Python):** [http://172.206.27.122:8083/docs](http://172.206.27.122:8083/docs)
+* **☕ API Principal (Java - Spring Boot):** [http://172.206.27.122:8080/swagger](http://172.206.27.122:8080/swagger)
+
+### **🔑 Credenciais de Teste**
+
+Para testar a plataforma, utilize as seguintes credenciais:
+
+```json
+{
+  "email": "henriquealmeidaflorentino@gmail.com",
+  "senha": "senha123"
+}
+```
 
 ---
 
@@ -131,15 +142,22 @@ A PetDex foi desenvolvida com uma **arquitetura modular e distribuída**, dividi
 
 ### **2️⃣ Backend e Infraestrutura**
 
-* **API Principal:** Java 21 + Spring Boot  
-  - Padrão **Domain-Driven Design (DDD)**  
-  - Persistência com **MongoDB** (séries temporais)  
+* **API Principal:** Java 21 + Spring Boot
+  - Padrão **Domain-Driven Design (DDD)**
+  - Persistência com **MongoDB** (séries temporais)
   - Documentação com **Swagger/OpenAPI**
+  - Autenticação via **JWT (JSON Web Tokens)**
 
-* **API Analítica:** Python 3.11 + FastAPI  
-  - Processamento estatístico e aprendizado de máquina  
-  - Bibliotecas: Pandas, NumPy, SciPy, Scikit-learn  
+* **API Analítica:** Python 3.11 + FastAPI
+  - Processamento estatístico e aprendizado de máquina
+  - Bibliotecas: Pandas, NumPy, SciPy, Scikit-learn
+  - Modelo de classificação **CART (Árvore de Decisão)** em formato PMML
   - Execução assíncrona com **Uvicorn**
+
+* **Hospedagem:** Servidor Azure
+  - Sistema Operacional: **Ubuntu**
+  - Tipo de Máquina: **Standard B1ms**
+  - APIs acessíveis via IP público
 
 ---
 
@@ -155,14 +173,67 @@ A PetDex foi desenvolvida com uma **arquitetura modular e distribuída**, dividi
 
 ---
 
+## 🔐 Sistema de Autenticação JWT
+
+A PetDex implementa um sistema robusto de autenticação baseado em **JWT (JSON Web Tokens)** para garantir a segurança das comunicações entre os componentes da plataforma.
+
+### **Como Funciona**
+
+1. **Login do Usuário:** O usuário realiza login através do aplicativo mobile, enviando suas credenciais para a API Java
+2. **Geração do Token:** A API Java valida as credenciais e gera um token JWT assinado
+3. **Propagação do Token:** O token é armazenado no aplicativo e enviado em todas as requisições subsequentes
+4. **Fluxo de Autenticação:** Cliente → API Python → API Java
+   - O aplicativo mobile envia o token JWT para a API Python
+   - A API Python valida e propaga o token para a API Java
+   - A API Java valida o token e processa a requisição
+
+### **Configuração**
+
+Ambas as APIs (Java e Python) compartilham a mesma chave secreta JWT (`JWT_SECRET`) configurada nos arquivos `.env`, garantindo que os tokens possam ser validados em toda a infraestrutura.
+
+---
+
+## 🧠 Modelo de Inteligência Artificial
+
+A PetDex utiliza um modelo de **classificação de espécies** treinado com técnicas de aprendizado de máquina para identificar se um animal é um cão ou gato com base em características físicas.
+
+### **O Desafio: Generalista vs. Especialista**
+
+Durante o desenvolvimento, enfrentamos uma questão estratégica: treinar um modelo **generalista** capaz de classificar 8 espécies diferentes de animais presentes no dataset, ou um modelo **especialista** focado apenas em cães e gatos?
+
+### **Processo de Desenvolvimento**
+
+1. **Treinamento de Múltiplos Modelos:** Foram treinados **12 modelos classificadores diferentes**, incluindo:
+   - SVM (Support Vector Machine)
+   - Logistic Regression
+   - Árvores de Decisão (CART)
+   - Random Forest
+   - E outros algoritmos do Scikit-learn
+
+2. **Exportação Universal:** Todos os modelos foram exportados para o formato **PMML (Predictive Model Markup Language)**, um padrão universal compatível com a API Python e diversas outras plataformas
+
+### **Validação e Seleção do Modelo**
+
+- **Cross-Validation:** Realizamos análise rigorosa com validação cruzada para avaliar a performance de cada modelo
+- **Análise Visual:** Gráficos Boxplot foram gerados para comparar a distribuição de acurácia entre os modelos
+- **Teste Final:** Simulação de uso real com **20 casos reais de cães e gatos**
+
+### **O Vencedor: CART Especialista**
+
+O modelo **CART (Classification and Regression Trees)** treinado **APENAS com dados de cães e gatos** atingiu **100% de acerto** no teste final, superando todos os modelos generalistas.
+
+O arquivo `modelo_CART.pmml` foi escolhido como o **"cérebro" oficial da PetDex** e está integrado à API Python, sendo utilizado pelo aplicativo Flutter para realizar classificações em tempo real.
+
+---
+
 ## 🧩 Tecnologias Utilizadas
 
 | Camada | Tecnologias |
 |:-------|:-------------|
 | **Hardware (IoT)** | ESP32 S3 Zero, GY-MAX30102, MPU6050, NEO-6M, Impressão 3D (PLA) |
-| **Backend** | Java + Spring Boot, MongoDB, Swagger, FastAPI (Python), Scikit-learn |
+| **Backend** | Java + Spring Boot, MongoDB, Swagger, JWT, FastAPI (Python), Scikit-learn, PMML |
 | **Frontend** | Flutter, API Google Maps |
-| **Infraestrutura** | Hospedagem em nuvem (Render), arquitetura de microsserviços |
+| **Infraestrutura** | Azure (Ubuntu, Standard B1ms), arquitetura de microsserviços |
 
 ---
 
