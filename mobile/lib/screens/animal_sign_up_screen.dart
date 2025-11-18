@@ -172,7 +172,17 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
           upload.files.add(
             await http.MultipartFile.fromPath("imagem", _animalImage!.path),
           );
-          await _httpClient.send(upload);
+
+          print("📤 Enviando imagem para: $_javaApiBaseUrl/animais/$animalId/imagem");
+          final res = await _httpClient.send(upload);
+
+          // Converte StreamedResponse para Response para ler o body
+          final responseBody = await http.Response.fromStream(res);
+
+          print("📥 Resposta do upload da imagem:");
+          print("   Status Code: ${responseBody.statusCode}");
+          print("   Headers: ${responseBody.headers}");
+          print("   Body: ${responseBody.body}");
         }
 
         await _httpClient.post(
