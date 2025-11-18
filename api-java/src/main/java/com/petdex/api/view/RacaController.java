@@ -236,4 +236,13 @@ public class RacaController {
                 HttpStatus.OK
         );
     }
+
+    // Endpoint temporário de debug - REMOVER DEPOIS
+    @GetMapping("/debug/all")
+    public ResponseEntity<?> debugAllRacas() {
+        return new ResponseEntity<>(
+                racaService.debugGetAllRacas(),
+                HttpStatus.OK
+        );
+    }
 }
