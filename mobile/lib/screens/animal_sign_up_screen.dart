@@ -218,12 +218,10 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.orange900),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        automaticallyImplyLeading: false, // Remove o botão de voltar
+        centerTitle: true, // Centraliza o título
         title: Text(
-          "Cadastrar Animal",
+          "Cadastrar seu pet",
           style: GoogleFonts.poppins(
               color: AppColors.orange900, fontWeight: FontWeight.bold),
         ),
@@ -285,7 +283,7 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
 
               const SizedBox(height: 24),
 
-              _label("Nome do Animal", Icons.pets),
+              _label("Nome do Pet", Icons.pets),
               const SizedBox(height: 8),
               _input(hint: "Ex: Rex", controller: _nomeController),
               const SizedBox(height: 16),

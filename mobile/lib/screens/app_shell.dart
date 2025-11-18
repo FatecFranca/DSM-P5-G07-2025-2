@@ -8,8 +8,6 @@ import 'package:PetDex/screens/location_screen.dart';
 import 'package:PetDex/data/enums/species.dart';
 import 'package:PetDex/services/websocket_service.dart';
 import 'package:PetDex/main.dart';
-import 'package:PetDex/theme/app_theme.dart';
-import 'package:PetDex/screens/login_screen.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -81,44 +79,6 @@ class _AppShellState extends State<AppShell> {
       body: Stack(
         children: [
           IndexedStack(index: _currentIndex, children: _pages),
-
-          Positioned(
-            top: 40,
-            right: 16,
-            child: GestureDetector(
-              onTap: () async {
-                await authService.logout();
-
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Você saiu da conta.'),
-                      backgroundColor: AppColors.orange200,
-                    ),
-                  );
-
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                      builder: (_) => const LoginScreen(),
-                    ),
-                    (route) => false,
-                  );
-                }
-              },
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: const BoxDecoration(
-                  color: AppColors.orange400,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.logout,
-                  color: Colors.white,
-                  size: 22,
-                ),
-              ),
-            ),
-          ),
 
           /// 🔻 Bottom Navigation fixado
           Positioned(

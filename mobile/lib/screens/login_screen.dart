@@ -62,10 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.orange900),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        automaticallyImplyLeading: false, // Remove o botão de voltar
       ),
       body: Stack(
         children: [

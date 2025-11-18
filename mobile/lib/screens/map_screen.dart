@@ -17,6 +17,8 @@ import 'package:PetDex/theme/app_theme.dart';
 import 'package:PetDex/models/location_model.dart';
 import 'package:PetDex/models/websocket_message.dart';
 import 'package:PetDex/components/ui/animal_pin.dart';
+import 'package:PetDex/main.dart';
+import 'package:PetDex/screens/login_screen.dart';
 
 class MapScreen extends StatefulWidget {
   final String animalId;
@@ -382,6 +384,38 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
     }
   }
 
+  Future<void> _handleLogout() async {
+    try {
+      await authService.logout();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Você saiu da conta.'),
+            backgroundColor: AppColors.orange200,
+          ),
+        );
+
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (_) => const LoginScreen(),
+          ),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      LoggerService.error('❌ Erro ao fazer logout: $e', error: e);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erro ao fazer logout. Tente novamente.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -522,6 +556,27 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver, Auto
                 child: const Icon(Icons.my_location, color: Colors.white),
               ),
             ),
+
+          // Botão de Logout - Canto superior direito
+          Positioned(
+            top: 40,
+            right: 16,
+            child: GestureDetector(
+              onTap: _handleLogout,
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: const BoxDecoration(
+                  color: AppColors.orange400,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.logout,
+                  color: Colors.white,
+                  size: 22,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
