@@ -8,8 +8,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:PetDex/theme/app_theme.dart';
 import 'package:PetDex/screens/app_shell.dart';
 import 'package:PetDex/services/auth_service.dart';
-// 🚨 Importação CRÍTICA do cliente autenticado
-import 'package:PetDex/services/http_client.dart'; 
+import 'package:PetDex/services/race_service.dart';
+import 'package:PetDex/services/http_client.dart';
 
 class AnimalSignUpScreen extends StatefulWidget {
   final String usuarioId;
@@ -37,21 +37,18 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
   String? _errorMessage;
   File? _animalImage;
 
-  // 🔑 Futuro que controlará a inicialização do AuthService
   late Future<void> _initializationFuture;
-  
-  // ✅ Usando o cliente HTTP que injeta o token
+
   final http.Client _httpClient = AuthenticatedHttpClient();
   final AuthService _authService = AuthService();
+  final RaceService _raceService = RaceService();
 
   String get _javaApiBaseUrl => dotenv.env['API_JAVA_URL']!;
 
   @override
   void initState() {
     super.initState();
-    // 🎯 Captura o Future do init do AuthService para ser esperado pelo FutureBuilder
-    // Embora o main.dart já chame o init, chamamos aqui para garantir que o FutureBuilder espere.
-    _initializationFuture = _authService.init(); 
+    _initializationFuture = _authService.init();
   }
 
   @override
@@ -63,14 +60,11 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
     super.dispose();
   }
 
-  // --- Lógica de Imagem e Data ---
-  
   Future<void> _pickImage() async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 80,
-    );
+    final pickedFile =
+        await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
+
     if (pickedFile != null) {
       setState(() => _animalImage = File(pickedFile.path));
     }
@@ -102,43 +96,26 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
     }
   }
 
-  // --- Lógica de Requisições (USA CLIENTE AUTENTICADO) ---
-
   Future<void> _buscarRacas(String especieId) async {
     setState(() {
       _errorMessage = null;
+      _racaSelecionada = null;
+      _racas = [];
     });
+
+    print("🔎 Buscando raças para espécie: $especieId");
+
     try {
-      final url =
-          "$_javaApiBaseUrl/racas/especie/$especieId?page=0&size=50&sortBy=nome&direction=asc";
+      final lista = await _raceService.fetchAllRaces(especieId);
 
-      // ✅ Usa o cliente autenticado (_httpClient)
-      final response = await _httpClient.get(
-        Uri.parse(url),
-        headers: {
-          "accept": "application/json",
-        },
-      );
+      setState(() {
+        _racas = lista;
+      });
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final lista = data["content"] as List;
-
-        setState(() {
-          _racas = lista
-              .map((r) => {
-                    "id": r["id"].toString(),
-                    "nome": r["nome"],
-                  })
-              .toList();
-          _racaSelecionada = null; // Reinicia a raça
-        });
-      } else {
-        setState(() => _errorMessage = 
-            "Erro ao buscar raças (${response.statusCode}): ${response.body}");
-      }
+      print("✅ Raças carregadas: ${lista.length}");
     } catch (e) {
-      setState(() => _errorMessage = "Erro inesperado ao buscar raças: $e");
+      print("❌ Erro ao buscar raças: $e");
+      setState(() => _errorMessage = "Erro ao buscar raças: $e");
     }
   }
 
@@ -146,14 +123,17 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_especieSelecionada == null || _racaSelecionada == null) {
-      setState(() => _errorMessage = "Selecione a espécie e a raça do animal.");
+      setState(() =>
+          _errorMessage = "Selecione a espécie e a raça do animal.");
       return;
     }
-    
-    final peso = double.tryParse(_pesoController.text.trim().replaceAll(',', '.'));
+
+    final peso = double.tryParse(
+        _pesoController.text.trim().replaceAll(',', '.'));
+
     if (peso == null) {
-        setState(() => _errorMessage = "Peso inválido. Use um formato numérico.");
-        return;
+      setState(() => _errorMessage = "Peso inválido.");
+      return;
     }
 
     setState(() {
@@ -162,7 +142,6 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
     });
 
     try {
-      // ✅ Usa o cliente autenticado para o POST principal
       final response = await _httpClient.post(
         Uri.parse("$_javaApiBaseUrl/animais"),
         body: jsonEncode({
@@ -181,20 +160,18 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
         final parsed = jsonDecode(response.body);
         final animalId = parsed["id"];
 
-        // --- Upload de Imagem ---
         if (_animalImage != null) {
           final upload = http.MultipartRequest(
             "POST",
             Uri.parse("$_javaApiBaseUrl/animais/$animalId/imagem"),
           );
           upload.files.add(
-              await http.MultipartFile.fromPath("imagem", _animalImage!.path),
-            );
-          await _httpClient.send(upload); 
+            await http.MultipartFile.fromPath("imagem", _animalImage!.path),
+          );
+          await _httpClient.send(upload);
         }
 
-        // --- Criação da Coleira ---
-        await _httpClient.post( 
+        await _httpClient.post(
           Uri.parse("$_javaApiBaseUrl/coleiras"),
           body: jsonEncode({
             "descricao": "Coleira GPS padrão",
@@ -220,8 +197,6 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
     }
   }
 
-  // --- Estrutura da Tela (com FutureBuilder) ---
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -236,17 +211,13 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
         title: Text(
           "Cadastrar Animal",
           style: GoogleFonts.poppins(
-            color: AppColors.orange900,
-            fontWeight: FontWeight.bold,
-          ),
+              color: AppColors.orange900, fontWeight: FontWeight.bold),
         ),
       ),
-      // 🧱 Espera o token ser carregado antes de renderizar o formulário
       body: FutureBuilder(
         future: _initializationFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            // Renderiza o formulário (o AuthenticatedHttpClient lida com 401s posteriores)
             return _buildForm();
           } else {
             return const Center(
@@ -258,8 +229,6 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
     );
   }
 
-  // --- Método que Constroi o Formulário ---
-
   Widget _buildForm() {
     return Padding(
       padding: const EdgeInsets.all(24.0),
@@ -269,7 +238,6 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // ... (Imagem, Botão, Campos de Nome e Data)
               Center(
                 child: Column(
                   children: [
@@ -321,7 +289,6 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
               ),
               const SizedBox(height: 16),
 
-              // --- ESPÉCIE ---
               _label("Espécie", Icons.pets),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
@@ -329,13 +296,11 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
                 decoration: _selectDecoration(),
                 items: const [
                   DropdownMenuItem(
-                    value: "68193ec5636f719fcd5ee598",
-                    child: Text("Cachorro"),
-                  ),
+                      value: "68193ec5636f719fcd5ee598",
+                      child: Text("Cachorro")),
                   DropdownMenuItem(
-                    value: "68193ec5636f719fcd5ee597",
-                    child: Text("Gato"),
-                  ),
+                      value: "68193ec5636f719fcd5ee597",
+                      child: Text("Gato")),
                 ],
                 onChanged: (value) {
                   setState(() {
@@ -343,24 +308,23 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
                     _racas = [];
                     _racaSelecionada = null;
                   });
-                  if (value != null) {
-                    _buscarRacas(value); // 🚩 Chama a função para popular Raças
-                  }
+
+                  if (value != null) _buscarRacas(value);
                 },
               ),
+
               const SizedBox(height: 16),
 
-              // --- RAÇA (Dependente da Espécie) ---
               _label("Raça", Icons.list),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: _racaSelecionada,
                 decoration: _selectDecoration(),
                 items: _racas
-                    .map(
+                    .map<DropdownMenuItem<String>>(
                       (r) => DropdownMenuItem<String>(
-                        value: r["id"],
-                        child: Text(r["nome"]),
+                        value: r["id"] as String,
+                        child: Text(r["nome"] as String),
                       ),
                     )
                     .toList(),
@@ -368,9 +332,10 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
                   setState(() => _racaSelecionada = value);
                 },
               ),
+
+
               const SizedBox(height: 16),
 
-              // --- Outros Campos ---
               _label("Sexo", Icons.transgender),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
@@ -380,8 +345,10 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
                   DropdownMenuItem(value: "Macho", child: Text("Macho")),
                   DropdownMenuItem(value: "Fêmea", child: Text("Fêmea")),
                 ],
-                onChanged: (value) => setState(() => _sexoSelecionado = value),
+                onChanged: (value) =>
+                    setState(() => _sexoSelecionado = value),
               ),
+
               const SizedBox(height: 16),
 
               _label("Peso (kg)", Icons.monitor_weight),
@@ -399,7 +366,8 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
                   Checkbox(
                     value: _castrado,
                     activeColor: AppColors.orange900,
-                    onChanged: (v) => setState(() => _castrado = v ?? false),
+                    onChanged: (v) =>
+                        setState(() => _castrado = v ?? false),
                   ),
                   Text("Castrado", style: GoogleFonts.poppins(fontSize: 16)),
                 ],
@@ -418,7 +386,8 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
 
               _isLoading
                   ? const Center(
-                      child: CircularProgressIndicator(color: AppColors.orange),
+                      child: CircularProgressIndicator(
+                          color: AppColors.orange),
                     )
                   : ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -443,7 +412,6 @@ class _AnimalSignUpScreenState extends State<AnimalSignUpScreen> {
     );
   }
 
-  // --- Métodos Auxiliares ---
   Widget _label(String text, IconData icon) {
     return Row(
       children: [
