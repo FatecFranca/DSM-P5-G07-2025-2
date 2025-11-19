@@ -1,0 +1,31 @@
+==== Guia de Leitura dos Arquivos do Projeto PetDex ====
+
+
+Olá,
+
+Este arquivo contém a entrega completa do nosso projeto de IA.
+
+Para uma visão estruturada e o contexto completo do projeto, por favor, comece pelo relatório principal em PDF:
+
+
+"Analise IA PetDex Oficial.pdf"
+
+
+Este documento contém toda a análise de dados, a metodologia de treino da IA, os resultados e as conclusões.
+
+Ele serve como um "mapa" que referencia todos os outros materiais encontrados nas pastas, que são os artefatos de apoio:
+
+
+- [Codigos Gerados]: Contém os scripts Python de treino, teste e correção;
+
+- [Tabelas Geradas]: Contém os arquivos .CSV / .xlsx usados no processo, amostras e afins;
+
+- [Modelos Gerados]: Contém os arquivos .PMML finais gerados;
+
+- [Imagens Geradas]: Contém os gráficos de análise e afins;
+
+
+
+Obrigado! :)
+
+Equipe PetDex (Felipe, Gabriel, Henrique, Luiz Felipe)
