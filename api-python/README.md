@@ -4,7 +4,7 @@
 
 # 🧮 API em Python — O Cérebro Analítico da PetDex
 
-Bem-vindo à API de Análise de Dados da PetDex! Desenvolvida com **Python** e **FastAPI**, esta API é o coração analítico do nosso ecossistema. Ela é responsável por **transformar os dados brutos coletados pela coleira em insights acionáveis**, que são exibidos de forma clara e intuitiva no aplicativo mobile, capacitando os donos a cuidarem melhor da saúde de seus pets.
+Bem-vindo à API de Análise de Dados da PetDex! Desenvolvida com **Python** e **FastAPI**, esta API é o coração analítico do nosso ecossistema. Ela é responsável por **transformar os dados brutos coletados pela coleira em insights acionáveis** e executar o **modelo de Inteligência Artificial** que identifica a espécie do animal, capacitando os donos a cuidarem melhor da saúde de seus pets.
 
 ---
 
@@ -15,7 +15,7 @@ Bem-vindo à API de Análise de Dados da PetDex! Desenvolvida com **Python** e *
 * **Pandas** (Análise e manipulação de dados)
 * **NumPy** (Cálculos numéricos e estatísticos)
 * **SciPy** (Cálculos científicos, como a distribuição normal)
-* **Scikit-learn** (Modelos de Regressão Linear e Classificação)
+* **Scikit-learn** (Modelos de Machine Learning)
 * **PyPMML** (Carregamento e execução de modelos PMML)
 * **httpx** (Cliente HTTP assíncrono para comunicação com a API Java)
 * **Uvicorn** (Servidor ASGI)
@@ -25,7 +25,92 @@ Bem-vindo à API de Análise de Dados da PetDex! Desenvolvida com **Python** e *
 
 ## 🧠 Objetivo da API
 
-Esta API **não coleta dados diretamente da coleira**. Seu papel estratégico é **consumir os dados já armazenados na API principal (Java)** e aplicar uma camada de inteligência sobre eles. Ela executa desde cálculos estatísticos básicos até modelos de regressão complexos, fornecendo as análises que tornam o aplicativo PetDex uma ferramenta poderosa para o monitoramento da saúde animal.
+Esta API **não coleta dados diretamente da coleira**. Seu papel estratégico é **consumir os dados já armazenados na API principal (Java)** e aplicar uma camada de inteligência sobre eles. Ela executa desde cálculos estatísticos avançados até a **classificação de espécies com Inteligência Artificial**, fornecendo as análises que tornam o aplicativo PetDex uma ferramenta poderosa para o monitoramento da saúde animal.
+
+---
+
+## 🤖 Inteligência Artificial: Modelo CART de Classificação de Espécies
+
+A API Python é responsável por carregar e executar o **modelo de classificação de espécies** da PetDex, que identifica se um animal é um cão ou gato com base em características físicas.
+
+### **O Modelo Escolhido: CART (Árvore de Decisão)**
+
+Após um rigoroso processo de desenvolvimento e validação, o modelo **CART (Classification and Regression Trees)** foi selecionado como o "cérebro" oficial da PetDex para classificação de espécies.
+
+### **Processo de Seleção e Desenvolvimento**
+
+O desenvolvimento do modelo de IA seguiu uma metodologia científica rigorosa, documentada no relatório **"Analise IA PetDex Oficial.pdf"** (disponível na pasta `Aprendizagem de Maquina`):
+
+**1. Desafio Inicial:**
+- Decidir entre um modelo **generalista** (8 espécies de animais) ou **especialista** (apenas cães e gatos)
+- Análise de viabilidade e aplicabilidade ao contexto do projeto
+
+**2. Treinamento Extensivo:**
+- Foram treinados **12 modelos classificadores diferentes**, incluindo:
+  - **SVM** (Support Vector Machine)
+  - **Logistic Regression**
+  - **Árvores de Decisão (CART)**
+  - **Random Forest**
+  - **Naive Bayes**
+  - E outros algoritmos do Scikit-learn
+
+**3. Validação Rigorosa:**
+- Análise com **Cross-Validation** (validação cruzada) para avaliar a performance de cada modelo
+- Gráficos **Boxplot** para comparar a distribuição de acurácia entre os modelos
+- Teste final com **20 casos reais de cães e gatos** para validação prática
+
+**4. Resultado Final:**
+- O modelo **CART treinado APENAS com cães e gatos** atingiu **100% de acerto** no teste final
+- Demonstrou melhor equilíbrio entre acurácia, interpretabilidade e performance
+
+### **Por que o CART?**
+
+O modelo CART foi escolhido por apresentar:
+
+- ✅ **Alta Acurácia**: 100% de acerto nos testes finais
+- ✅ **Interpretabilidade**: Árvores de decisão são fáceis de entender e explicar
+- ✅ **Performance**: Rápido para treinamento e predição
+- ✅ **Robustez**: Funciona bem com dados categóricos e numéricos
+- ✅ **Especialização**: Focado em cães e gatos, os principais pets domésticos
+
+### **Formato PMML: Portabilidade Universal**
+
+Todos os modelos foram exportados para o formato **PMML (Predictive Model Markup Language)**, um padrão universal que permite:
+
+- ✅ **Compatibilidade** com múltiplas plataformas e linguagens de programação
+- ✅ **Independência** do framework de treinamento (Scikit-learn)
+- ✅ **Fácil integração** com a API Python via biblioteca PyPMML
+- ✅ **Portabilidade** para outros sistemas futuros sem necessidade de retreinamento
+
+O arquivo `modelo_CART.pmml` está localizado na raiz do projeto da API Python e é carregado automaticamente na inicialização da aplicação.
+
+### **Integração com o Aplicativo**
+
+<p align="center">
+  <img src="../docs/img/tela3.gif" alt="Checkup Inteligente no App" width="250px" />
+</p>
+<p align="center">
+  <em><b>Tela Checkup Inteligente:</b> O tutor responde sintomas observados, e a IA da PetDex sugere possíveis condições com base nos dados coletados, fornecendo orientações preventivas.</em>
+</p>
+
+O aplicativo Flutter consome os endpoints da API Python que utilizam o modelo CART para:
+
+- 🔍 **Identificar a espécie** do animal durante o cadastro
+- 🩺 **Realizar checkups inteligentes** baseados em sintomas e dados da coleira
+- 📊 **Fornecer análises personalizadas** de acordo com a espécie identificada
+
+### **Documentação Completa**
+
+Para mais detalhes sobre o processo de desenvolvimento, treinamento e validação do modelo de IA, consulte:
+
+📄 **[Analise IA PetDex Oficial.pdf](../Aprendizagem%20de%20Maquina/Analise%20IA%20PetDex%20Oficial.pdf)**
+
+Este documento contém:
+- Análise completa dos dados
+- Metodologia de treino da IA
+- Comparação entre todos os modelos testados
+- Resultados e métricas de performance
+- Conclusões e justificativas da escolha do CART
 
 ---
 
@@ -33,29 +118,40 @@ Esta API **não coleta dados diretamente da coleira**. Seu papel estratégico é
 
 O verdadeiro poder desta API está em como suas funcionalidades se traduzem em recursos visuais e práticos para o usuário. Cada cálculo tem um propósito: dar ao dono do pet a tranquilidade e as informações necessárias para tomar decisões importantes.
 
-### **Previsão de Batimentos: A Regressão Linear em Ação**
-A funcionalidade de **previsão de batimentos**, exibida no aplicativo, é alimentada diretamente pelo nosso modelo de regressão linear. A análise demonstrou uma **forte correlação entre a frequência cardíaca e os dados de movimento do animal**, capturados pelo acelerômetro nos três eixos (X, Y, Z). O modelo aprende esse padrão e se torna capaz de **prever a frequência cardíaca esperada com base na atividade física atual do animal**, ajudando a distinguir um aumento de batimentos normal (durante uma brincadeira) de uma anomalia.
+### **Dashboard de Saúde: Análises Estatísticas Completas**
+
+A API fornece análises estatísticas detalhadas dos batimentos cardíacos do pet, incluindo média, moda, mediana e desvio padrão. Esses dados são apresentados de forma visual e intuitiva no aplicativo.
 
 <p align="center">
-  <img src="../docs/img/mobile/mobile-previsao-batimento.gif" alt="Previsão de Batimento Cardíaco no App" width="250px" />
+  <img src="../docs/img/tela2.gif" alt="Dashboard de Saúde no App" width="250px" />
 </p>
 <p align="center">
-  <em>No aplicativo, essa análise se traduz na tela de "Previsão", onde o usuário vê a projeção dos batimentos com base na atividade do pet.</em>
+  <em><b>Tela de Saúde:</b> Exibe a média de batimentos diários, gráficos por data e análises estatísticas completas referentes ao último batimento registrado.</em>
 </p>
 
-### **Probabilidade e Cuidado Proativo: Mais Poder para o Dono**
-Calcular a **probabilidade de um determinado batimento cardíaco ocorrer** é uma das ferramentas mais importantes que oferecemos. Utilizando a distribuição normal dos dados históricos do pet, o aplicativo consegue informar ao dono se uma medição atual está dentro do esperado ou se é um valor estatisticamente raro. Ao identificar um padrão com baixa probabilidade, o dono é alertado, o que pode **antecipar uma visita ao veterinário e, em casos extremos, salvar a vida do animal**.
+### **Análise de Probabilidade: Cuidado Proativo e Inteligente**
+
+Uma das ferramentas mais importantes da API é a **análise de probabilidade do último batimento cardíaco coletado**. Utilizando a distribuição normal dos dados históricos do pet, a API calcula se o batimento atual está dentro do esperado ou se é um valor estatisticamente atípico.
+
+**Como funciona:**
+
+- 📊 A API analisa o **último batimento cardíaco** registrado pela coleira
+- 🧮 Compara com o **histórico completo** de batimentos do animal
+- 📈 Calcula a **probabilidade** desse valor ocorrer usando distribuição normal
+- ⚠️ Informa ao tutor se o batimento está **dentro do esperado** ou se é **atípico**
+
+Ao identificar um batimento com baixa probabilidade de ocorrência, o tutor é alertado, o que pode **antecipar uma visita ao veterinário e, em casos extremos, salvar a vida do animal**.
 
 <p align="center">
-  <img src="../docs/img/mobile/mobile-saude-probabilidade.gif" alt="Probabilidade de Batimento no App" width="250px" />
+  <img src="../docs/img/tela1.gif" alt="Tela Inicial com Análise de Batimento" width="250px" />
 </p>
 <p align="center">
-  <em>A funcionalidade "Probabilidade de Batimento" permite ao dono verificar se uma medição é um evento comum ou raro para seu animal.</em>
+  <em><b>Tela Inicial:</b> Mostra a última localização e o batimento cardíaco mais recente do pet, além de um gráfico com as médias das últimas horas registradas.</em>
 </p>
 
 ---
 
-## 📡 Endpoints e sua Aplicação Visual
+## 📡 Endpoints da API
 
 A API está hospedada em um servidor **Azure** (Ubuntu, Standard B1ms) e pode ser acessada através do link:
 
@@ -67,9 +163,16 @@ A API está hospedada em um servidor **Azure** (Ubuntu, Standard B1ms) e pode se
 
 Todos os endpoints (exceto `/health`) requerem autenticação via **JWT (JSON Web Tokens)**.
 
+**Fluxo de Autenticação:**
+
+1. O aplicativo mobile faz login na **API Java** (endpoint `POST /auth/login`)
+2. A API Java retorna um **token JWT**
+3. O aplicativo envia esse token no header `Authorization: Bearer <token>` para a **API Python**
+4. A API Python valida o token usando a mesma chave secreta (`JWT_SECRET`) configurada na API Java
+
 ### **🔑 Credenciais de Teste**
 
-Para obter um token JWT, utilize as seguintes credenciais na API Java:
+Para testar a API, utilize as seguintes credenciais na API Java:
 
 ```json
 {
@@ -78,146 +181,250 @@ Para obter um token JWT, utilize as seguintes credenciais na API Java:
 }
 ```
 
-**Como usar no Swagger:**
+### **📋 Rotas Disponíveis**
 
-1. Obtenha um token JWT da API Java (endpoint `POST /auth/login` em [http://172.206.27.122:8080/swagger](http://172.206.27.122:8080/swagger))
-2. Use as credenciais acima para fazer login
-3. Copie o token JWT retornado
-4. Clique no botão **"Authorize"** (cadeado) no topo do Swagger da API Python
-5. Cole o token no campo de texto (apenas o token, sem "Bearer")
-6. Clique em **"Authorize"**
-7. Todos os seus requests incluirão automaticamente o header `Authorization: Bearer <token>`
+Cada endpoint abaixo tem um propósito claro, alimentando uma parte específica da interface do usuário no aplicativo mobile:
 
-Para mais detalhes, consulte:
+| Rota | Método | Descrição | Autenticação |
+|:-----|:-------|:----------|:-------------|
+| `/health` | GET | Verifica se a API está online e funcionando | ❌ Não requer |
+| `/batimentos` | GET | Retorna todos os batimentos cardíacos coletados do animal | ✅ Requer JWT |
+| `/batimentos/estatisticas` | GET | Fornece estatísticas completas (média, moda, mediana, desvio padrão, probabilidade do último batimento) | ✅ Requer JWT |
+| `/batimentos/media-por-data` | GET | Calcula a média de batimentos em um intervalo de datas específico | ✅ Requer JWT |
+| `/batimentos/media-ultimos-5-dias` | GET | Retorna a média diária dos últimos 5 dias (alimenta o gráfico da tela de saúde) | ✅ Requer JWT |
+| `/batimentos/media-ultimas-5-horas-registradas` | GET | Retorna a média das últimas 5 horas de coleta (alimenta o gráfico da tela inicial) | ✅ Requer JWT |
 
-* 📖 **[SWAGGER_JWT_GUIDE.md](./SWAGGER_JWT_GUIDE.md)** - Guia rápido de autenticação JWT
-* 📚 **[SWAGGER_EXAMPLES.md](./SWAGGER_EXAMPLES.md)** - Exemplos práticos de requisições
-* 📝 **[SWAGGER_DOCUMENTATION.md](./SWAGGER_DOCUMENTATION.md)** - Documentação técnica completa
+### **🎯 Principais Funcionalidades por Endpoint**
 
-Cada endpoint abaixo tem um propósito claro, alimentando uma parte específica da interface do usuário. Por exemplo, os dados estatísticos e as médias diárias são consolidados no dashboard principal de saúde do aplicativo:
+**`/batimentos/estatisticas`** - Dashboard de Saúde
+
+Este é o endpoint mais completo da API, fornecendo:
+
+- 📊 **Média** de batimentos cardíacos
+- 📈 **Moda** (valor mais frequente)
+- 📉 **Mediana** (valor central)
+- 📐 **Desvio Padrão** (variabilidade dos dados)
+- ⚠️ **Probabilidade do último batimento** (indica se está dentro do esperado)
+
+Alimenta diretamente a tela de saúde do aplicativo:
 
 <p align="center">
-  <img src="../docs/img/mobile/mobile-saude.gif" alt="Dashboard de Saúde no App" width="250px" />
-</p>
-<p align="center">
-  <em>O endpoint <code>/batimentos/estatisticas</code> alimenta este dashboard com os principais insights de saúde.</em>
+  <img src="../docs/img/tela2.gif" alt="Dashboard de Saúde" width="250px" />
 </p>
 
-| Rota                                                          | Descrição                                                                                                        |
-| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `/batimentos`                                                 | Retorna todos os batimentos cardíacos coletados.                                                                 |
-| `/batimentos/estatisticas`                                    | Fornece as estatísticas gerais que alimentam o dashboard de saúde (média, moda, desvio padrão, etc.).            |
-| `/batimentos/media-por-data?inicio=YYYY-MM-DD&fim=YYYY-MM-DD` | Calcula a média de batimentos em um intervalo específico.                                                          |
-| `/batimentos/media-ultimos-5-dias`                            | Gera o gráfico principal da tela de saúde, com a média diária dos últimos 5 dias.                                |
-| `/batimentos/media-ultimas-5-horas-registradas`               | Gera o gráfico da tela inicial, com a média das últimas 5 horas de coleta.                                       |
-| `/batimentos/probabilidade?valor=XX`                          | **Calcula a probabilidade de um batimento ocorrer, ajudando o dono a identificar valores atípicos para seu pet.** |
-| `/batimentos/regressao`                                       | **Fornece os dados de correlação e regressão que alimentam a tela de previsão de batimentos do aplicativo.** |
-| `/health`                                                     | Verifica se a API está online.                                                                                   |
+**`/batimentos/media-ultimos-5-dias`** - Gráfico de Tendências
+
+Retorna a média diária dos últimos 5 dias, permitindo visualizar tendências de saúde ao longo do tempo.
+
+**`/batimentos/media-ultimas-5-horas-registradas`** - Monitoramento em Tempo Real
+
+Retorna a média das últimas 5 horas de coleta, exibida na tela inicial para acompanhamento rápido:
+
+<p align="center">
+  <img src="../docs/img/tela1.gif" alt="Tela Inicial" width="250px" />
+</p>
 
 ---
 
 ## 🔗 Comunicação entre APIs
 
-A **API Python se conecta diretamente à API Java** usando o cliente HTTP assíncrono `httpx`. Ela faz requisições paginadas para obter todos os dados de **batimentos cardíacos** (`GET /batimentos/animal/{id}`) e **movimentos** (`GET /movimentos/animal/{id}`).
+A **API Python se conecta diretamente à API Java** usando o cliente HTTP assíncrono `httpx`. Ela faz requisições paginadas para obter todos os dados de **batimentos cardíacos** (`GET /batimentos/animal/{id}`) armazenados no banco de dados MongoDB.
 
-Esses dados são então transformados em `DataFrames` do Pandas, onde são limpos, processados, agrupados e cruzados para as análises avançadas.
+**Fluxo de Dados:**
+
+1. 📡 **Coleira IoT** → Envia dados em tempo real via WebSocket
+2. ☕ **API Java** → Recebe e armazena os dados no MongoDB
+3. 🐍 **API Python** → Consulta os dados armazenados e aplica análises estatísticas e IA
+4. 📱 **Aplicativo Mobile** → Exibe os insights de forma visual e intuitiva
+
+Esses dados são transformados em `DataFrames` do Pandas, onde são limpos, processados, agrupados e analisados para gerar as estatísticas e insights apresentados ao usuário.
 
 ---
 
-## 📉 Exemplo de Análise de Regressão
+## 🔐 Configuração de Autenticação JWT
 
-A resposta do endpoint `/batimentos/regressao` alimenta diretamente a funcionalidade de previsão no app, fornecendo coeficientes, correlações e projeções:
+A API Python implementa autenticação baseada em **JWT (JSON Web Tokens)** e se comunica com a API Java para validar tokens e obter dados.
 
-```json
-{
-  "coeficientes": {
-    "acelerometroX": 11.356,
-    "acelerometroY": -16.507,
-    "acelerometroZ": 5.498
-  },
-  "correlacoes": {
-    "acelerometroX": 0.287,
-    "acelerometroY": -0.445,
-    "acelerometroZ": 0.252
-  },
-  "r2": 0.314,
-  "media_erro_quadratico": 356.84,
-  "projecao_5_horas": {
-    "2025-06-09T22:35:00-03:00": 66.9,
-    "2025-06-09T23:35:00-03:00": 66.9
-  }
-}
+### **Configuração do JWT_SECRET**
+
+⚠️ **IMPORTANTE:** A chave secreta JWT (`JWT_SECRET`) é essencial para validar os tokens de autenticação.
+
+**Como configurar:**
+
+1. Crie um arquivo `.env` na raiz do projeto (se ainda não existir)
+2. Adicione a variável `JWT_SECRET` com a **mesma chave** configurada na API Java:
+
+```env
+JWT_SECRET=sua_chave_secreta_aqui_deve_ser_longa_e_complexa
 ```
 
----
+**⚙️ Requisitos Importantes:**
 
-## 🧠 Modelo de Inteligência Artificial: CART
+- A chave deve ser **idêntica** à configurada na API Java para garantir compatibilidade de autenticação
+- Use uma chave forte e complexa (recomendado: mínimo 32 caracteres)
+- **NUNCA** compartilhe ou versione o arquivo `.env` com a chave real
+- Para referência, consulte o arquivo `.env.example` no projeto
 
-A API Python é responsável por carregar e executar o **modelo de classificação de espécies** da PetDex, que identifica se um animal é um cão ou gato com base em características físicas.
+**Por que isso é necessário?**
 
-### **O Modelo Escolhido: CART (Árvore de Decisão)**
+A API Python recebe tokens JWT do aplicativo mobile e precisa validá-los. Como os tokens são gerados pela API Java, ambas as APIs devem compartilhar a mesma chave secreta (`JWT_SECRET`) para que a validação funcione corretamente.
 
-Após um rigoroso processo de desenvolvimento e validação, o modelo **CART (Classification and Regression Trees)** foi selecionado como o "cérebro" oficial da PetDex.
+### **Configuração da API_URL**
 
-### **Processo de Seleção**
+A API Python precisa se comunicar com a API Java para obter dados de batimentos cardíacos e movimentos.
 
-1. **Desafio Inicial:** Decidir entre um modelo **generalista** (8 espécies) ou **especialista** (apenas cães e gatos)
+**Como configurar:**
 
-2. **Treinamento Extensivo:** Foram treinados **12 modelos classificadores diferentes**, incluindo:
-   - SVM (Support Vector Machine)
-   - Logistic Regression
-   - Árvores de Decisão (CART)
-   - Random Forest
-   - E outros algoritmos do Scikit-learn
+Adicione a variável `API_URL` no arquivo `.env` com o endpoint da API Java:
 
-3. **Validação Rigorosa:**
-   - Análise com **Cross-Validation** para avaliar a performance
-   - Gráficos **Boxplot** para comparar a distribuição de acurácia
-   - Teste final com **20 casos reais de cães e gatos**
+```env
+# Para desenvolvimento local
+API_URL=http://localhost:8080
 
-4. **Resultado:** O modelo CART treinado **APENAS com cães e gatos** atingiu **100% de acerto** no teste final
+# Para produção (servidor Azure)
+API_URL=http://172.206.27.122:8080
+```
 
-### **Formato PMML: Portabilidade Universal**
+**O que é a API_URL?**
 
-Todos os modelos foram exportados para o formato **PMML (Predictive Model Markup Language)**, um padrão universal que permite:
-
-- Compatibilidade com múltiplas plataformas e linguagens
-- Independência do framework de treinamento (Scikit-learn)
-- Fácil integração com a API Python via biblioteca PyPMML
-- Portabilidade para outros sistemas futuros
-
-O arquivo `modelo_CART.pmml` está localizado na raiz do projeto da API Python e é carregado automaticamente na inicialização da aplicação.
-
-### **Integração com o Aplicativo**
-
-O aplicativo Flutter consome os endpoints da API Python que utilizam o modelo CART para realizar classificações em tempo real, permitindo que os usuários identifiquem a espécie de seus pets de forma rápida e precisa.
+- É o endereço base da API Java
+- A API Python usa essa URL para fazer requisições HTTP para endpoints como:
+  - `GET /batimentos/animal/{id}` - Obter batimentos cardíacos
+  - `GET /movimentos/animal/{id}` - Obter dados de movimento
+- Certifique-se de que a API Java está acessível nesse endereço
 
 ---
 
 ## 📁 Como Executar Localmente
 
+### **📋 Pré-requisitos**
+
+Antes de executar a API Python, certifique-se de ter instalado:
+
+* **Python 3.11** ou superior
+  - [Download do Python](https://www.python.org/downloads/)
+  - Verifique a instalação: `python --version` ou `python3 --version`
+* **pip** (gerenciador de pacotes Python, geralmente incluído com Python)
+  - Verifique a instalação: `pip --version`
+* **Git** para clonar o repositório
+* **API Java** rodando (local ou remota) para comunicação entre APIs
+
+### **🚀 Passos para Execução**
+
+**1. Clone o repositório:**
+
 ```bash
-# Clone o repositório principal
 git clone https://github.com/FatecFranca/DSM-P4-G07-2025-1.git
-
-# Navegue até o diretório da API Python
 cd DSM-P4-G07-2025-1/api-python
-
-# Crie e ative um ambiente virtual
-python -m venv .venv
-source .venv/bin/activate  # ou .venv\Scripts\activate no Windows
-
-# Configure o arquivo .env (copie do .env.example e ajuste as variáveis)
-cp .env.example .env
-
-# Instale as dependências
-pip install -r requirements.txt
-
-# Execute o servidor de desenvolvimento
-uvicorn app.main:app --reload
 ```
 
-A API estará disponível em `http://localhost:8000` e a documentação Swagger em `http://localhost:8000/docs`.
+**2. Crie e ative um ambiente virtual:**
+
+```bash
+# Criar ambiente virtual
+python -m venv .venv
+
+# Ativar no Linux/Mac
+source .venv/bin/activate
+
+# Ativar no Windows (PowerShell)
+.venv\Scripts\Activate.ps1
+
+# Ativar no Windows (CMD)
+.venv\Scripts\activate.bat
+```
+
+**3. Configure as variáveis de ambiente:**
+
+Crie um arquivo `.env` na raiz do projeto (copie do `.env.example`):
+
+```bash
+cp .env.example .env
+```
+
+Edite o arquivo `.env` e configure as seguintes variáveis:
+
+```env
+# Chave secreta JWT (deve ser idêntica à da API Java)
+JWT_SECRET=sua_chave_secreta_aqui_deve_ser_longa_e_complexa
+
+# URL da API Java
+API_URL=http://localhost:8080
+
+# Porta da aplicação (padrão: 8000)
+PORT=8000
+
+# ID do animal para análise (obtido da API Java)
+ANIMAL_ID=seu_animal_id_aqui
+```
+
+**4. Instale as dependências:**
+
+```bash
+pip install -r requirements.txt
+```
+
+**5. Execute a aplicação:**
+
+```bash
+# Modo desenvolvimento (com reload automático)
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Ou usando o script run.py
+python run.py
+```
+
+**6. Acesse a aplicação:**
+
+- **API Base:** `http://localhost:8000`
+- **Documentação Swagger:** `http://localhost:8000/docs`
+- **Documentação ReDoc:** `http://localhost:8000/redoc`
+- **Health Check:** `http://localhost:8000/health`
+
+### **🔧 Comandos Úteis**
+
+```bash
+# Atualizar dependências
+pip install --upgrade -r requirements.txt
+
+# Congelar dependências atuais
+pip freeze > requirements.txt
+
+# Executar em modo produção (sem reload)
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+# Executar com múltiplos workers (produção)
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+```
+
+### **🐳 Executar com Docker (Opcional)**
+
+Se preferir usar Docker:
+
+```bash
+# Construir a imagem Docker
+docker build -t petdex-api-python .
+
+# Executar o container
+docker run -p 8000:8000 --env-file .env petdex-api-python
+```
+
+### **⚙️ Configurações Adicionais**
+
+**Porta da Aplicação:**
+
+- A API roda por padrão na porta **8000**
+- Para alterar, modifique a variável `PORT` no arquivo `.env` ou use o parâmetro `--port` no comando uvicorn
+
+**Dependências Principais:**
+
+- **FastAPI**: Framework web assíncrono
+- **Uvicorn**: Servidor ASGI
+- **Pandas**: Análise de dados
+- **NumPy**: Cálculos numéricos
+- **Scikit-learn**: Modelos de machine learning
+- **PyPMML**: Execução de modelos PMML
+- **httpx**: Cliente HTTP assíncrono
 
 ---
 

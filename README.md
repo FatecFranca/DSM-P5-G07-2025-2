@@ -11,12 +11,12 @@ Repositório do **Grupo 07** do Projeto Interdisciplinar do **5º semestre** do 
 ## 🎬 Veja o vídeo do projeto
 
 <p align="center">
-  <a href="https://www.youtube.com/watch?v=gWR23YgJ_aQ">
-    <img src="https://img.youtube.com/vi/gWR23YgJ_aQ/0.jpg" alt="Assista ao vídeo no YouTube" width="560" />
+  <a href="https://www.youtube.com/watch?v=9IwRMAMUHo0">
+    <img src="https://img.youtube.com/vi/9IwRMAMUHo0/0.jpg" alt="Assista ao vídeo no YouTube" width="560" />
   </a>
 </p>
 
-📺 [Clique aqui para assistir ao vídeo](https://www.youtube.com/watch?v=gWR23YgJ_aQ)
+📺 [Clique aqui para assistir ao vídeo](https://www.youtube.com/watch?v=9IwRMAMUHo0)
 
 ---
 
@@ -34,6 +34,7 @@ Repositório do **Grupo 07** do Projeto Interdisciplinar do **5º semestre** do 
 * **🎨 FIGMA:** [Protótipo da Interface](https://www.figma.com/design/BZOrhXmiYHgesIZf1Ex3Pw/PetDex.?node-id=0-1&t=8nuIhASiCYaiae4f-1)
 * **🐍 API de Análise (FastAPI - Python):** [http://172.206.27.122:8083/docs](http://172.206.27.122:8083/docs)
 * **☕ API Principal (Java - Spring Boot):** [http://172.206.27.122:8080/swagger](http://172.206.27.122:8080/swagger)
+* **📱 Download do APK (Android):** [Baixar PetDex APK](https://drive.google.com/file/d/1qfmFwAp55BwcIVp8BA7cER1gD2TSqYkW/view?usp=sharing)
 
 ### **🔑 Credenciais de Teste**
 
@@ -45,6 +46,18 @@ Para testar a plataforma, utilize as seguintes credenciais:
   "senha": "senha123"
 }
 ```
+
+### **⚠️ Limitação Atual - Usuário de Teste**
+
+**AVISO IMPORTANTE:** No momento, quando um novo usuário é cadastrado e um animal também é cadastrado, o aplicativo **não carregará corretamente** devido à falta de conexão com a coleira física.
+
+**Por que essa limitação existe?**
+
+O aplicativo depende de dados enviados pela coleira física (batimentos cardíacos, localização GPS, movimento). Sem uma coleira conectada ao animal cadastrado, o aplicativo não receberá dados e não funcionará corretamente.
+
+**Solução para Testes:**
+
+Utilize as credenciais acima (`henriquealmeidaflorentino@gmail.com` / `senha123`) que já possuem um animal cadastrado e conectado à coleira, permitindo acesso completo a todas as funcionalidades com dados reais.
 
 ---
 
@@ -158,6 +171,126 @@ A PetDex foi desenvolvida com uma **arquitetura modular e distribuída**, dividi
   - Sistema Operacional: **Ubuntu**
   - Tipo de Máquina: **Standard B1ms**
   - APIs acessíveis via IP público
+
+* **Containerização e Orquestração:**
+  - **Docker**: Cada API é containerizada em sua própria imagem Docker
+  - **Docker Compose**: Orquestração de múltiplos containers (API Java, API Python)
+  - Rede interna (`petdex-network`) para comunicação entre containers
+  - Volumes persistentes para armazenamento de dados
+
+---
+
+## 🚀 Infraestrutura e Deploy
+
+### **☁️ Hospedagem na Microsoft Azure**
+
+O projeto PetDex está hospedado na **Microsoft Azure**, utilizando uma máquina virtual com as seguintes especificações:
+
+- **Sistema Operacional:** Ubuntu Server
+- **Tipo de Máquina:** Standard B1ms
+- **IP Público:** 172.206.27.122
+- **Região:** East US
+
+### **🐳 Containerização com Docker**
+
+Toda a infraestrutura backend é containerizada usando **Docker**, garantindo:
+
+- **Portabilidade:** Mesma configuração em desenvolvimento e produção
+- **Isolamento:** Cada serviço roda em seu próprio container
+- **Escalabilidade:** Fácil replicação e balanceamento de carga
+- **Consistência:** Ambiente idêntico em qualquer máquina
+
+**Estrutura de Containers:**
+
+```yaml
+services:
+  api-java:
+    - Porta: 8080
+    - Imagem: petdex/api-java:main
+    - Rede: petdex-network
+
+  api-python:
+    - Porta: 8083
+    - Imagem: petdex/api-python:main
+    - Rede: petdex-network
+```
+
+### **🔄 Orquestração com Docker Compose**
+
+O **Docker Compose** gerencia múltiplos containers e suas dependências:
+
+- **Rede Interna:** Containers se comunicam através da rede `petdex-network`
+- **Variáveis de Ambiente:** Configurações sensíveis (JWT_SECRET, DATABASE_URI) via `.env`
+- **Restart Automático:** Containers reiniciam automaticamente em caso de falha
+- **Volumes Persistentes:** Dados importantes são mantidos mesmo após restart
+
+**Como executar localmente com Docker Compose:**
+
+```bash
+# Clone o repositório
+git clone https://github.com/FatecFranca/DSM-P4-G07-2025-1.git
+cd DSM-P4-G07-2025-1
+
+# Configure o arquivo .env
+cp .env.example .env
+
+# Inicie todos os serviços
+docker-compose up -d
+
+# Visualize os logs
+docker-compose logs -f
+
+# Pare todos os serviços
+docker-compose down
+```
+
+### **⚙️ CI/CD - Deploy Automático**
+
+O projeto implementa um pipeline de **CI/CD (Continuous Integration/Continuous Deployment)** para automatizar o processo de deploy:
+
+**Fluxo de Deploy:**
+
+1. **Commit/Push:** Desenvolvedor faz push para o repositório GitHub
+2. **Build Automático:** GitHub Actions detecta mudanças e inicia o build
+3. **Criação de Imagens Docker:** Novas imagens são construídas automaticamente
+4. **Push para Registry:** Imagens são enviadas para o Docker Hub/Registry
+5. **Deploy no Servidor:** Servidor Azure puxa as novas imagens e reinicia os containers
+6. **Verificação:** Health checks garantem que os serviços estão funcionando
+
+**Benefícios:**
+
+- ✅ Deploy rápido e confiável
+- ✅ Redução de erros humanos
+- ✅ Rollback fácil em caso de problemas
+- ✅ Histórico completo de deploys
+
+### **📡 Informações do Servidor**
+
+**IP do Servidor Azure:** `172.206.27.122`
+
+**Endpoints das APIs:**
+
+| Serviço | URL Base | Documentação | Porta |
+|:--------|:---------|:-------------|:------|
+| **API Java** | `http://172.206.27.122:8080` | [Swagger](http://172.206.27.122:8080/swagger) | 8080 |
+| **API Python** | `http://172.206.27.122:8083` | [Docs](http://172.206.27.122:8083/docs) | 8083 |
+| **WebSocket** | `ws://172.206.27.122:8080/ws-petdex` | - | 8080 |
+
+**Rotas Principais:**
+
+**API Java (Spring Boot):**
+- `POST /auth/login` - Autenticação de usuários
+- `GET /animais/{id}` - Consultar dados do animal
+- `GET /batimentos/animal/{id}` - Histórico de batimentos cardíacos
+- `GET /localizacoes/animal/{id}` - Histórico de localizações
+- `WS /ws-petdex` - Conexão WebSocket para dados em tempo real
+
+**API Python (FastAPI):**
+- `GET /batimentos/estatisticas` - Estatísticas de batimentos
+- `GET /batimentos/media-ultimos-5-dias` - Média diária dos últimos 5 dias
+- `GET /batimentos/probabilidade?valor=XX` - Probabilidade de um batimento
+- `GET /batimentos/regressao` - Análise de regressão linear
+- `GET /health` - Status da API
 
 ---
 

@@ -95,9 +95,29 @@ Cliente (Mobile) → API Python → API Java
 
 Isso garante que a autenticação seja mantida em toda a cadeia de comunicação, sem necessidade de múltiplos logins.
 
-### **Configuração**
+### **Configuração do JWT_SECRET**
 
-A chave secreta JWT (`JWT_SECRET`) deve ser configurada no arquivo `.env` (veja `.env.example` para referência). **É fundamental que a mesma chave seja utilizada tanto na API Java quanto na API Python** para que os tokens possam ser validados em ambos os serviços.
+⚠️ **IMPORTANTE:** A chave secreta JWT (`JWT_SECRET`) é essencial para o funcionamento do sistema de autenticação.
+
+**Como configurar:**
+
+1. Crie um arquivo `.env` na raiz do projeto (se ainda não existir)
+2. Adicione a variável `JWT_SECRET` com uma chave secreta forte:
+
+```env
+JWT_SECRET=sua_chave_secreta_aqui_deve_ser_longa_e_complexa
+```
+
+**⚙️ Requisitos Importantes:**
+
+- A chave deve ser **idêntica** à configurada na API Python para garantir compatibilidade de autenticação
+- Use uma chave forte e complexa (recomendado: mínimo 32 caracteres)
+- **NUNCA** compartilhe ou versione o arquivo `.env` com a chave real
+- Para referência, consulte o arquivo `.env.example` no projeto
+
+**Por que isso é necessário?**
+
+O `JWT_SECRET` é usado para assinar e validar os tokens JWT. Como a arquitetura da PetDex implementa um fluxo de autenticação em cascata (Cliente → API Python → API Java), ambas as APIs precisam compartilhar a mesma chave secreta para que os tokens gerados pela API Java possam ser validados pela API Python e vice-versa.
 
 ---
 
@@ -249,21 +269,114 @@ Esta infraestrutura garante alta disponibilidade e performance para o processame
 
 ## 📁 Como Executar Localmente
 
+### **📋 Pré-requisitos**
+
+Antes de executar a API Java, certifique-se de ter instalado:
+
+* **Java 21** ou superior
+  - [Download do OpenJDK 21](https://adoptium.net/)
+  - Verifique a instalação: `java -version`
+* **Maven 3.8+** (ou use o Maven Wrapper incluído no projeto)
+  - [Download do Maven](https://maven.apache.org/download.cgi)
+  - Verifique a instalação: `mvn -version`
+* **MongoDB** (local ou acesso a uma instância remota)
+  - [Download do MongoDB Community](https://www.mongodb.com/try/download/community)
+* **Git** para clonar o repositório
+
+### **🚀 Passos para Execução**
+
+**1. Clone o repositório:**
+
 ```bash
-# Clone o repositório
 git clone https://github.com/FatecFranca/DSM-P4-G07-2025-1.git
-
-# Navegue até o diretório da API Java
 cd DSM-P4-G07-2025-1/api-java
-
-# Configure o arquivo .env (copie do .env.example e ajuste as variáveis)
-cp .env.example .env
-
-# Execute com Maven
-./mvnw spring-boot:run
 ```
 
-A API estará disponível em `http://localhost:8080` e a documentação Swagger em `http://localhost:8080/swagger`.
+**2. Configure as variáveis de ambiente:**
+
+Crie um arquivo `.env` na raiz do projeto (copie do `.env.example`):
+
+```bash
+cp .env.example .env
+```
+
+Edite o arquivo `.env` e configure as seguintes variáveis:
+
+```env
+# Chave secreta JWT (deve ser idêntica à da API Python)
+JWT_SECRET=sua_chave_secreta_aqui_deve_ser_longa_e_complexa
+
+# Configuração do MongoDB
+MONGODB_URI=mongodb://localhost:27017/petdex
+MONGODB_DATABASE=petdex
+
+# Porta da aplicação (padrão: 8080)
+SERVER_PORT=8080
+```
+
+**3. Instale as dependências:**
+
+```bash
+# Usando Maven Wrapper (recomendado)
+./mvnw clean install
+
+# Ou usando Maven instalado globalmente
+mvn clean install
+```
+
+**4. Execute a aplicação:**
+
+```bash
+# Usando Maven Wrapper
+./mvnw spring-boot:run
+
+# Ou usando Maven instalado globalmente
+mvn spring-boot:run
+```
+
+**5. Acesse a aplicação:**
+
+- **API Base:** `http://localhost:8080`
+- **Documentação Swagger:** `http://localhost:8080/swagger`
+- **WebSocket Endpoint:** `ws://localhost:8080/ws-petdex`
+
+### **🔧 Comandos Úteis**
+
+```bash
+# Compilar o projeto sem executar testes
+./mvnw clean package -DskipTests
+
+# Executar apenas os testes
+./mvnw test
+
+# Gerar o arquivo JAR para produção
+./mvnw clean package
+
+# Executar o JAR gerado
+java -jar target/api-java-0.0.1-SNAPSHOT.jar
+```
+
+### **🐳 Executar com Docker (Opcional)**
+
+Se preferir usar Docker:
+
+```bash
+# Construir a imagem Docker
+docker build -t petdex-api-java .
+
+# Executar o container
+docker run -p 8080:8080 --env-file .env petdex-api-java
+```
+
+### **⚙️ Configurações Adicionais**
+
+**Porta da Aplicação:**
+- A API roda por padrão na porta **8080**
+- Para alterar, modifique a variável `SERVER_PORT` no arquivo `.env`
+
+**Banco de Dados:**
+- Certifique-se de que o MongoDB está rodando antes de iniciar a API
+- A string de conexão pode ser configurada via `MONGODB_URI` no `.env`
 
 ---
 
