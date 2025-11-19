@@ -1,0 +1,1422 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PMML xmlns="http://www.dmg.org/PMML-4_4" xmlns:data="http://jpmml.org/jpmml-model/InlineTable" version="4.4">
+	<Header>
+		<Application name="SkLearn2PMML package" version="0.123.1"/>
+		<Timestamp>2025-11-12T01:53:22Z</Timestamp>
+	</Header>
+	<MiningBuildTask>
+		<Extension name="repr">PMMLPipeline(steps=[('preprocessor', ColumnTransformer(transformers=[('num', StandardScaler(),
+                                 ['idade', 'genero', 'peso', 'duracao',
+                                  'perda_de_apetite', 'vomito', 'diarreia',
+                                  'tosse', 'dificuldade_para_respirar',
+                                  'dificuldade_para_locomover',
+                                  'problemas_na_pele', 'secrecao_nasal',
+                                  'secrecao_ocular', 'batimento_cardiaco',
+                                  'agitacao', 'andar_em_circulos',
+                                  'aumento_apetite',
+                                  'cera_excessiva_nas_orelhas', 'coceira',
+                                  'desidratacao', 'desmaio',
+                                  'dificuldade_para_urinar', 'dor',
+                                  'espamos_musculares', 'espirros', 'febre',
+                                  'fraqueza', 'inchaco', 'lambedura',
+                                  'letargia', ...]),
+                                ('cat',
+                                 OneHotEncoder(handle_unknown='ignore',
+                                               sparse_output=False),
+                                 ['tipo_do_animal', 'raca'])])),
+       ('model', LinearDiscriminantAnalysis())])</Extension>
+	</MiningBuildTask>
+	<DataDictionary>
+		<DataField name="classe_doenca" optype="categorical" dataType="string">
+			<Value value="cardiovascular_hematologica"/>
+			<Value value="cutanea"/>
+			<Value value="gastrointestinal"/>
+			<Value value="nenhuma"/>
+			<Value value="neuro_musculoesqueletica"/>
+			<Value value="respiratoria"/>
+			<Value value="urogenital"/>
+		</DataField>
+		<DataField name="tipo_do_animal" optype="categorical" dataType="string">
+			<Value value="cachorro"/>
+			<Value value="gato"/>
+		</DataField>
+		<DataField name="raca" optype="categorical" dataType="string">
+			<Value value="abissinio"/>
+			<Value value="azul_russo"/>
+			<Value value="beagle"/>
+			<Value value="bengal"/>
+			<Value value="border_collie"/>
+			<Value value="boxer"/>
+			<Value value="britanico"/>
+			<Value value="british_shorthair"/>
+			<Value value="buldogue"/>
+			<Value value="buldogue_frances"/>
+			<Value value="burmes"/>
+			<Value value="cavalier_king_charles_spaniel"/>
+			<Value value="chihuahua"/>
+			<Value value="cocker_spaniel"/>
+			<Value value="dachshund"/>
+			<Value value="dachshund_(salsicha)"/>
+			<Value value="dalmata"/>
+			<Value value="doberman"/>
+			<Value value="golden_retriever"/>
+			<Value value="husky"/>
+			<Value value="husky_siberiano"/>
+			<Value value="labrador"/>
+			<Value value="labrador_retriever"/>
+			<Value value="maine_coon"/>
+			<Value value="maltes"/>
+			<Value value="manx"/>
+			<Value value="pastor_alemao"/>
+			<Value value="persa"/>
+			<Value value="pit_bull"/>
+			<Value value="poodle"/>
+			<Value value="pug"/>
+			<Value value="ragdoll"/>
+			<Value value="rottweiler"/>
+			<Value value="scottish_fold"/>
+			<Value value="sem_raca_definida"/>
+			<Value value="sem_raca_definida_(srd)"/>
+			<Value value="shih_tzu"/>
+			<Value value="siames"/>
+			<Value value="siberiano"/>
+			<Value value="sphynx"/>
+			<Value value="yorkshire"/>
+		</DataField>
+		<DataField name="idade" optype="continuous" dataType="double"/>
+		<DataField name="genero" optype="continuous" dataType="double"/>
+		<DataField name="peso" optype="continuous" dataType="double"/>
+		<DataField name="duracao" optype="continuous" dataType="double"/>
+		<DataField name="perda_de_apetite" optype="continuous" dataType="double"/>
+		<DataField name="vomito" optype="continuous" dataType="double"/>
+		<DataField name="diarreia" optype="continuous" dataType="double"/>
+		<DataField name="tosse" optype="continuous" dataType="double"/>
+		<DataField name="dificuldade_para_respirar" optype="continuous" dataType="double"/>
+		<DataField name="dificuldade_para_locomover" optype="continuous" dataType="double"/>
+		<DataField name="problemas_na_pele" optype="continuous" dataType="double"/>
+		<DataField name="secrecao_nasal" optype="continuous" dataType="double"/>
+		<DataField name="secrecao_ocular" optype="continuous" dataType="double"/>
+		<DataField name="batimento_cardiaco" optype="continuous" dataType="double"/>
+		<DataField name="agitacao" optype="continuous" dataType="double"/>
+		<DataField name="andar_em_circulos" optype="continuous" dataType="double"/>
+		<DataField name="aumento_apetite" optype="continuous" dataType="double"/>
+		<DataField name="cera_excessiva_nas_orelhas" optype="continuous" dataType="double"/>
+		<DataField name="coceira" optype="continuous" dataType="double"/>
+		<DataField name="desidratacao" optype="continuous" dataType="double"/>
+		<DataField name="desmaio" optype="continuous" dataType="double"/>
+		<DataField name="dificuldade_para_urinar" optype="continuous" dataType="double"/>
+		<DataField name="dor" optype="continuous" dataType="double"/>
+		<DataField name="espamos_musculares" optype="continuous" dataType="double"/>
+		<DataField name="espirros" optype="continuous" dataType="double"/>
+		<DataField name="febre" optype="continuous" dataType="double"/>
+		<DataField name="fraqueza" optype="continuous" dataType="double"/>
+		<DataField name="inchaco" optype="continuous" dataType="double"/>
+		<DataField name="lambedura" optype="continuous" dataType="double"/>
+		<DataField name="letargia" optype="continuous" dataType="double"/>
+		<DataField name="lingua_azulada" optype="continuous" dataType="double"/>
+		<DataField name="perda_de_pelos" optype="continuous" dataType="double"/>
+		<DataField name="perda_de_peso" optype="continuous" dataType="double"/>
+		<DataField name="ranger_de_dentes" optype="continuous" dataType="double"/>
+		<DataField name="ronco" optype="continuous" dataType="double"/>
+		<DataField name="salivacao" optype="continuous" dataType="double"/>
+		<DataField name="suor_alterado" optype="continuous" dataType="double"/>
+	</DataDictionary>
+	<MiningModel functionName="classification" algorithmName="sklearn.discriminant_analysis.LinearDiscriminantAnalysis">
+		<MiningSchema>
+			<MiningField name="classe_doenca" usageType="target"/>
+			<MiningField name="tipo_do_animal" invalidValueTreatment="asIs"/>
+			<MiningField name="raca" invalidValueTreatment="asIs"/>
+			<MiningField name="aumento_apetite"/>
+			<MiningField name="espamos_musculares"/>
+			<MiningField name="ranger_de_dentes"/>
+			<MiningField name="salivacao"/>
+			<MiningField name="suor_alterado"/>
+			<MiningField name="idade"/>
+			<MiningField name="genero"/>
+			<MiningField name="peso"/>
+			<MiningField name="duracao"/>
+			<MiningField name="perda_de_apetite"/>
+			<MiningField name="vomito"/>
+			<MiningField name="diarreia"/>
+			<MiningField name="tosse"/>
+			<MiningField name="dificuldade_para_respirar"/>
+			<MiningField name="dificuldade_para_locomover"/>
+			<MiningField name="problemas_na_pele"/>
+			<MiningField name="secrecao_nasal"/>
+			<MiningField name="secrecao_ocular"/>
+			<MiningField name="batimento_cardiaco"/>
+			<MiningField name="agitacao"/>
+			<MiningField name="andar_em_circulos"/>
+			<MiningField name="cera_excessiva_nas_orelhas"/>
+			<MiningField name="coceira"/>
+			<MiningField name="desidratacao"/>
+			<MiningField name="desmaio"/>
+			<MiningField name="dificuldade_para_urinar"/>
+			<MiningField name="dor"/>
+			<MiningField name="espirros"/>
+			<MiningField name="febre"/>
+			<MiningField name="fraqueza"/>
+			<MiningField name="inchaco"/>
+			<MiningField name="lambedura"/>
+			<MiningField name="letargia"/>
+			<MiningField name="lingua_azulada"/>
+			<MiningField name="perda_de_pelos"/>
+			<MiningField name="perda_de_peso"/>
+			<MiningField name="ronco"/>
+		</MiningSchema>
+		<LocalTransformations>
+			<DerivedField name="standardScaler(idade)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="idade"/>
+						<Constant dataType="double">5.0157657657657655</Constant>
+					</Apply>
+					<Constant dataType="double">2.487305445168879</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(genero)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="genero"/>
+						<Constant dataType="double">0.5382882882882883</Constant>
+					</Apply>
+					<Constant dataType="double">0.49853185151999363</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(peso)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="peso"/>
+						<Constant dataType="double">13.267567567567566</Constant>
+					</Apply>
+					<Constant dataType="double">10.612050452386343</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(duracao)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="duracao"/>
+						<Constant dataType="double">8.204954954954955</Constant>
+					</Apply>
+					<Constant dataType="double">7.037279927767171</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(perda_de_apetite)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="perda_de_apetite"/>
+						<Constant dataType="double">0.5157657657657657</Constant>
+					</Apply>
+					<Constant dataType="double">0.4997513788173266</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(vomito)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="vomito"/>
+						<Constant dataType="double">0.3130630630630631</Constant>
+					</Apply>
+					<Constant dataType="double">0.4637397779020425</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(diarreia)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="diarreia"/>
+						<Constant dataType="double">0.0945945945945946</Constant>
+					</Apply>
+					<Constant dataType="double">0.29265415983388804</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(tosse)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="tosse"/>
+						<Constant dataType="double">0.20045045045045046</Constant>
+					</Apply>
+					<Constant dataType="double">0.40033744187205617</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(dificuldade_para_respirar)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="dificuldade_para_respirar"/>
+						<Constant dataType="double">0.13063063063063063</Constant>
+					</Apply>
+					<Constant dataType="double">0.33699594800483046</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(dificuldade_para_locomover)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="dificuldade_para_locomover"/>
+						<Constant dataType="double">0.18243243243243243</Constant>
+					</Apply>
+					<Constant dataType="double">0.3862005179038713</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(problemas_na_pele)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="problemas_na_pele"/>
+						<Constant dataType="double">0.1891891891891892</Constant>
+					</Apply>
+					<Constant dataType="double">0.3916588309780929</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(secrecao_nasal)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="secrecao_nasal"/>
+						<Constant dataType="double">0.13063063063063063</Constant>
+					</Apply>
+					<Constant dataType="double">0.33699594800483046</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(secrecao_ocular)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="secrecao_ocular"/>
+						<Constant dataType="double">0.07432432432432433</Constant>
+					</Apply>
+					<Constant dataType="double">0.2622979586997523</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(batimento_cardiaco)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="batimento_cardiaco"/>
+						<Constant dataType="double">138.71396396396398</Constant>
+					</Apply>
+					<Constant dataType="double">22.565853250777785</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(agitacao)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="agitacao"/>
+						<Constant dataType="double">0.06531531531531531</Constant>
+					</Apply>
+					<Constant dataType="double">0.24708141350691726</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(andar_em_circulos)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="andar_em_circulos"/>
+						<Constant dataType="double">0.015765765765765764</Constant>
+					</Apply>
+					<Constant dataType="double">0.12456807936058409</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(cera_excessiva_nas_orelhas)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="cera_excessiva_nas_orelhas"/>
+						<Constant dataType="double">0.0022522522522522522</Constant>
+					</Apply>
+					<Constant dataType="double">0.04740442608074141</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(coceira)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="coceira"/>
+						<Constant dataType="double">0.1036036036036036</Constant>
+					</Apply>
+					<Constant dataType="double">0.3047456265870783</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(desidratacao)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="desidratacao"/>
+						<Constant dataType="double">0.060810810810810814</Constant>
+					</Apply>
+					<Constant dataType="double">0.23898296194361343</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(desmaio)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="desmaio"/>
+						<Constant dataType="double">0.02027027027027027</Constant>
+					</Apply>
+					<Constant dataType="double">0.14092333523387982</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(dificuldade_para_urinar)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="dificuldade_para_urinar"/>
+						<Constant dataType="double">0.02252252252252252</Constant>
+					</Apply>
+					<Constant dataType="double">0.14837539722523066</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(dor)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="dor"/>
+						<Constant dataType="double">0.10585585585585586</Constant>
+					</Apply>
+					<Constant dataType="double">0.3076530410005403</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(espirros)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="espirros"/>
+						<Constant dataType="double">0.060810810810810814</Constant>
+					</Apply>
+					<Constant dataType="double">0.23898296194361343</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(febre)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="febre"/>
+						<Constant dataType="double">0.2747747747747748</Constant>
+					</Apply>
+					<Constant dataType="double">0.4464007145180735</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(fraqueza)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="fraqueza"/>
+						<Constant dataType="double">0.04054054054054054</Constant>
+					</Apply>
+					<Constant dataType="double">0.19722323674765438</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(inchaco)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="inchaco"/>
+						<Constant dataType="double">0.14189189189189189</Constant>
+					</Apply>
+					<Constant dataType="double">0.34893922523446913</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(lambedura)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="lambedura"/>
+						<Constant dataType="double">0.018018018018018018</Constant>
+					</Apply>
+					<Constant dataType="double">0.13301642396606667</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(letargia)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="letargia"/>
+						<Constant dataType="double">0.7117117117117117</Constant>
+					</Apply>
+					<Constant dataType="double">0.45296594918834354</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(lingua_azulada)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="lingua_azulada"/>
+						<Constant dataType="double">0.0022522522522522522</Constant>
+					</Apply>
+					<Constant dataType="double">0.04740442608074141</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(perda_de_pelos)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="perda_de_pelos"/>
+						<Constant dataType="double">0.05405405405405406</Constant>
+					</Apply>
+					<Constant dataType="double">0.2261243314956961</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(perda_de_peso)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="perda_de_peso"/>
+						<Constant dataType="double">0.11711711711711711</Constant>
+					</Apply>
+					<Constant dataType="double">0.3215597891454909</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(ronco)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="ronco"/>
+						<Constant dataType="double">0.024774774774774775</Constant>
+					</Apply>
+					<Constant dataType="double">0.15543804331512268</Constant>
+				</Apply>
+			</DerivedField>
+		</LocalTransformations>
+		<Segmentation multipleModelMethod="modelChain" missingPredictionTreatment="returnMissing">
+			<Segment id="1">
+				<True/>
+				<RegressionModel functionName="regression">
+					<MiningSchema>
+						<MiningField name="tipo_do_animal"/>
+						<MiningField name="raca"/>
+						<MiningField name="aumento_apetite"/>
+						<MiningField name="espamos_musculares"/>
+						<MiningField name="ranger_de_dentes"/>
+						<MiningField name="salivacao"/>
+						<MiningField name="suor_alterado"/>
+						<MiningField name="standardScaler(idade)"/>
+						<MiningField name="standardScaler(genero)"/>
+						<MiningField name="standardScaler(peso)"/>
+						<MiningField name="standardScaler(duracao)"/>
+						<MiningField name="standardScaler(perda_de_apetite)"/>
+						<MiningField name="standardScaler(vomito)"/>
+						<MiningField name="standardScaler(diarreia)"/>
+						<MiningField name="standardScaler(tosse)"/>
+						<MiningField name="standardScaler(dificuldade_para_respirar)"/>
+						<MiningField name="standardScaler(dificuldade_para_locomover)"/>
+						<MiningField name="standardScaler(problemas_na_pele)"/>
+						<MiningField name="standardScaler(secrecao_nasal)"/>
+						<MiningField name="standardScaler(secrecao_ocular)"/>
+						<MiningField name="standardScaler(batimento_cardiaco)"/>
+						<MiningField name="standardScaler(agitacao)"/>
+						<MiningField name="standardScaler(andar_em_circulos)"/>
+						<MiningField name="standardScaler(cera_excessiva_nas_orelhas)"/>
+						<MiningField name="standardScaler(coceira)"/>
+						<MiningField name="standardScaler(desidratacao)"/>
+						<MiningField name="standardScaler(desmaio)"/>
+						<MiningField name="standardScaler(dificuldade_para_urinar)"/>
+						<MiningField name="standardScaler(dor)"/>
+						<MiningField name="standardScaler(espirros)"/>
+						<MiningField name="standardScaler(febre)"/>
+						<MiningField name="standardScaler(fraqueza)"/>
+						<MiningField name="standardScaler(inchaco)"/>
+						<MiningField name="standardScaler(lambedura)"/>
+						<MiningField name="standardScaler(letargia)"/>
+						<MiningField name="standardScaler(lingua_azulada)"/>
+						<MiningField name="standardScaler(perda_de_pelos)"/>
+						<MiningField name="standardScaler(perda_de_peso)"/>
+						<MiningField name="standardScaler(ronco)"/>
+					</MiningSchema>
+					<Output>
+						<OutputField name="decisionFunction(cardiovascular_hematologica)" optype="continuous" dataType="double" isFinalResult="false"/>
+					</Output>
+					<RegressionTable intercept="-11.089891137675448">
+						<NumericPredictor name="standardScaler(idade)" coefficient="-0.5680381480136584"/>
+						<NumericPredictor name="standardScaler(genero)" coefficient="-0.23801974203721213"/>
+						<NumericPredictor name="standardScaler(peso)" coefficient="0.637040160250652"/>
+						<NumericPredictor name="standardScaler(duracao)" coefficient="0.879769834412056"/>
+						<NumericPredictor name="standardScaler(perda_de_apetite)" coefficient="2.25718733369511"/>
+						<NumericPredictor name="standardScaler(vomito)" coefficient="0.786945319061431"/>
+						<NumericPredictor name="standardScaler(diarreia)" coefficient="3.7297800784628485"/>
+						<NumericPredictor name="standardScaler(tosse)" coefficient="2.769934205950208"/>
+						<NumericPredictor name="standardScaler(dificuldade_para_respirar)" coefficient="3.5039312801490916"/>
+						<NumericPredictor name="standardScaler(dificuldade_para_locomover)" coefficient="-0.7844370523463239"/>
+						<NumericPredictor name="standardScaler(problemas_na_pele)" coefficient="0.4830647543287957"/>
+						<NumericPredictor name="standardScaler(secrecao_nasal)" coefficient="1.805287504123828"/>
+						<NumericPredictor name="standardScaler(secrecao_ocular)" coefficient="1.5332177354770649"/>
+						<NumericPredictor name="standardScaler(batimento_cardiaco)" coefficient="1.276744517451336"/>
+						<NumericPredictor name="standardScaler(agitacao)" coefficient="-2.197109228645585"/>
+						<NumericPredictor name="standardScaler(andar_em_circulos)" coefficient="0.3208164017336063"/>
+						<NumericPredictor name="aumento_apetite" coefficient="2.8819584459103607E-15"/>
+						<NumericPredictor name="standardScaler(cera_excessiva_nas_orelhas)" coefficient="-0.5391674316755004"/>
+						<NumericPredictor name="standardScaler(coceira)" coefficient="1.2055160909532774"/>
+						<NumericPredictor name="standardScaler(desidratacao)" coefficient="0.8643496926630811"/>
+						<NumericPredictor name="standardScaler(desmaio)" coefficient="0.6042095458904211"/>
+						<NumericPredictor name="standardScaler(dificuldade_para_urinar)" coefficient="0.18707514577173356"/>
+						<NumericPredictor name="standardScaler(dor)" coefficient="2.2924977037882597"/>
+						<NumericPredictor name="espamos_musculares" coefficient="-2.7456421876010237E-15"/>
+						<NumericPredictor name="standardScaler(espirros)" coefficient="-0.14671494698573811"/>
+						<NumericPredictor name="standardScaler(febre)" coefficient="4.888036201036536"/>
+						<NumericPredictor name="standardScaler(fraqueza)" coefficient="4.197205583445353"/>
+						<NumericPredictor name="standardScaler(inchaco)" coefficient="-6.546874291996327"/>
+						<NumericPredictor name="standardScaler(lambedura)" coefficient="-0.20075128708205897"/>
+						<NumericPredictor name="standardScaler(letargia)" coefficient="3.274056778510818"/>
+						<NumericPredictor name="standardScaler(lingua_azulada)" coefficient="0.030595833145659286"/>
+						<NumericPredictor name="standardScaler(perda_de_pelos)" coefficient="0.6794541564366257"/>
+						<NumericPredictor name="standardScaler(perda_de_peso)" coefficient="2.970377715081597"/>
+						<NumericPredictor name="ranger_de_dentes" coefficient="7.370723195024376E-16"/>
+						<NumericPredictor name="standardScaler(ronco)" coefficient="-0.3879843444272125"/>
+						<NumericPredictor name="salivacao" coefficient="-2.7361094455533247E-16"/>
+						<NumericPredictor name="suor_alterado" coefficient="-9.456965906372679E-17"/>
+						<CategoricalPredictor name="tipo_do_animal" value="cachorro" coefficient="0.6823729399508441"/>
+						<CategoricalPredictor name="tipo_do_animal" value="gato" coefficient="-0.682372939950848"/>
+						<CategoricalPredictor name="raca" value="abissinio" coefficient="7.94347085600777"/>
+						<CategoricalPredictor name="raca" value="azul_russo" coefficient="0.7509023206920927"/>
+						<CategoricalPredictor name="raca" value="beagle" coefficient="-3.4281519210291584"/>
+						<CategoricalPredictor name="raca" value="bengal" coefficient="6.011436901790754"/>
+						<CategoricalPredictor name="raca" value="border_collie" coefficient="-1.7951677580913035"/>
+						<CategoricalPredictor name="raca" value="boxer" coefficient="-0.9641954574843037"/>
+						<CategoricalPredictor name="raca" value="britanico" coefficient="-5.010352067347576"/>
+						<CategoricalPredictor name="raca" value="british_shorthair" coefficient="0.030341140074324584"/>
+						<CategoricalPredictor name="raca" value="buldogue" coefficient="-4.619729963485157"/>
+						<CategoricalPredictor name="raca" value="buldogue_frances" coefficient="-5.322360002119623"/>
+						<CategoricalPredictor name="raca" value="burmes" coefficient="-2.2400139535854695"/>
+						<CategoricalPredictor name="raca" value="cavalier_king_charles_spaniel" coefficient="-0.2324273498049364"/>
+						<CategoricalPredictor name="raca" value="chihuahua" coefficient="-2.2737334543105097"/>
+						<CategoricalPredictor name="raca" value="cocker_spaniel" coefficient="-2.803174807830432"/>
+						<CategoricalPredictor name="raca" value="dachshund" coefficient="7.166616348044159"/>
+						<CategoricalPredictor name="raca" value="dachshund_(salsicha)" coefficient="-4.397537982935718"/>
+						<CategoricalPredictor name="raca" value="dalmata" coefficient="-2.846022818043886"/>
+						<CategoricalPredictor name="raca" value="doberman" coefficient="21.326433830723882"/>
+						<CategoricalPredictor name="raca" value="golden_retriever" coefficient="-2.437354834720988"/>
+						<CategoricalPredictor name="raca" value="husky" coefficient="-1.5571447564863425"/>
+						<CategoricalPredictor name="raca" value="husky_siberiano" coefficient="23.458414660814316"/>
+						<CategoricalPredictor name="raca" value="labrador" coefficient="-3.598961135696512"/>
+						<CategoricalPredictor name="raca" value="labrador_retriever" coefficient="-0.9496660741350273"/>
+						<CategoricalPredictor name="raca" value="maine_coon" coefficient="1.8272736492148265"/>
+						<CategoricalPredictor name="raca" value="maltes" coefficient="-12.492407033756313"/>
+						<CategoricalPredictor name="raca" value="manx" coefficient="6.191527973643527"/>
+						<CategoricalPredictor name="raca" value="pastor_alemao" coefficient="-0.42792366225892353"/>
+						<CategoricalPredictor name="raca" value="persa" coefficient="0.602737435090017"/>
+						<CategoricalPredictor name="raca" value="pit_bull" coefficient="0.47046124296057035"/>
+						<CategoricalPredictor name="raca" value="poodle" coefficient="-3.536373548208525"/>
+						<CategoricalPredictor name="raca" value="pug" coefficient="-7.530109328633045"/>
+						<CategoricalPredictor name="raca" value="ragdoll" coefficient="2.2288082227649197"/>
+						<CategoricalPredictor name="raca" value="rottweiler" coefficient="-3.1305665915800076"/>
+						<CategoricalPredictor name="raca" value="scottish_fold" coefficient="3.3893136777184836"/>
+						<CategoricalPredictor name="raca" value="sem_raca_definida" coefficient="-5.214855354793561"/>
+						<CategoricalPredictor name="raca" value="sem_raca_definida_(srd)" coefficient="0.3038045684786485"/>
+						<CategoricalPredictor name="raca" value="shih_tzu" coefficient="-4.766513563681594"/>
+						<CategoricalPredictor name="raca" value="siames" coefficient="4.2002178118811715"/>
+						<CategoricalPredictor name="raca" value="siberiano" coefficient="6.002719368612378"/>
+						<CategoricalPredictor name="raca" value="sphynx" coefficient="-4.2628426268186965"/>
+						<CategoricalPredictor name="raca" value="yorkshire" coefficient="7.238390862951759"/>
+					</RegressionTable>
+				</RegressionModel>
+			</Segment>
+			<Segment id="2">
+				<True/>
+				<RegressionModel functionName="regression">
+					<MiningSchema>
+						<MiningField name="tipo_do_animal"/>
+						<MiningField name="raca"/>
+						<MiningField name="aumento_apetite"/>
+						<MiningField name="espamos_musculares"/>
+						<MiningField name="ranger_de_dentes"/>
+						<MiningField name="salivacao"/>
+						<MiningField name="suor_alterado"/>
+						<MiningField name="standardScaler(idade)"/>
+						<MiningField name="standardScaler(genero)"/>
+						<MiningField name="standardScaler(peso)"/>
+						<MiningField name="standardScaler(duracao)"/>
+						<MiningField name="standardScaler(perda_de_apetite)"/>
+						<MiningField name="standardScaler(vomito)"/>
+						<MiningField name="standardScaler(diarreia)"/>
+						<MiningField name="standardScaler(tosse)"/>
+						<MiningField name="standardScaler(dificuldade_para_respirar)"/>
+						<MiningField name="standardScaler(dificuldade_para_locomover)"/>
+						<MiningField name="standardScaler(problemas_na_pele)"/>
+						<MiningField name="standardScaler(secrecao_nasal)"/>
+						<MiningField name="standardScaler(secrecao_ocular)"/>
+						<MiningField name="standardScaler(batimento_cardiaco)"/>
+						<MiningField name="standardScaler(agitacao)"/>
+						<MiningField name="standardScaler(andar_em_circulos)"/>
+						<MiningField name="standardScaler(cera_excessiva_nas_orelhas)"/>
+						<MiningField name="standardScaler(coceira)"/>
+						<MiningField name="standardScaler(desidratacao)"/>
+						<MiningField name="standardScaler(desmaio)"/>
+						<MiningField name="standardScaler(dificuldade_para_urinar)"/>
+						<MiningField name="standardScaler(dor)"/>
+						<MiningField name="standardScaler(espirros)"/>
+						<MiningField name="standardScaler(febre)"/>
+						<MiningField name="standardScaler(fraqueza)"/>
+						<MiningField name="standardScaler(inchaco)"/>
+						<MiningField name="standardScaler(lambedura)"/>
+						<MiningField name="standardScaler(letargia)"/>
+						<MiningField name="standardScaler(lingua_azulada)"/>
+						<MiningField name="standardScaler(perda_de_pelos)"/>
+						<MiningField name="standardScaler(perda_de_peso)"/>
+						<MiningField name="standardScaler(ronco)"/>
+					</MiningSchema>
+					<Output>
+						<OutputField name="decisionFunction(cutanea)" optype="continuous" dataType="double" isFinalResult="false"/>
+					</Output>
+					<RegressionTable intercept="-52.31079196629595">
+						<NumericPredictor name="standardScaler(idade)" coefficient="-2.6790197632672434"/>
+						<NumericPredictor name="standardScaler(genero)" coefficient="0.2507232326718093"/>
+						<NumericPredictor name="standardScaler(peso)" coefficient="-2.329835560469456"/>
+						<NumericPredictor name="standardScaler(duracao)" coefficient="3.4193030444497623"/>
+						<NumericPredictor name="standardScaler(perda_de_apetite)" coefficient="3.7572294213992374"/>
+						<NumericPredictor name="standardScaler(vomito)" coefficient="-0.0599516346647021"/>
+						<NumericPredictor name="standardScaler(diarreia)" coefficient="3.904111480985364"/>
+						<NumericPredictor name="standardScaler(tosse)" coefficient="0.6310115343558458"/>
+						<NumericPredictor name="standardScaler(dificuldade_para_respirar)" coefficient="-0.373120945037972"/>
+						<NumericPredictor name="standardScaler(dificuldade_para_locomover)" coefficient="-9.219758979566103"/>
+						<NumericPredictor name="standardScaler(problemas_na_pele)" coefficient="36.989724104089454"/>
+						<NumericPredictor name="standardScaler(secrecao_nasal)" coefficient="2.705795910226941"/>
+						<NumericPredictor name="standardScaler(secrecao_ocular)" coefficient="-0.7109415064008953"/>
+						<NumericPredictor name="standardScaler(batimento_cardiaco)" coefficient="-0.4997435534018083"/>
+						<NumericPredictor name="standardScaler(agitacao)" coefficient="-0.535594640035545"/>
+						<NumericPredictor name="standardScaler(andar_em_circulos)" coefficient="7.805885039812865"/>
+						<NumericPredictor name="aumento_apetite" coefficient="5.00129700923962E-15"/>
+						<NumericPredictor name="standardScaler(cera_excessiva_nas_orelhas)" coefficient="0.29055395544115614"/>
+						<NumericPredictor name="standardScaler(coceira)" coefficient="-17.888301828620186"/>
+						<NumericPredictor name="standardScaler(desidratacao)" coefficient="0.9783845584371417"/>
+						<NumericPredictor name="standardScaler(desmaio)" coefficient="-0.12381955499525762"/>
+						<NumericPredictor name="standardScaler(dificuldade_para_urinar)" coefficient="0.03234361011867553"/>
+						<NumericPredictor name="standardScaler(dor)" coefficient="7.128107549799472"/>
+						<NumericPredictor name="espamos_musculares" coefficient="-1.5418596973475714E-15"/>
+						<NumericPredictor name="standardScaler(espirros)" coefficient="1.2322747223315893"/>
+						<NumericPredictor name="standardScaler(febre)" coefficient="3.014867012569238"/>
+						<NumericPredictor name="standardScaler(fraqueza)" coefficient="5.549187316168819"/>
+						<NumericPredictor name="standardScaler(inchaco)" coefficient="-6.7105168102540995"/>
+						<NumericPredictor name="standardScaler(lambedura)" coefficient="-1.4040577517128765"/>
+						<NumericPredictor name="standardScaler(letargia)" coefficient="4.411260936598235"/>
+						<NumericPredictor name="standardScaler(lingua_azulada)" coefficient="1.9492670775703491"/>
+						<NumericPredictor name="standardScaler(perda_de_pelos)" coefficient="22.00785777440891"/>
+						<NumericPredictor name="standardScaler(perda_de_peso)" coefficient="1.8176476717834407"/>
+						<NumericPredictor name="ranger_de_dentes" coefficient="-4.530276149682632E-15"/>
+						<NumericPredictor name="standardScaler(ronco)" coefficient="5.100043874329393"/>
+						<NumericPredictor name="salivacao" coefficient="9.636626677390898E-15"/>
+						<NumericPredictor name="suor_alterado" coefficient="-4.420656910191475E-15"/>
+						<CategoricalPredictor name="tipo_do_animal" value="cachorro" coefficient="-3.785803772238421"/>
+						<CategoricalPredictor name="tipo_do_animal" value="gato" coefficient="3.7858037722384585"/>
+						<CategoricalPredictor name="raca" value="abissinio" coefficient="-4.210675975323448"/>
+						<CategoricalPredictor name="raca" value="azul_russo" coefficient="-9.712772552516052"/>
+						<CategoricalPredictor name="raca" value="beagle" coefficient="-2.401600660874772"/>
+						<CategoricalPredictor name="raca" value="bengal" coefficient="-7.806122614215024"/>
+						<CategoricalPredictor name="raca" value="border_collie" coefficient="0.5130744576754853"/>
+						<CategoricalPredictor name="raca" value="boxer" coefficient="6.666330489212233"/>
+						<CategoricalPredictor name="raca" value="britanico" coefficient="-5.4278418459182225"/>
+						<CategoricalPredictor name="raca" value="british_shorthair" coefficient="-8.007729083780028"/>
+						<CategoricalPredictor name="raca" value="buldogue" coefficient="3.7609234571669754"/>
+						<CategoricalPredictor name="raca" value="buldogue_frances" coefficient="-15.887851114131903"/>
+						<CategoricalPredictor name="raca" value="burmes" coefficient="-12.487507861841191"/>
+						<CategoricalPredictor name="raca" value="cavalier_king_charles_spaniel" coefficient="-5.000175928989529"/>
+						<CategoricalPredictor name="raca" value="chihuahua" coefficient="1.7714559031114079"/>
+						<CategoricalPredictor name="raca" value="cocker_spaniel" coefficient="2.0583073189314796"/>
+						<CategoricalPredictor name="raca" value="dachshund" coefficient="10.542399922600891"/>
+						<CategoricalPredictor name="raca" value="dachshund_(salsicha)" coefficient="2.8007266360669227"/>
+						<CategoricalPredictor name="raca" value="dalmata" coefficient="12.06592673295306"/>
+						<CategoricalPredictor name="raca" value="doberman" coefficient="13.376442152007451"/>
+						<CategoricalPredictor name="raca" value="golden_retriever" coefficient="4.631349135335355"/>
+						<CategoricalPredictor name="raca" value="husky" coefficient="6.31613106381003"/>
+						<CategoricalPredictor name="raca" value="husky_siberiano" coefficient="-50.754682020538986"/>
+						<CategoricalPredictor name="raca" value="labrador" coefficient="3.7712144311631444"/>
+						<CategoricalPredictor name="raca" value="labrador_retriever" coefficient="8.479261246322775"/>
+						<CategoricalPredictor name="raca" value="maine_coon" coefficient="-8.518210461054277"/>
+						<CategoricalPredictor name="raca" value="maltes" coefficient="-2.418068099515718"/>
+						<CategoricalPredictor name="raca" value="manx" coefficient="-0.5932298233978686"/>
+						<CategoricalPredictor name="raca" value="pastor_alemao" coefficient="39.663807717133906"/>
+						<CategoricalPredictor name="raca" value="persa" coefficient="8.054583357852222"/>
+						<CategoricalPredictor name="raca" value="pit_bull" coefficient="11.431411466041508"/>
+						<CategoricalPredictor name="raca" value="poodle" coefficient="0.4265014466519378"/>
+						<CategoricalPredictor name="raca" value="pug" coefficient="-20.979626303441187"/>
+						<CategoricalPredictor name="raca" value="ragdoll" coefficient="14.99252489864083"/>
+						<CategoricalPredictor name="raca" value="rottweiler" coefficient="5.263929253894489"/>
+						<CategoricalPredictor name="raca" value="scottish_fold" coefficient="-6.403081764969224"/>
+						<CategoricalPredictor name="raca" value="sem_raca_definida" coefficient="-12.28313149469592"/>
+						<CategoricalPredictor name="raca" value="sem_raca_definida_(srd)" coefficient="-8.574421201922423"/>
+						<CategoricalPredictor name="raca" value="shih_tzu" coefficient="26.13722745167795"/>
+						<CategoricalPredictor name="raca" value="siames" coefficient="-2.21235141932995"/>
+						<CategoricalPredictor name="raca" value="siberiano" coefficient="-1.7065703825184144"/>
+						<CategoricalPredictor name="raca" value="sphynx" coefficient="-20.740767233596404"/>
+						<CategoricalPredictor name="raca" value="yorkshire" coefficient="8.367591712836054"/>
+					</RegressionTable>
+				</RegressionModel>
+			</Segment>
+			<Segment id="3">
+				<True/>
+				<RegressionModel functionName="regression">
+					<MiningSchema>
+						<MiningField name="tipo_do_animal"/>
+						<MiningField name="raca"/>
+						<MiningField name="aumento_apetite"/>
+						<MiningField name="espamos_musculares"/>
+						<MiningField name="ranger_de_dentes"/>
+						<MiningField name="salivacao"/>
+						<MiningField name="suor_alterado"/>
+						<MiningField name="standardScaler(idade)"/>
+						<MiningField name="standardScaler(genero)"/>
+						<MiningField name="standardScaler(peso)"/>
+						<MiningField name="standardScaler(duracao)"/>
+						<MiningField name="standardScaler(perda_de_apetite)"/>
+						<MiningField name="standardScaler(vomito)"/>
+						<MiningField name="standardScaler(diarreia)"/>
+						<MiningField name="standardScaler(tosse)"/>
+						<MiningField name="standardScaler(dificuldade_para_respirar)"/>
+						<MiningField name="standardScaler(dificuldade_para_locomover)"/>
+						<MiningField name="standardScaler(problemas_na_pele)"/>
+						<MiningField name="standardScaler(secrecao_nasal)"/>
+						<MiningField name="standardScaler(secrecao_ocular)"/>
+						<MiningField name="standardScaler(batimento_cardiaco)"/>
+						<MiningField name="standardScaler(agitacao)"/>
+						<MiningField name="standardScaler(andar_em_circulos)"/>
+						<MiningField name="standardScaler(cera_excessiva_nas_orelhas)"/>
+						<MiningField name="standardScaler(coceira)"/>
+						<MiningField name="standardScaler(desidratacao)"/>
+						<MiningField name="standardScaler(desmaio)"/>
+						<MiningField name="standardScaler(dificuldade_para_urinar)"/>
+						<MiningField name="standardScaler(dor)"/>
+						<MiningField name="standardScaler(espirros)"/>
+						<MiningField name="standardScaler(febre)"/>
+						<MiningField name="standardScaler(fraqueza)"/>
+						<MiningField name="standardScaler(inchaco)"/>
+						<MiningField name="standardScaler(lambedura)"/>
+						<MiningField name="standardScaler(letargia)"/>
+						<MiningField name="standardScaler(lingua_azulada)"/>
+						<MiningField name="standardScaler(perda_de_pelos)"/>
+						<MiningField name="standardScaler(perda_de_peso)"/>
+						<MiningField name="standardScaler(ronco)"/>
+					</MiningSchema>
+					<Output>
+						<OutputField name="decisionFunction(gastrointestinal)" optype="continuous" dataType="double" isFinalResult="false"/>
+					</Output>
+					<RegressionTable intercept="-17.064493712397372">
+						<NumericPredictor name="standardScaler(idade)" coefficient="-0.2534465836335746"/>
+						<NumericPredictor name="standardScaler(genero)" coefficient="0.632683642626633"/>
+						<NumericPredictor name="standardScaler(peso)" coefficient="4.276080647843306"/>
+						<NumericPredictor name="standardScaler(duracao)" coefficient="-0.2974184722152166"/>
+						<NumericPredictor name="standardScaler(perda_de_apetite)" coefficient="3.120111470809126"/>
+						<NumericPredictor name="standardScaler(vomito)" coefficient="5.388649178682277"/>
+						<NumericPredictor name="standardScaler(diarreia)" coefficient="10.062506115292415"/>
+						<NumericPredictor name="standardScaler(tosse)" coefficient="4.324703054876792"/>
+						<NumericPredictor name="standardScaler(dificuldade_para_respirar)" coefficient="1.2963320487167378"/>
+						<NumericPredictor name="standardScaler(dificuldade_para_locomover)" coefficient="-2.392011842266695"/>
+						<NumericPredictor name="standardScaler(problemas_na_pele)" coefficient="0.27630900064149794"/>
+						<NumericPredictor name="standardScaler(secrecao_nasal)" coefficient="3.536705517688877"/>
+						<NumericPredictor name="standardScaler(secrecao_ocular)" coefficient="1.1437461971970868"/>
+						<NumericPredictor name="standardScaler(batimento_cardiaco)" coefficient="-1.1099546639720805"/>
+						<NumericPredictor name="standardScaler(agitacao)" coefficient="0.05163690847816178"/>
+						<NumericPredictor name="standardScaler(andar_em_circulos)" coefficient="0.06747798251190594"/>
+						<NumericPredictor name="aumento_apetite" coefficient="2.6981766091570937E-15"/>
+						<NumericPredictor name="standardScaler(cera_excessiva_nas_orelhas)" coefficient="-0.27665205929699405"/>
+						<NumericPredictor name="standardScaler(coceira)" coefficient="1.793655305437346"/>
+						<NumericPredictor name="standardScaler(desidratacao)" coefficient="-0.6474054914702593"/>
+						<NumericPredictor name="standardScaler(desmaio)" coefficient="0.5893957019859787"/>
+						<NumericPredictor name="standardScaler(dificuldade_para_urinar)" coefficient="3.02763468728934"/>
+						<NumericPredictor name="standardScaler(dor)" coefficient="1.5016084662604705"/>
+						<NumericPredictor name="espamos_musculares" coefficient="-1.3969614722703983E-15"/>
+						<NumericPredictor name="standardScaler(espirros)" coefficient="-0.011653743619478508"/>
+						<NumericPredictor name="standardScaler(febre)" coefficient="5.195307508016692"/>
+						<NumericPredictor name="standardScaler(fraqueza)" coefficient="3.198136197931879"/>
+						<NumericPredictor name="standardScaler(inchaco)" coefficient="-3.7691168342635692"/>
+						<NumericPredictor name="standardScaler(lambedura)" coefficient="-0.46274562630932553"/>
+						<NumericPredictor name="standardScaler(letargia)" coefficient="6.132444783220151"/>
+						<NumericPredictor name="standardScaler(lingua_azulada)" coefficient="0.5838549238109876"/>
+						<NumericPredictor name="standardScaler(perda_de_pelos)" coefficient="1.7612115598824356"/>
+						<NumericPredictor name="standardScaler(perda_de_peso)" coefficient="4.898403423972707"/>
+						<NumericPredictor name="ranger_de_dentes" coefficient="3.3479936244854244E-15"/>
+						<NumericPredictor name="standardScaler(ronco)" coefficient="0.05039100356949941"/>
+						<NumericPredictor name="salivacao" coefficient="6.921116160407158E-17"/>
+						<NumericPredictor name="suor_alterado" coefficient="-2.0568211003776618E-16"/>
+						<CategoricalPredictor name="tipo_do_animal" value="cachorro" coefficient="0.037590416613642895"/>
+						<CategoricalPredictor name="tipo_do_animal" value="gato" coefficient="-0.037590416613653366"/>
+						<CategoricalPredictor name="raca" value="abissinio" coefficient="10.085856910194462"/>
+						<CategoricalPredictor name="raca" value="azul_russo" coefficient="4.473839280893305"/>
+						<CategoricalPredictor name="raca" value="beagle" coefficient="-3.422298137933961"/>
+						<CategoricalPredictor name="raca" value="bengal" coefficient="-2.2497579661771967"/>
+						<CategoricalPredictor name="raca" value="border_collie" coefficient="0.14863621680813047"/>
+						<CategoricalPredictor name="raca" value="boxer" coefficient="-7.736562632215724"/>
+						<CategoricalPredictor name="raca" value="britanico" coefficient="0.47772568374673446"/>
+						<CategoricalPredictor name="raca" value="british_shorthair" coefficient="4.846270385734267"/>
+						<CategoricalPredictor name="raca" value="buldogue" coefficient="-6.495521219296217"/>
+						<CategoricalPredictor name="raca" value="buldogue_frances" coefficient="1.8162060105976527"/>
+						<CategoricalPredictor name="raca" value="burmes" coefficient="-1.8624855955485276"/>
+						<CategoricalPredictor name="raca" value="cavalier_king_charles_spaniel" coefficient="-4.264569361095987"/>
+						<CategoricalPredictor name="raca" value="chihuahua" coefficient="8.254292512211327"/>
+						<CategoricalPredictor name="raca" value="cocker_spaniel" coefficient="-6.9005755821276376"/>
+						<CategoricalPredictor name="raca" value="dachshund" coefficient="7.10697646746862"/>
+						<CategoricalPredictor name="raca" value="dachshund_(salsicha)" coefficient="1.5358801638020994"/>
+						<CategoricalPredictor name="raca" value="dalmata" coefficient="4.50703592714316"/>
+						<CategoricalPredictor name="raca" value="doberman" coefficient="-3.5770553382476207"/>
+						<CategoricalPredictor name="raca" value="golden_retriever" coefficient="-5.964232544933032"/>
+						<CategoricalPredictor name="raca" value="husky" coefficient="-5.735635930996081"/>
+						<CategoricalPredictor name="raca" value="husky_siberiano" coefficient="9.13009892208996"/>
+						<CategoricalPredictor name="raca" value="labrador" coefficient="10.734702569684739"/>
+						<CategoricalPredictor name="raca" value="labrador_retriever" coefficient="-18.220618868300118"/>
+						<CategoricalPredictor name="raca" value="maine_coon" coefficient="3.3754345845475155"/>
+						<CategoricalPredictor name="raca" value="maltes" coefficient="-7.6150320618499165"/>
+						<CategoricalPredictor name="raca" value="manx" coefficient="14.03956663215975"/>
+						<CategoricalPredictor name="raca" value="pastor_alemao" coefficient="-2.710246213612588"/>
+						<CategoricalPredictor name="raca" value="persa" coefficient="7.798402556549436"/>
+						<CategoricalPredictor name="raca" value="pit_bull" coefficient="-10.032662841572241"/>
+						<CategoricalPredictor name="raca" value="poodle" coefficient="-7.371885700526327"/>
+						<CategoricalPredictor name="raca" value="pug" coefficient="0.4409798264934052"/>
+						<CategoricalPredictor name="raca" value="ragdoll" coefficient="-2.7844117746796577"/>
+						<CategoricalPredictor name="raca" value="rottweiler" coefficient="-8.7600711297373"/>
+						<CategoricalPredictor name="raca" value="scottish_fold" coefficient="18.512662364787836"/>
+						<CategoricalPredictor name="raca" value="sem_raca_definida" coefficient="-0.34040346079490963"/>
+						<CategoricalPredictor name="raca" value="sem_raca_definida_(srd)" coefficient="-0.8085357945928602"/>
+						<CategoricalPredictor name="raca" value="shih_tzu" coefficient="7.257531998870807"/>
+						<CategoricalPredictor name="raca" value="siames" coefficient="9.573488392655701"/>
+						<CategoricalPredictor name="raca" value="siberiano" coefficient="11.971386915179082"/>
+						<CategoricalPredictor name="raca" value="sphynx" coefficient="2.267481029703243"/>
+						<CategoricalPredictor name="raca" value="yorkshire" coefficient="9.019809183129862"/>
+					</RegressionTable>
+				</RegressionModel>
+			</Segment>
+			<Segment id="4">
+				<True/>
+				<RegressionModel functionName="regression">
+					<MiningSchema>
+						<MiningField name="tipo_do_animal"/>
+						<MiningField name="raca"/>
+						<MiningField name="aumento_apetite"/>
+						<MiningField name="espamos_musculares"/>
+						<MiningField name="ranger_de_dentes"/>
+						<MiningField name="salivacao"/>
+						<MiningField name="suor_alterado"/>
+						<MiningField name="standardScaler(idade)"/>
+						<MiningField name="standardScaler(genero)"/>
+						<MiningField name="standardScaler(peso)"/>
+						<MiningField name="standardScaler(duracao)"/>
+						<MiningField name="standardScaler(perda_de_apetite)"/>
+						<MiningField name="standardScaler(vomito)"/>
+						<MiningField name="standardScaler(diarreia)"/>
+						<MiningField name="standardScaler(tosse)"/>
+						<MiningField name="standardScaler(dificuldade_para_respirar)"/>
+						<MiningField name="standardScaler(dificuldade_para_locomover)"/>
+						<MiningField name="standardScaler(problemas_na_pele)"/>
+						<MiningField name="standardScaler(secrecao_nasal)"/>
+						<MiningField name="standardScaler(secrecao_ocular)"/>
+						<MiningField name="standardScaler(batimento_cardiaco)"/>
+						<MiningField name="standardScaler(agitacao)"/>
+						<MiningField name="standardScaler(andar_em_circulos)"/>
+						<MiningField name="standardScaler(cera_excessiva_nas_orelhas)"/>
+						<MiningField name="standardScaler(coceira)"/>
+						<MiningField name="standardScaler(desidratacao)"/>
+						<MiningField name="standardScaler(desmaio)"/>
+						<MiningField name="standardScaler(dificuldade_para_urinar)"/>
+						<MiningField name="standardScaler(dor)"/>
+						<MiningField name="standardScaler(espirros)"/>
+						<MiningField name="standardScaler(febre)"/>
+						<MiningField name="standardScaler(fraqueza)"/>
+						<MiningField name="standardScaler(inchaco)"/>
+						<MiningField name="standardScaler(lambedura)"/>
+						<MiningField name="standardScaler(letargia)"/>
+						<MiningField name="standardScaler(lingua_azulada)"/>
+						<MiningField name="standardScaler(perda_de_pelos)"/>
+						<MiningField name="standardScaler(perda_de_peso)"/>
+						<MiningField name="standardScaler(ronco)"/>
+					</MiningSchema>
+					<Output>
+						<OutputField name="decisionFunction(nenhuma)" optype="continuous" dataType="double" isFinalResult="false"/>
+					</Output>
+					<RegressionTable intercept="-54.99692620828106">
+						<NumericPredictor name="standardScaler(idade)" coefficient="-1.4115526515502892"/>
+						<NumericPredictor name="standardScaler(genero)" coefficient="-1.573148184089308"/>
+						<NumericPredictor name="standardScaler(peso)" coefficient="6.919594893013917"/>
+						<NumericPredictor name="standardScaler(duracao)" coefficient="1.836191179242976"/>
+						<NumericPredictor name="standardScaler(perda_de_apetite)" coefficient="-19.50792202527722"/>
+						<NumericPredictor name="standardScaler(vomito)" coefficient="-14.120679692147203"/>
+						<NumericPredictor name="standardScaler(diarreia)" coefficient="-12.626089313973878"/>
+						<NumericPredictor name="standardScaler(tosse)" coefficient="-14.39989820785718"/>
+						<NumericPredictor name="standardScaler(dificuldade_para_respirar)" coefficient="-6.823049232351352"/>
+						<NumericPredictor name="standardScaler(dificuldade_para_locomover)" coefficient="-15.31945331967439"/>
+						<NumericPredictor name="standardScaler(problemas_na_pele)" coefficient="-16.638377086673632"/>
+						<NumericPredictor name="standardScaler(secrecao_nasal)" coefficient="-9.50753359524345"/>
+						<NumericPredictor name="standardScaler(secrecao_ocular)" coefficient="-4.603049971204697"/>
+						<NumericPredictor name="standardScaler(batimento_cardiaco)" coefficient="3.138458528932455"/>
+						<NumericPredictor name="standardScaler(agitacao)" coefficient="-4.8578859783632"/>
+						<NumericPredictor name="standardScaler(andar_em_circulos)" coefficient="-1.9094393041141615"/>
+						<NumericPredictor name="aumento_apetite" coefficient="-1.1117901918127083E-14"/>
+						<NumericPredictor name="standardScaler(cera_excessiva_nas_orelhas)" coefficient="0.2722597472427579"/>
+						<NumericPredictor name="standardScaler(coceira)" coefficient="3.67838838455117"/>
+						<NumericPredictor name="standardScaler(desidratacao)" coefficient="-3.532021108906171"/>
+						<NumericPredictor name="standardScaler(desmaio)" coefficient="-3.945991415088767"/>
+						<NumericPredictor name="standardScaler(dificuldade_para_urinar)" coefficient="-9.8556440204861"/>
+						<NumericPredictor name="standardScaler(dor)" coefficient="-10.059496015125633"/>
+						<NumericPredictor name="espamos_musculares" coefficient="1.3016590192899663E-14"/>
+						<NumericPredictor name="standardScaler(espirros)" coefficient="-3.839401651626146"/>
+						<NumericPredictor name="standardScaler(febre)" coefficient="-14.52661835841859"/>
+						<NumericPredictor name="standardScaler(fraqueza)" coefficient="-9.140920939923747"/>
+						<NumericPredictor name="standardScaler(inchaco)" coefficient="-5.486897208513816"/>
+						<NumericPredictor name="standardScaler(lambedura)" coefficient="1.7802443754464294"/>
+						<NumericPredictor name="standardScaler(letargia)" coefficient="-19.37872022018725"/>
+						<NumericPredictor name="standardScaler(lingua_azulada)" coefficient="-2.5280940838684063"/>
+						<NumericPredictor name="standardScaler(perda_de_pelos)" coefficient="-15.390694650338338"/>
+						<NumericPredictor name="standardScaler(perda_de_peso)" coefficient="-11.866780495494803"/>
+						<NumericPredictor name="ranger_de_dentes" coefficient="-1.086564637396202E-14"/>
+						<NumericPredictor name="standardScaler(ronco)" coefficient="-1.5921116232215295"/>
+						<NumericPredictor name="salivacao" coefficient="-2.0091986521920743E-15"/>
+						<NumericPredictor name="suor_alterado" coefficient="2.0303818152716113E-15"/>
+						<CategoricalPredictor name="tipo_do_animal" value="cachorro" coefficient="0.3449833966388232"/>
+						<CategoricalPredictor name="tipo_do_animal" value="gato" coefficient="-0.34498339663880595"/>
+						<CategoricalPredictor name="raca" value="abissinio" coefficient="-5.030424767223932"/>
+						<CategoricalPredictor name="raca" value="azul_russo" coefficient="-7.16009101420787"/>
+						<CategoricalPredictor name="raca" value="beagle" coefficient="4.330717577873495"/>
+						<CategoricalPredictor name="raca" value="bengal" coefficient="3.279763703581859"/>
+						<CategoricalPredictor name="raca" value="border_collie" coefficient="-12.057398086245243"/>
+						<CategoricalPredictor name="raca" value="boxer" coefficient="-16.101430582036205"/>
+						<CategoricalPredictor name="raca" value="britanico" coefficient="15.869397798534584"/>
+						<CategoricalPredictor name="raca" value="british_shorthair" coefficient="-1.9530054978783147"/>
+						<CategoricalPredictor name="raca" value="buldogue" coefficient="-5.9629744309065025"/>
+						<CategoricalPredictor name="raca" value="buldogue_frances" coefficient="1.8447893809931555"/>
+						<CategoricalPredictor name="raca" value="burmes" coefficient="13.78612416745283"/>
+						<CategoricalPredictor name="raca" value="cavalier_king_charles_spaniel" coefficient="14.290919018523258"/>
+						<CategoricalPredictor name="raca" value="chihuahua" coefficient="6.321801035617537"/>
+						<CategoricalPredictor name="raca" value="cocker_spaniel" coefficient="-5.931612358993123"/>
+						<CategoricalPredictor name="raca" value="dachshund" coefficient="5.319583103317475"/>
+						<CategoricalPredictor name="raca" value="dachshund_(salsicha)" coefficient="10.955936608387832"/>
+						<CategoricalPredictor name="raca" value="dalmata" coefficient="-24.58643380222028"/>
+						<CategoricalPredictor name="raca" value="doberman" coefficient="-14.651988826378492"/>
+						<CategoricalPredictor name="raca" value="golden_retriever" coefficient="-7.819608270893074"/>
+						<CategoricalPredictor name="raca" value="husky" coefficient="5.453967300445378"/>
+						<CategoricalPredictor name="raca" value="husky_siberiano" coefficient="13.427783408747343"/>
+						<CategoricalPredictor name="raca" value="labrador" coefficient="0.9638420656574311"/>
+						<CategoricalPredictor name="raca" value="labrador_retriever" coefficient="5.72582688924776"/>
+						<CategoricalPredictor name="raca" value="maine_coon" coefficient="4.114762050640006"/>
+						<CategoricalPredictor name="raca" value="maltes" coefficient="88.34143842087303"/>
+						<CategoricalPredictor name="raca" value="manx" coefficient="-28.79229986170017"/>
+						<CategoricalPredictor name="raca" value="pastor_alemao" coefficient="-4.073867616197343"/>
+						<CategoricalPredictor name="raca" value="persa" coefficient="-8.28856770585769"/>
+						<CategoricalPredictor name="raca" value="pit_bull" coefficient="-15.092823595418052"/>
+						<CategoricalPredictor name="raca" value="poodle" coefficient="10.75540747315283"/>
+						<CategoricalPredictor name="raca" value="pug" coefficient="22.429875300749366"/>
+						<CategoricalPredictor name="raca" value="ragdoll" coefficient="8.43246338203217"/>
+						<CategoricalPredictor name="raca" value="rottweiler" coefficient="-14.660292633331919"/>
+						<CategoricalPredictor name="raca" value="scottish_fold" coefficient="-12.144485893022361"/>
+						<CategoricalPredictor name="raca" value="sem_raca_definida" coefficient="18.725508422924097"/>
+						<CategoricalPredictor name="raca" value="sem_raca_definida_(srd)" coefficient="-1.4514372730117284"/>
+						<CategoricalPredictor name="raca" value="shih_tzu" coefficient="4.263046293220821"/>
+						<CategoricalPredictor name="raca" value="siames" coefficient="-5.914913932385327"/>
+						<CategoricalPredictor name="raca" value="siberiano" coefficient="-28.38847775696009"/>
+						<CategoricalPredictor name="raca" value="sphynx" coefficient="9.89050235710777"/>
+						<CategoricalPredictor name="raca" value="yorkshire" coefficient="8.012333849343817"/>
+					</RegressionTable>
+				</RegressionModel>
+			</Segment>
+			<Segment id="5">
+				<True/>
+				<RegressionModel functionName="regression">
+					<MiningSchema>
+						<MiningField name="tipo_do_animal"/>
+						<MiningField name="raca"/>
+						<MiningField name="aumento_apetite"/>
+						<MiningField name="espamos_musculares"/>
+						<MiningField name="ranger_de_dentes"/>
+						<MiningField name="salivacao"/>
+						<MiningField name="suor_alterado"/>
+						<MiningField name="standardScaler(idade)"/>
+						<MiningField name="standardScaler(genero)"/>
+						<MiningField name="standardScaler(peso)"/>
+						<MiningField name="standardScaler(duracao)"/>
+						<MiningField name="standardScaler(perda_de_apetite)"/>
+						<MiningField name="standardScaler(vomito)"/>
+						<MiningField name="standardScaler(diarreia)"/>
+						<MiningField name="standardScaler(tosse)"/>
+						<MiningField name="standardScaler(dificuldade_para_respirar)"/>
+						<MiningField name="standardScaler(dificuldade_para_locomover)"/>
+						<MiningField name="standardScaler(problemas_na_pele)"/>
+						<MiningField name="standardScaler(secrecao_nasal)"/>
+						<MiningField name="standardScaler(secrecao_ocular)"/>
+						<MiningField name="standardScaler(batimento_cardiaco)"/>
+						<MiningField name="standardScaler(agitacao)"/>
+						<MiningField name="standardScaler(andar_em_circulos)"/>
+						<MiningField name="standardScaler(cera_excessiva_nas_orelhas)"/>
+						<MiningField name="standardScaler(coceira)"/>
+						<MiningField name="standardScaler(desidratacao)"/>
+						<MiningField name="standardScaler(desmaio)"/>
+						<MiningField name="standardScaler(dificuldade_para_urinar)"/>
+						<MiningField name="standardScaler(dor)"/>
+						<MiningField name="standardScaler(espirros)"/>
+						<MiningField name="standardScaler(febre)"/>
+						<MiningField name="standardScaler(fraqueza)"/>
+						<MiningField name="standardScaler(inchaco)"/>
+						<MiningField name="standardScaler(lambedura)"/>
+						<MiningField name="standardScaler(letargia)"/>
+						<MiningField name="standardScaler(lingua_azulada)"/>
+						<MiningField name="standardScaler(perda_de_pelos)"/>
+						<MiningField name="standardScaler(perda_de_peso)"/>
+						<MiningField name="standardScaler(ronco)"/>
+					</MiningSchema>
+					<Output>
+						<OutputField name="decisionFunction(neuro_musculoesqueletica)" optype="continuous" dataType="double" isFinalResult="false"/>
+					</Output>
+					<RegressionTable intercept="-92.241672900912">
+						<NumericPredictor name="standardScaler(idade)" coefficient="8.413683126109197"/>
+						<NumericPredictor name="standardScaler(genero)" coefficient="0.30384848687115706"/>
+						<NumericPredictor name="standardScaler(peso)" coefficient="-1.6740871859060733"/>
+						<NumericPredictor name="standardScaler(duracao)" coefficient="-7.90818123528316"/>
+						<NumericPredictor name="standardScaler(perda_de_apetite)" coefficient="5.721003732969458"/>
+						<NumericPredictor name="standardScaler(vomito)" coefficient="-0.8896200236970438"/>
+						<NumericPredictor name="standardScaler(diarreia)" coefficient="-6.54575588976224"/>
+						<NumericPredictor name="standardScaler(tosse)" coefficient="-3.7135522892824397"/>
+						<NumericPredictor name="standardScaler(dificuldade_para_respirar)" coefficient="-3.6533948001453154"/>
+						<NumericPredictor name="standardScaler(dificuldade_para_locomover)" coefficient="38.76790425190679"/>
+						<NumericPredictor name="standardScaler(problemas_na_pele)" coefficient="-23.283139203914736"/>
+						<NumericPredictor name="standardScaler(secrecao_nasal)" coefficient="-1.9104345715160231"/>
+						<NumericPredictor name="standardScaler(secrecao_ocular)" coefficient="-6.012572001618068"/>
+						<NumericPredictor name="standardScaler(batimento_cardiaco)" coefficient="5.817474847026671"/>
+						<NumericPredictor name="standardScaler(agitacao)" coefficient="7.794082520234819"/>
+						<NumericPredictor name="standardScaler(andar_em_circulos)" coefficient="-7.760163781423345"/>
+						<NumericPredictor name="aumento_apetite" coefficient="-4.4172126941212414E-15"/>
+						<NumericPredictor name="standardScaler(cera_excessiva_nas_orelhas)" coefficient="2.15896465532186"/>
+						<NumericPredictor name="standardScaler(coceira)" coefficient="6.662008343614347"/>
+						<NumericPredictor name="standardScaler(desidratacao)" coefficient="-0.36911411079719897"/>
+						<NumericPredictor name="standardScaler(desmaio)" coefficient="0.8746810834750004"/>
+						<NumericPredictor name="standardScaler(dificuldade_para_urinar)" coefficient="2.765159506482111"/>
+						<NumericPredictor name="standardScaler(dor)" coefficient="-6.759487783365675"/>
+						<NumericPredictor name="espamos_musculares" coefficient="3.133273017239774E-15"/>
+						<NumericPredictor name="standardScaler(espirros)" coefficient="-0.2268463074606104"/>
+						<NumericPredictor name="standardScaler(febre)" coefficient="-11.664512336609054"/>
+						<NumericPredictor name="standardScaler(fraqueza)" coefficient="-4.60282737678225"/>
+						<NumericPredictor name="standardScaler(inchaco)" coefficient="36.60192849320665"/>
+						<NumericPredictor name="standardScaler(lambedura)" coefficient="1.010788857955801"/>
+						<NumericPredictor name="standardScaler(letargia)" coefficient="-5.307115240378125"/>
+						<NumericPredictor name="standardScaler(lingua_azulada)" coefficient="-1.9878456410522352"/>
+						<NumericPredictor name="standardScaler(perda_de_pelos)" coefficient="-4.546351209930046"/>
+						<NumericPredictor name="standardScaler(perda_de_peso)" coefficient="-11.561970883157473"/>
+						<NumericPredictor name="ranger_de_dentes" coefficient="9.04425149023124E-15"/>
+						<NumericPredictor name="standardScaler(ronco)" coefficient="-5.356849944508708"/>
+						<NumericPredictor name="salivacao" coefficient="-3.698119720095908E-15"/>
+						<NumericPredictor name="suor_alterado" coefficient="1.6803322270452736E-15"/>
+						<CategoricalPredictor name="tipo_do_animal" value="cachorro" coefficient="1.7837104282580962"/>
+						<CategoricalPredictor name="tipo_do_animal" value="gato" coefficient="-1.7837104282581142"/>
+						<CategoricalPredictor name="raca" value="abissinio" coefficient="7.160668852650162"/>
+						<CategoricalPredictor name="raca" value="azul_russo" coefficient="3.4477404618792176"/>
+						<CategoricalPredictor name="raca" value="beagle" coefficient="3.4595084589914236"/>
+						<CategoricalPredictor name="raca" value="bengal" coefficient="6.5469086899200715"/>
+						<CategoricalPredictor name="raca" value="border_collie" coefficient="3.0436426377614776"/>
+						<CategoricalPredictor name="raca" value="boxer" coefficient="-8.81077772061155"/>
+						<CategoricalPredictor name="raca" value="britanico" coefficient="-1.0855596178180325"/>
+						<CategoricalPredictor name="raca" value="british_shorthair" coefficient="-4.936127128067545"/>
+						<CategoricalPredictor name="raca" value="buldogue" coefficient="-4.7852084455128745"/>
+						<CategoricalPredictor name="raca" value="buldogue_frances" coefficient="36.67938917664987"/>
+						<CategoricalPredictor name="raca" value="burmes" coefficient="-11.257466287684052"/>
+						<CategoricalPredictor name="raca" value="cavalier_king_charles_spaniel" coefficient="0.140971242036022"/>
+						<CategoricalPredictor name="raca" value="chihuahua" coefficient="8.113847585889252"/>
+						<CategoricalPredictor name="raca" value="cocker_spaniel" coefficient="-5.661823613923889"/>
+						<CategoricalPredictor name="raca" value="dachshund" coefficient="-47.68050698055185"/>
+						<CategoricalPredictor name="raca" value="dachshund_(salsicha)" coefficient="0.8537206670430212"/>
+						<CategoricalPredictor name="raca" value="dalmata" coefficient="24.04254779842457"/>
+						<CategoricalPredictor name="raca" value="doberman" coefficient="-75.47130179797409"/>
+						<CategoricalPredictor name="raca" value="golden_retriever" coefficient="3.9021799092004015"/>
+						<CategoricalPredictor name="raca" value="husky" coefficient="-17.42377229809515"/>
+						<CategoricalPredictor name="raca" value="husky_siberiano" coefficient="-26.93256862668442"/>
+						<CategoricalPredictor name="raca" value="labrador" coefficient="6.797043221986692"/>
+						<CategoricalPredictor name="raca" value="labrador_retriever" coefficient="-17.784067225147563"/>
+						<CategoricalPredictor name="raca" value="maine_coon" coefficient="3.78960663864971"/>
+						<CategoricalPredictor name="raca" value="maltes" coefficient="-20.008188952114214"/>
+						<CategoricalPredictor name="raca" value="manx" coefficient="9.101345590418218"/>
+						<CategoricalPredictor name="raca" value="pastor_alemao" coefficient="-32.02698436788262"/>
+						<CategoricalPredictor name="raca" value="persa" coefficient="1.0882660502265338"/>
+						<CategoricalPredictor name="raca" value="pit_bull" coefficient="-15.905816010998274"/>
+						<CategoricalPredictor name="raca" value="poodle" coefficient="3.131356135658541"/>
+						<CategoricalPredictor name="raca" value="pug" coefficient="25.261706738630423"/>
+						<CategoricalPredictor name="raca" value="ragdoll" coefficient="1.1512003089796763"/>
+						<CategoricalPredictor name="raca" value="rottweiler" coefficient="-0.9079436517379312"/>
+						<CategoricalPredictor name="raca" value="scottish_fold" coefficient="-1.0052745496699491"/>
+						<CategoricalPredictor name="raca" value="sem_raca_definida" coefficient="12.245620406053279"/>
+						<CategoricalPredictor name="raca" value="sem_raca_definida_(srd)" coefficient="3.2837314904253687"/>
+						<CategoricalPredictor name="raca" value="shih_tzu" coefficient="-8.094022835777798"/>
+						<CategoricalPredictor name="raca" value="siames" coefficient="5.8056044483450675"/>
+						<CategoricalPredictor name="raca" value="siberiano" coefficient="11.778355085606709"/>
+						<CategoricalPredictor name="raca" value="sphynx" coefficient="8.328153919771783"/>
+						<CategoricalPredictor name="raca" value="yorkshire" coefficient="-45.086624305873826"/>
+					</RegressionTable>
+				</RegressionModel>
+			</Segment>
+			<Segment id="6">
+				<True/>
+				<RegressionModel functionName="regression">
+					<MiningSchema>
+						<MiningField name="tipo_do_animal"/>
+						<MiningField name="raca"/>
+						<MiningField name="aumento_apetite"/>
+						<MiningField name="espamos_musculares"/>
+						<MiningField name="ranger_de_dentes"/>
+						<MiningField name="salivacao"/>
+						<MiningField name="suor_alterado"/>
+						<MiningField name="standardScaler(idade)"/>
+						<MiningField name="standardScaler(genero)"/>
+						<MiningField name="standardScaler(peso)"/>
+						<MiningField name="standardScaler(duracao)"/>
+						<MiningField name="standardScaler(perda_de_apetite)"/>
+						<MiningField name="standardScaler(vomito)"/>
+						<MiningField name="standardScaler(diarreia)"/>
+						<MiningField name="standardScaler(tosse)"/>
+						<MiningField name="standardScaler(dificuldade_para_respirar)"/>
+						<MiningField name="standardScaler(dificuldade_para_locomover)"/>
+						<MiningField name="standardScaler(problemas_na_pele)"/>
+						<MiningField name="standardScaler(secrecao_nasal)"/>
+						<MiningField name="standardScaler(secrecao_ocular)"/>
+						<MiningField name="standardScaler(batimento_cardiaco)"/>
+						<MiningField name="standardScaler(agitacao)"/>
+						<MiningField name="standardScaler(andar_em_circulos)"/>
+						<MiningField name="standardScaler(cera_excessiva_nas_orelhas)"/>
+						<MiningField name="standardScaler(coceira)"/>
+						<MiningField name="standardScaler(desidratacao)"/>
+						<MiningField name="standardScaler(desmaio)"/>
+						<MiningField name="standardScaler(dificuldade_para_urinar)"/>
+						<MiningField name="standardScaler(dor)"/>
+						<MiningField name="standardScaler(espirros)"/>
+						<MiningField name="standardScaler(febre)"/>
+						<MiningField name="standardScaler(fraqueza)"/>
+						<MiningField name="standardScaler(inchaco)"/>
+						<MiningField name="standardScaler(lambedura)"/>
+						<MiningField name="standardScaler(letargia)"/>
+						<MiningField name="standardScaler(lingua_azulada)"/>
+						<MiningField name="standardScaler(perda_de_pelos)"/>
+						<MiningField name="standardScaler(perda_de_peso)"/>
+						<MiningField name="standardScaler(ronco)"/>
+					</MiningSchema>
+					<Output>
+						<OutputField name="decisionFunction(respiratoria)" optype="continuous" dataType="double" isFinalResult="false"/>
+					</Output>
+					<RegressionTable intercept="-14.676037893770955">
+						<NumericPredictor name="standardScaler(idade)" coefficient="-2.4235000267903017"/>
+						<NumericPredictor name="standardScaler(genero)" coefficient="-0.34690728232933704"/>
+						<NumericPredictor name="standardScaler(peso)" coefficient="-0.1241460493926922"/>
+						<NumericPredictor name="standardScaler(duracao)" coefficient="0.7317701369401288"/>
+						<NumericPredictor name="standardScaler(perda_de_apetite)" coefficient="1.3494812381635088"/>
+						<NumericPredictor name="standardScaler(vomito)" coefficient="-0.8011006589497133"/>
+						<NumericPredictor name="standardScaler(diarreia)" coefficient="1.941581549299277"/>
+						<NumericPredictor name="standardScaler(tosse)" coefficient="5.491177602083272"/>
+						<NumericPredictor name="standardScaler(dificuldade_para_respirar)" coefficient="3.906373142729455"/>
+						<NumericPredictor name="standardScaler(dificuldade_para_locomover)" coefficient="-5.9143029546691945"/>
+						<NumericPredictor name="standardScaler(problemas_na_pele)" coefficient="-0.5499416110210016"/>
+						<NumericPredictor name="standardScaler(secrecao_nasal)" coefficient="1.4156787879412749"/>
+						<NumericPredictor name="standardScaler(secrecao_ocular)" coefficient="4.264907231495408"/>
+						<NumericPredictor name="standardScaler(batimento_cardiaco)" coefficient="-4.1528747602422635"/>
+						<NumericPredictor name="standardScaler(agitacao)" coefficient="-0.2840103481929722"/>
+						<NumericPredictor name="standardScaler(andar_em_circulos)" coefficient="0.5247536600629747"/>
+						<NumericPredictor name="aumento_apetite" coefficient="-6.532992818927576E-16"/>
+						<NumericPredictor name="standardScaler(cera_excessiva_nas_orelhas)" coefficient="-0.925867108934203"/>
+						<NumericPredictor name="standardScaler(coceira)" coefficient="2.7582592089281057"/>
+						<NumericPredictor name="standardScaler(desidratacao)" coefficient="0.2889639263558246"/>
+						<NumericPredictor name="standardScaler(desmaio)" coefficient="1.5483484099276663"/>
+						<NumericPredictor name="standardScaler(dificuldade_para_urinar)" coefficient="0.025646858164732722"/>
+						<NumericPredictor name="standardScaler(dor)" coefficient="0.1387655853043244"/>
+						<NumericPredictor name="espamos_musculares" coefficient="-2.421331580977082E-15"/>
+						<NumericPredictor name="standardScaler(espirros)" coefficient="1.9218850002114565"/>
+						<NumericPredictor name="standardScaler(febre)" coefficient="4.386287739556861"/>
+						<NumericPredictor name="standardScaler(fraqueza)" coefficient="-2.09431195524651"/>
+						<NumericPredictor name="standardScaler(inchaco)" coefficient="-5.6205613660457585"/>
+						<NumericPredictor name="standardScaler(lambedura)" coefficient="-0.36158478672075317"/>
+						<NumericPredictor name="standardScaler(letargia)" coefficient="4.695337279577428"/>
+						<NumericPredictor name="standardScaler(lingua_azulada)" coefficient="0.43984370501737946"/>
+						<NumericPredictor name="standardScaler(perda_de_pelos)" coefficient="-3.93226036500337"/>
+						<NumericPredictor name="standardScaler(perda_de_peso)" coefficient="3.4534348202448037"/>
+						<NumericPredictor name="ranger_de_dentes" coefficient="9.05115616930847E-16"/>
+						<NumericPredictor name="standardScaler(ronco)" coefficient="0.35992026301508356"/>
+						<NumericPredictor name="salivacao" coefficient="-3.471908552101656E-15"/>
+						<NumericPredictor name="suor_alterado" coefficient="5.3518178743795E-16"/>
+						<CategoricalPredictor name="tipo_do_animal" value="cachorro" coefficient="-0.30551655956906376"/>
+						<CategoricalPredictor name="tipo_do_animal" value="gato" coefficient="0.3055165595690539"/>
+						<CategoricalPredictor name="raca" value="abissinio" coefficient="-7.578984961749763"/>
+						<CategoricalPredictor name="raca" value="azul_russo" coefficient="9.645404778730136"/>
+						<CategoricalPredictor name="raca" value="beagle" coefficient="1.5950291504748793"/>
+						<CategoricalPredictor name="raca" value="bengal" coefficient="1.094525707507014"/>
+						<CategoricalPredictor name="raca" value="border_collie" coefficient="4.307081142909649"/>
+						<CategoricalPredictor name="raca" value="boxer" coefficient="2.9138347531525124"/>
+						<CategoricalPredictor name="raca" value="britanico" coefficient="-1.2208848315391354"/>
+						<CategoricalPredictor name="raca" value="british_shorthair" coefficient="9.259478817165915"/>
+						<CategoricalPredictor name="raca" value="buldogue" coefficient="4.3884705064354845"/>
+						<CategoricalPredictor name="raca" value="buldogue_frances" coefficient="-7.92203745222449"/>
+						<CategoricalPredictor name="raca" value="burmes" coefficient="14.075681312064734"/>
+						<CategoricalPredictor name="raca" value="cavalier_king_charles_spaniel" coefficient="0.8778651137017264"/>
+						<CategoricalPredictor name="raca" value="chihuahua" coefficient="-3.7475601203574227"/>
+						<CategoricalPredictor name="raca" value="cocker_spaniel" coefficient="2.403179427874724"/>
+						<CategoricalPredictor name="raca" value="dachshund" coefficient="9.972702117954357"/>
+						<CategoricalPredictor name="raca" value="dachshund_(salsicha)" coefficient="2.5665427213277145"/>
+						<CategoricalPredictor name="raca" value="dalmata" coefficient="2.9846524772464345"/>
+						<CategoricalPredictor name="raca" value="doberman" coefficient="23.948833856363652"/>
+						<CategoricalPredictor name="raca" value="golden_retriever" coefficient="-2.965878024150819"/>
+						<CategoricalPredictor name="raca" value="husky" coefficient="4.332193287192103"/>
+						<CategoricalPredictor name="raca" value="husky_siberiano" coefficient="15.330924360740866"/>
+						<CategoricalPredictor name="raca" value="labrador" coefficient="-6.070851033584135"/>
+						<CategoricalPredictor name="raca" value="labrador_retriever" coefficient="26.478752036493816"/>
+						<CategoricalPredictor name="raca" value="maine_coon" coefficient="-1.7505377045564894"/>
+						<CategoricalPredictor name="raca" value="maltes" coefficient="-17.46812712126227"/>
+						<CategoricalPredictor name="raca" value="manx" coefficient="0.6967227228411489"/>
+						<CategoricalPredictor name="raca" value="pastor_alemao" coefficient="-9.074330544848078"/>
+						<CategoricalPredictor name="raca" value="persa" coefficient="-4.692989976393747"/>
+						<CategoricalPredictor name="raca" value="pit_bull" coefficient="-3.6028476792906785"/>
+						<CategoricalPredictor name="raca" value="poodle" coefficient="3.0334360418990767"/>
+						<CategoricalPredictor name="raca" value="pug" coefficient="-5.87803134752065"/>
+						<CategoricalPredictor name="raca" value="ragdoll" coefficient="-5.878431277778419"/>
+						<CategoricalPredictor name="raca" value="rottweiler" coefficient="1.0429669946109517"/>
+						<CategoricalPredictor name="raca" value="scottish_fold" coefficient="1.0468553873382733"/>
+						<CategoricalPredictor name="raca" value="sem_raca_definida" coefficient="-4.983337471930998"/>
+						<CategoricalPredictor name="raca" value="sem_raca_definida_(srd)" coefficient="3.9922165263223572"/>
+						<CategoricalPredictor name="raca" value="shih_tzu" coefficient="-7.60140463952766"/>
+						<CategoricalPredictor name="raca" value="siames" coefficient="-3.9728274223618114"/>
+						<CategoricalPredictor name="raca" value="siberiano" coefficient="0.7794536461096876"/>
+						<CategoricalPredictor name="raca" value="sphynx" coefficient="9.163872213813123"/>
+						<CategoricalPredictor name="raca" value="yorkshire" coefficient="8.939861583347827"/>
+					</RegressionTable>
+				</RegressionModel>
+			</Segment>
+			<Segment id="7">
+				<True/>
+				<RegressionModel functionName="regression">
+					<MiningSchema>
+						<MiningField name="tipo_do_animal"/>
+						<MiningField name="raca"/>
+						<MiningField name="aumento_apetite"/>
+						<MiningField name="espamos_musculares"/>
+						<MiningField name="ranger_de_dentes"/>
+						<MiningField name="salivacao"/>
+						<MiningField name="suor_alterado"/>
+						<MiningField name="standardScaler(idade)"/>
+						<MiningField name="standardScaler(genero)"/>
+						<MiningField name="standardScaler(peso)"/>
+						<MiningField name="standardScaler(duracao)"/>
+						<MiningField name="standardScaler(perda_de_apetite)"/>
+						<MiningField name="standardScaler(vomito)"/>
+						<MiningField name="standardScaler(diarreia)"/>
+						<MiningField name="standardScaler(tosse)"/>
+						<MiningField name="standardScaler(dificuldade_para_respirar)"/>
+						<MiningField name="standardScaler(dificuldade_para_locomover)"/>
+						<MiningField name="standardScaler(problemas_na_pele)"/>
+						<MiningField name="standardScaler(secrecao_nasal)"/>
+						<MiningField name="standardScaler(secrecao_ocular)"/>
+						<MiningField name="standardScaler(batimento_cardiaco)"/>
+						<MiningField name="standardScaler(agitacao)"/>
+						<MiningField name="standardScaler(andar_em_circulos)"/>
+						<MiningField name="standardScaler(cera_excessiva_nas_orelhas)"/>
+						<MiningField name="standardScaler(coceira)"/>
+						<MiningField name="standardScaler(desidratacao)"/>
+						<MiningField name="standardScaler(desmaio)"/>
+						<MiningField name="standardScaler(dificuldade_para_urinar)"/>
+						<MiningField name="standardScaler(dor)"/>
+						<MiningField name="standardScaler(espirros)"/>
+						<MiningField name="standardScaler(febre)"/>
+						<MiningField name="standardScaler(fraqueza)"/>
+						<MiningField name="standardScaler(inchaco)"/>
+						<MiningField name="standardScaler(lambedura)"/>
+						<MiningField name="standardScaler(letargia)"/>
+						<MiningField name="standardScaler(lingua_azulada)"/>
+						<MiningField name="standardScaler(perda_de_pelos)"/>
+						<MiningField name="standardScaler(perda_de_peso)"/>
+						<MiningField name="standardScaler(ronco)"/>
+					</MiningSchema>
+					<Output>
+						<OutputField name="decisionFunction(urogenital)" optype="continuous" dataType="double" isFinalResult="false"/>
+					</Output>
+					<RegressionTable intercept="-21.772170212413386">
+						<NumericPredictor name="standardScaler(idade)" coefficient="-0.7591070518796502"/>
+						<NumericPredictor name="standardScaler(genero)" coefficient="0.9341133237884036"/>
+						<NumericPredictor name="standardScaler(peso)" coefficient="-6.632518008183529"/>
+						<NumericPredictor name="standardScaler(duracao)" coefficient="1.0387807554410624"/>
+						<NumericPredictor name="standardScaler(perda_de_apetite)" coefficient="3.155042758285867"/>
+						<NumericPredictor name="standardScaler(vomito)" coefficient="9.487572130900269"/>
+						<NumericPredictor name="standardScaler(diarreia)" coefficient="0.238414934830871"/>
+						<NumericPredictor name="standardScaler(tosse)" coefficient="4.698113941917785"/>
+						<NumericPredictor name="standardScaler(dificuldade_para_respirar)" coefficient="2.13048240776092"/>
+						<NumericPredictor name="standardScaler(dificuldade_para_locomover)" coefficient="-4.103473871313555"/>
+						<NumericPredictor name="standardScaler(problemas_na_pele)" coefficient="0.4345061982824138"/>
+						<NumericPredictor name="standardScaler(secrecao_nasal)" coefficient="1.9611410950505812"/>
+						<NumericPredictor name="standardScaler(secrecao_ocular)" coefficient="4.050067244285312"/>
+						<NumericPredictor name="standardScaler(batimento_cardiaco)" coefficient="-3.8554733407804265"/>
+						<NumericPredictor name="standardScaler(agitacao)" coefficient="-0.08278607877780803"/>
+						<NumericPredictor name="standardScaler(andar_em_circulos)" coefficient="0.41928128251385177"/>
+						<NumericPredictor name="aumento_apetite" coefficient="5.349243230080768E-15"/>
+						<NumericPredictor name="standardScaler(cera_excessiva_nas_orelhas)" coefficient="-0.9306415529578256"/>
+						<NumericPredictor name="standardScaler(coceira)" coefficient="2.769351774327735"/>
+						<NumericPredictor name="standardScaler(desidratacao)" coefficient="2.180535392514705"/>
+						<NumericPredictor name="standardScaler(desmaio)" coefficient="0.4238237240347756"/>
+						<NumericPredictor name="standardScaler(dificuldade_para_urinar)" coefficient="3.7700293042605977"/>
+						<NumericPredictor name="standardScaler(dor)" coefficient="5.1861370792672306"/>
+						<NumericPredictor name="espamos_musculares" coefficient="-7.524066975271919E-15"/>
+						<NumericPredictor name="standardScaler(espirros)" coefficient="0.7945632951056496"/>
+						<NumericPredictor name="standardScaler(febre)" coefficient="8.372498974547142"/>
+						<NumericPredictor name="standardScaler(fraqueza)" coefficient="3.0213186978059343"/>
+						<NumericPredictor name="standardScaler(inchaco)" coefficient="-7.878488938242416"/>
+						<NumericPredictor name="standardScaler(lambedura)" coefficient="-0.280209156655692"/>
+						<NumericPredictor name="standardScaler(letargia)" coefficient="5.874830337521371"/>
+						<NumericPredictor name="standardScaler(lingua_azulada)" coefficient="1.3058181813696634"/>
+						<NumericPredictor name="standardScaler(perda_de_pelos)" coefficient="-1.4204374820554218"/>
+						<NumericPredictor name="standardScaler(perda_de_peso)" coefficient="9.80087505623605"/>
+						<NumericPredictor name="ranger_de_dentes" coefficient="1.7749971855604813E-15"/>
+						<NumericPredictor name="standardScaler(ronco)" coefficient="1.3462852255098885"/>
+						<NumericPredictor name="salivacao" coefficient="-6.120569048391674E-16"/>
+						<NumericPredictor name="suor_alterado" coefficient="6.465654583295444E-16"/>
+						<CategoricalPredictor name="tipo_do_animal" value="cachorro" coefficient="1.4448952438508136"/>
+						<CategoricalPredictor name="tipo_do_animal" value="gato" coefficient="-1.444895243850828"/>
+						<CategoricalPredictor name="raca" value="abissinio" coefficient="-5.735280956436429"/>
+						<CategoricalPredictor name="raca" value="azul_russo" coefficient="-0.9506365772292868"/>
+						<CategoricalPredictor name="raca" value="beagle" coefficient="-0.579674201556412"/>
+						<CategoricalPredictor name="raca" value="bengal" coefficient="-5.699716857452518"/>
+						<CategoricalPredictor name="raca" value="border_collie" coefficient="5.006102903083784"/>
+						<CategoricalPredictor name="raca" value="boxer" coefficient="21.062382662220188"/>
+						<CategoricalPredictor name="raca" value="britanico" coefficient="-3.2797762903919248"/>
+						<CategoricalPredictor name="raca" value="british_shorthair" coefficient="0.9897743353064167"/>
+						<CategoricalPredictor name="raca" value="buldogue" coefficient="11.40898079785847"/>
+						<CategoricalPredictor name="raca" value="buldogue_frances" coefficient="-9.241232112902324"/>
+						<CategoricalPredictor name="raca" value="burmes" coefficient="-0.4083543197152687"/>
+						<CategoricalPredictor name="raca" value="cavalier_king_charles_spaniel" coefficient="-5.473359596451444"/>
+						<CategoricalPredictor name="raca" value="chihuahua" coefficient="-16.528225087613123"/>
+						<CategoricalPredictor name="raca" value="cocker_spaniel" coefficient="14.621829071695949"/>
+						<CategoricalPredictor name="raca" value="dachshund" coefficient="6.858205650717985"/>
+						<CategoricalPredictor name="raca" value="dachshund_(salsicha)" coefficient="-13.788813261585803"/>
+						<CategoricalPredictor name="raca" value="dalmata" coefficient="-15.74209925252933"/>
+						<CategoricalPredictor name="raca" value="doberman" coefficient="31.581027414848904"/>
+						<CategoricalPredictor name="raca" value="golden_retriever" coefficient="9.154463093488353"/>
+						<CategoricalPredictor name="raca" value="husky" coefficient="6.818253870717263"/>
+						<CategoricalPredictor name="raca" value="husky_siberiano" coefficient="19.618521237177394"/>
+						<CategoricalPredictor name="raca" value="labrador" coefficient="-11.010781234274868"/>
+						<CategoricalPredictor name="raca" value="labrador_retriever" coefficient="-6.921194443026249"/>
+						<CategoricalPredictor name="raca" value="maine_coon" coefficient="-1.6430320277580366"/>
+						<CategoricalPredictor name="raca" value="maltes" coefficient="-26.564531899919395"/>
+						<CategoricalPredictor name="raca" value="manx" coefficient="0.8851854072275427"/>
+						<CategoricalPredictor name="raca" value="pastor_alemao" coefficient="5.983419959624045"/>
+						<CategoricalPredictor name="raca" value="persa" coefficient="-3.8069687024712273"/>
+						<CategoricalPredictor name="raca" value="pit_bull" coefficient="29.161885503108824"/>
+						<CategoricalPredictor name="raca" value="poodle" coefficient="-6.97063062737372"/>
+						<CategoricalPredictor name="raca" value="pug" coefficient="-11.675545510917422"/>
+						<CategoricalPredictor name="raca" value="ragdoll" coefficient="-17.385148222359902"/>
+						<CategoricalPredictor name="raca" value="rottweiler" coefficient="18.35137978155794"/>
+						<CategoricalPredictor name="raca" value="scottish_fold" coefficient="-1.2207725775658445"/>
+						<CategoricalPredictor name="raca" value="sem_raca_definida" coefficient="-6.942980649374122"/>
+						<CategoricalPredictor name="raca" value="sem_raca_definida_(srd)" coefficient="3.247758657099552"/>
+						<CategoricalPredictor name="raca" value="shih_tzu" coefficient="-16.838642286381692"/>
+						<CategoricalPredictor name="raca" value="siames" coefficient="-5.552668823165508"/>
+						<CategoricalPredictor name="raca" value="siberiano" coefficient="0.9714174290403327"/>
+						<CategoricalPredictor name="raca" value="sphynx" coefficient="-3.7704765659593495"/>
+						<CategoricalPredictor name="raca" value="yorkshire" coefficient="3.4280194888873052"/>
+					</RegressionTable>
+				</RegressionModel>
+			</Segment>
+			<Segment id="8">
+				<True/>
+				<RegressionModel functionName="classification" normalizationMethod="softmax">
+					<MiningSchema>
+						<MiningField name="classe_doenca" usageType="target"/>
+						<MiningField name="decisionFunction(cardiovascular_hematologica)"/>
+						<MiningField name="decisionFunction(cutanea)"/>
+						<MiningField name="decisionFunction(gastrointestinal)"/>
+						<MiningField name="decisionFunction(nenhuma)"/>
+						<MiningField name="decisionFunction(neuro_musculoesqueletica)"/>
+						<MiningField name="decisionFunction(respiratoria)"/>
+						<MiningField name="decisionFunction(urogenital)"/>
+					</MiningSchema>
+					<Output>
+						<OutputField name="probability(cardiovascular_hematologica)" optype="continuous" dataType="double" feature="probability" value="cardiovascular_hematologica"/>
+						<OutputField name="probability(cutanea)" optype="continuous" dataType="double" feature="probability" value="cutanea"/>
+						<OutputField name="probability(gastrointestinal)" optype="continuous" dataType="double" feature="probability" value="gastrointestinal"/>
+						<OutputField name="probability(nenhuma)" optype="continuous" dataType="double" feature="probability" value="nenhuma"/>
+						<OutputField name="probability(neuro_musculoesqueletica)" optype="continuous" dataType="double" feature="probability" value="neuro_musculoesqueletica"/>
+						<OutputField name="probability(respiratoria)" optype="continuous" dataType="double" feature="probability" value="respiratoria"/>
+						<OutputField name="probability(urogenital)" optype="continuous" dataType="double" feature="probability" value="urogenital"/>
+					</Output>
+					<RegressionTable intercept="0.0" targetCategory="cardiovascular_hematologica">
+						<NumericPredictor name="decisionFunction(cardiovascular_hematologica)" coefficient="1.0"/>
+					</RegressionTable>
+					<RegressionTable intercept="0.0" targetCategory="cutanea">
+						<NumericPredictor name="decisionFunction(cutanea)" coefficient="1.0"/>
+					</RegressionTable>
+					<RegressionTable intercept="0.0" targetCategory="gastrointestinal">
+						<NumericPredictor name="decisionFunction(gastrointestinal)" coefficient="1.0"/>
+					</RegressionTable>
+					<RegressionTable intercept="0.0" targetCategory="nenhuma">
+						<NumericPredictor name="decisionFunction(nenhuma)" coefficient="1.0"/>
+					</RegressionTable>
+					<RegressionTable intercept="0.0" targetCategory="neuro_musculoesqueletica">
+						<NumericPredictor name="decisionFunction(neuro_musculoesqueletica)" coefficient="1.0"/>
+					</RegressionTable>
+					<RegressionTable intercept="0.0" targetCategory="respiratoria">
+						<NumericPredictor name="decisionFunction(respiratoria)" coefficient="1.0"/>
+					</RegressionTable>
+					<RegressionTable intercept="0.0" targetCategory="urogenital">
+						<NumericPredictor name="decisionFunction(urogenital)" coefficient="1.0"/>
+					</RegressionTable>
+				</RegressionModel>
+			</Segment>
+		</Segmentation>
+	</MiningModel>
+</PMML>

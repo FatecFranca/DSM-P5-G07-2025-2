@@ -1,0 +1,2609 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PMML xmlns="http://www.dmg.org/PMML-4_4" xmlns:data="http://jpmml.org/jpmml-model/InlineTable" version="4.4">
+	<Header>
+		<Application name="SkLearn2PMML package" version="0.123.1"/>
+		<Timestamp>2025-11-16T20:59:52Z</Timestamp>
+	</Header>
+	<MiningBuildTask>
+		<Extension name="repr">PMMLPipeline(steps=[('preprocessor', ColumnTransformer(transformers=[('num', StandardScaler(),
+                                 ['idade', 'genero', 'peso', 'duracao',
+                                  'perda_de_apetite', 'vomito', 'diarreia',
+                                  'tosse', 'dificuldade_para_respirar',
+                                  'dificuldade_para_locomover',
+                                  'problemas_na_pele', 'secrecao_nasal',
+                                  'secrecao_ocular', 'batimento_cardiaco',
+                                  'agitacao', 'andar_em_circulos',
+                                  'aumento_apetite',
+                                  'cera_excessiva_nas_orelhas', 'coceira',
+                                  'desidratacao', 'desmaio',
+                                  'dificuldade_para_urinar', 'dor',
+                                  'espamos_musculares', 'espirros', 'febre',
+                                  'fraqueza', 'inchaco', 'lambedura',
+                                  'letargia', ...]),
+                                ('cat',
+                                 OneHotEncoder(handle_unknown='ignore',
+                                               sparse_output=False),
+                                 ['tipo_do_animal', 'raca'])])),
+       ('model', GaussianNB(var_smoothing=1e-05))])</Extension>
+	</MiningBuildTask>
+	<DataDictionary>
+		<DataField name="classe_doenca" optype="categorical" dataType="string">
+			<Value value="cardiovascular_hematologica"/>
+			<Value value="cutanea"/>
+			<Value value="gastrointestinal"/>
+			<Value value="nenhuma"/>
+			<Value value="neuro_musculoesqueletica"/>
+			<Value value="respiratoria"/>
+			<Value value="urogenital"/>
+		</DataField>
+		<DataField name="tipo_do_animal" optype="categorical" dataType="string">
+			<Value value="cachorro"/>
+			<Value value="gato"/>
+		</DataField>
+		<DataField name="raca" optype="categorical" dataType="string">
+			<Value value="abissinio"/>
+			<Value value="azul_russo"/>
+			<Value value="beagle"/>
+			<Value value="bengal"/>
+			<Value value="border_collie"/>
+			<Value value="boxer"/>
+			<Value value="britanico"/>
+			<Value value="british_shorthair"/>
+			<Value value="buldogue"/>
+			<Value value="buldogue_frances"/>
+			<Value value="burmes"/>
+			<Value value="cavalier_king_charles_spaniel"/>
+			<Value value="chihuahua"/>
+			<Value value="cocker_spaniel"/>
+			<Value value="dachshund"/>
+			<Value value="dachshund_(salsicha)"/>
+			<Value value="dalmata"/>
+			<Value value="doberman"/>
+			<Value value="golden_retriever"/>
+			<Value value="husky"/>
+			<Value value="husky_siberiano"/>
+			<Value value="labrador"/>
+			<Value value="labrador_retriever"/>
+			<Value value="maine_coon"/>
+			<Value value="maltes"/>
+			<Value value="manx"/>
+			<Value value="pastor_alemao"/>
+			<Value value="persa"/>
+			<Value value="pit_bull"/>
+			<Value value="poodle"/>
+			<Value value="pug"/>
+			<Value value="ragdoll"/>
+			<Value value="rottweiler"/>
+			<Value value="scottish_fold"/>
+			<Value value="sem_raca_definida"/>
+			<Value value="sem_raca_definida_(srd)"/>
+			<Value value="shih_tzu"/>
+			<Value value="siames"/>
+			<Value value="siberiano"/>
+			<Value value="sphynx"/>
+			<Value value="yorkshire"/>
+		</DataField>
+		<DataField name="idade" optype="continuous" dataType="double"/>
+		<DataField name="genero" optype="continuous" dataType="double"/>
+		<DataField name="peso" optype="continuous" dataType="double"/>
+		<DataField name="duracao" optype="continuous" dataType="double"/>
+		<DataField name="perda_de_apetite" optype="continuous" dataType="double"/>
+		<DataField name="vomito" optype="continuous" dataType="double"/>
+		<DataField name="diarreia" optype="continuous" dataType="double"/>
+		<DataField name="tosse" optype="continuous" dataType="double"/>
+		<DataField name="dificuldade_para_respirar" optype="continuous" dataType="double"/>
+		<DataField name="dificuldade_para_locomover" optype="continuous" dataType="double"/>
+		<DataField name="problemas_na_pele" optype="continuous" dataType="double"/>
+		<DataField name="secrecao_nasal" optype="continuous" dataType="double"/>
+		<DataField name="secrecao_ocular" optype="continuous" dataType="double"/>
+		<DataField name="batimento_cardiaco" optype="continuous" dataType="double"/>
+		<DataField name="agitacao" optype="continuous" dataType="double"/>
+		<DataField name="andar_em_circulos" optype="continuous" dataType="double"/>
+		<DataField name="aumento_apetite" optype="continuous" dataType="double"/>
+		<DataField name="cera_excessiva_nas_orelhas" optype="continuous" dataType="double"/>
+		<DataField name="coceira" optype="continuous" dataType="double"/>
+		<DataField name="desidratacao" optype="continuous" dataType="double"/>
+		<DataField name="desmaio" optype="continuous" dataType="double"/>
+		<DataField name="dificuldade_para_urinar" optype="continuous" dataType="double"/>
+		<DataField name="dor" optype="continuous" dataType="double"/>
+		<DataField name="espamos_musculares" optype="continuous" dataType="double"/>
+		<DataField name="espirros" optype="continuous" dataType="double"/>
+		<DataField name="febre" optype="continuous" dataType="double"/>
+		<DataField name="fraqueza" optype="continuous" dataType="double"/>
+		<DataField name="inchaco" optype="continuous" dataType="double"/>
+		<DataField name="lambedura" optype="continuous" dataType="double"/>
+		<DataField name="letargia" optype="continuous" dataType="double"/>
+		<DataField name="lingua_azulada" optype="continuous" dataType="double"/>
+		<DataField name="perda_de_pelos" optype="continuous" dataType="double"/>
+		<DataField name="perda_de_peso" optype="continuous" dataType="double"/>
+		<DataField name="ranger_de_dentes" optype="continuous" dataType="double"/>
+		<DataField name="ronco" optype="continuous" dataType="double"/>
+		<DataField name="salivacao" optype="continuous" dataType="double"/>
+		<DataField name="suor_alterado" optype="continuous" dataType="double"/>
+	</DataDictionary>
+	<NaiveBayesModel threshold="0.0" functionName="classification" algorithmName="sklearn.naive_bayes.GaussianNB">
+		<MiningSchema>
+			<MiningField name="classe_doenca" usageType="target"/>
+			<MiningField name="aumento_apetite"/>
+			<MiningField name="espamos_musculares"/>
+			<MiningField name="ranger_de_dentes"/>
+			<MiningField name="salivacao"/>
+			<MiningField name="suor_alterado"/>
+			<MiningField name="idade"/>
+			<MiningField name="genero"/>
+			<MiningField name="peso"/>
+			<MiningField name="duracao"/>
+			<MiningField name="perda_de_apetite"/>
+			<MiningField name="vomito"/>
+			<MiningField name="diarreia"/>
+			<MiningField name="tosse"/>
+			<MiningField name="dificuldade_para_respirar"/>
+			<MiningField name="dificuldade_para_locomover"/>
+			<MiningField name="problemas_na_pele"/>
+			<MiningField name="secrecao_nasal"/>
+			<MiningField name="secrecao_ocular"/>
+			<MiningField name="batimento_cardiaco"/>
+			<MiningField name="agitacao"/>
+			<MiningField name="andar_em_circulos"/>
+			<MiningField name="cera_excessiva_nas_orelhas"/>
+			<MiningField name="coceira"/>
+			<MiningField name="desidratacao"/>
+			<MiningField name="desmaio"/>
+			<MiningField name="dificuldade_para_urinar"/>
+			<MiningField name="dor"/>
+			<MiningField name="espirros"/>
+			<MiningField name="febre"/>
+			<MiningField name="fraqueza"/>
+			<MiningField name="inchaco"/>
+			<MiningField name="lambedura"/>
+			<MiningField name="letargia"/>
+			<MiningField name="lingua_azulada"/>
+			<MiningField name="perda_de_pelos"/>
+			<MiningField name="perda_de_peso"/>
+			<MiningField name="ronco"/>
+			<MiningField name="tipo_do_animal" invalidValueTreatment="asIs"/>
+			<MiningField name="raca" invalidValueTreatment="asIs"/>
+		</MiningSchema>
+		<Output>
+			<OutputField name="probability(cardiovascular_hematologica)" optype="continuous" dataType="double" feature="probability" value="cardiovascular_hematologica"/>
+			<OutputField name="probability(cutanea)" optype="continuous" dataType="double" feature="probability" value="cutanea"/>
+			<OutputField name="probability(gastrointestinal)" optype="continuous" dataType="double" feature="probability" value="gastrointestinal"/>
+			<OutputField name="probability(nenhuma)" optype="continuous" dataType="double" feature="probability" value="nenhuma"/>
+			<OutputField name="probability(neuro_musculoesqueletica)" optype="continuous" dataType="double" feature="probability" value="neuro_musculoesqueletica"/>
+			<OutputField name="probability(respiratoria)" optype="continuous" dataType="double" feature="probability" value="respiratoria"/>
+			<OutputField name="probability(urogenital)" optype="continuous" dataType="double" feature="probability" value="urogenital"/>
+		</Output>
+		<LocalTransformations>
+			<DerivedField name="standardScaler(idade)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="idade"/>
+						<Constant dataType="double">5.0157657657657655</Constant>
+					</Apply>
+					<Constant dataType="double">2.487305445168879</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(genero)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="genero"/>
+						<Constant dataType="double">0.5382882882882883</Constant>
+					</Apply>
+					<Constant dataType="double">0.49853185151999363</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(peso)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="peso"/>
+						<Constant dataType="double">13.267567567567566</Constant>
+					</Apply>
+					<Constant dataType="double">10.612050452386343</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(duracao)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="duracao"/>
+						<Constant dataType="double">8.204954954954955</Constant>
+					</Apply>
+					<Constant dataType="double">7.037279927767171</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(perda_de_apetite)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="perda_de_apetite"/>
+						<Constant dataType="double">0.5157657657657657</Constant>
+					</Apply>
+					<Constant dataType="double">0.4997513788173266</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(vomito)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="vomito"/>
+						<Constant dataType="double">0.3130630630630631</Constant>
+					</Apply>
+					<Constant dataType="double">0.4637397779020425</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(diarreia)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="diarreia"/>
+						<Constant dataType="double">0.0945945945945946</Constant>
+					</Apply>
+					<Constant dataType="double">0.29265415983388804</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(tosse)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="tosse"/>
+						<Constant dataType="double">0.20045045045045046</Constant>
+					</Apply>
+					<Constant dataType="double">0.40033744187205617</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(dificuldade_para_respirar)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="dificuldade_para_respirar"/>
+						<Constant dataType="double">0.13063063063063063</Constant>
+					</Apply>
+					<Constant dataType="double">0.33699594800483046</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(dificuldade_para_locomover)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="dificuldade_para_locomover"/>
+						<Constant dataType="double">0.18243243243243243</Constant>
+					</Apply>
+					<Constant dataType="double">0.3862005179038713</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(problemas_na_pele)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="problemas_na_pele"/>
+						<Constant dataType="double">0.1891891891891892</Constant>
+					</Apply>
+					<Constant dataType="double">0.3916588309780929</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(secrecao_nasal)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="secrecao_nasal"/>
+						<Constant dataType="double">0.13063063063063063</Constant>
+					</Apply>
+					<Constant dataType="double">0.33699594800483046</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(secrecao_ocular)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="secrecao_ocular"/>
+						<Constant dataType="double">0.07432432432432433</Constant>
+					</Apply>
+					<Constant dataType="double">0.2622979586997523</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(batimento_cardiaco)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="batimento_cardiaco"/>
+						<Constant dataType="double">138.71396396396398</Constant>
+					</Apply>
+					<Constant dataType="double">22.565853250777785</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(agitacao)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="agitacao"/>
+						<Constant dataType="double">0.06531531531531531</Constant>
+					</Apply>
+					<Constant dataType="double">0.24708141350691726</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(andar_em_circulos)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="andar_em_circulos"/>
+						<Constant dataType="double">0.015765765765765764</Constant>
+					</Apply>
+					<Constant dataType="double">0.12456807936058409</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(cera_excessiva_nas_orelhas)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="cera_excessiva_nas_orelhas"/>
+						<Constant dataType="double">0.0022522522522522522</Constant>
+					</Apply>
+					<Constant dataType="double">0.04740442608074141</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(coceira)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="coceira"/>
+						<Constant dataType="double">0.1036036036036036</Constant>
+					</Apply>
+					<Constant dataType="double">0.3047456265870783</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(desidratacao)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="desidratacao"/>
+						<Constant dataType="double">0.060810810810810814</Constant>
+					</Apply>
+					<Constant dataType="double">0.23898296194361343</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(desmaio)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="desmaio"/>
+						<Constant dataType="double">0.02027027027027027</Constant>
+					</Apply>
+					<Constant dataType="double">0.14092333523387982</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(dificuldade_para_urinar)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="dificuldade_para_urinar"/>
+						<Constant dataType="double">0.02252252252252252</Constant>
+					</Apply>
+					<Constant dataType="double">0.14837539722523066</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(dor)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="dor"/>
+						<Constant dataType="double">0.10585585585585586</Constant>
+					</Apply>
+					<Constant dataType="double">0.3076530410005403</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(espirros)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="espirros"/>
+						<Constant dataType="double">0.060810810810810814</Constant>
+					</Apply>
+					<Constant dataType="double">0.23898296194361343</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(febre)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="febre"/>
+						<Constant dataType="double">0.2747747747747748</Constant>
+					</Apply>
+					<Constant dataType="double">0.4464007145180735</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(fraqueza)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="fraqueza"/>
+						<Constant dataType="double">0.04054054054054054</Constant>
+					</Apply>
+					<Constant dataType="double">0.19722323674765438</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(inchaco)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="inchaco"/>
+						<Constant dataType="double">0.14189189189189189</Constant>
+					</Apply>
+					<Constant dataType="double">0.34893922523446913</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(lambedura)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="lambedura"/>
+						<Constant dataType="double">0.018018018018018018</Constant>
+					</Apply>
+					<Constant dataType="double">0.13301642396606667</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(letargia)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="letargia"/>
+						<Constant dataType="double">0.7117117117117117</Constant>
+					</Apply>
+					<Constant dataType="double">0.45296594918834354</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(lingua_azulada)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="lingua_azulada"/>
+						<Constant dataType="double">0.0022522522522522522</Constant>
+					</Apply>
+					<Constant dataType="double">0.04740442608074141</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(perda_de_pelos)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="perda_de_pelos"/>
+						<Constant dataType="double">0.05405405405405406</Constant>
+					</Apply>
+					<Constant dataType="double">0.2261243314956961</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(perda_de_peso)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="perda_de_peso"/>
+						<Constant dataType="double">0.11711711711711711</Constant>
+					</Apply>
+					<Constant dataType="double">0.3215597891454909</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(ronco)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="ronco"/>
+						<Constant dataType="double">0.024774774774774775</Constant>
+					</Apply>
+					<Constant dataType="double">0.15543804331512268</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="tipo_do_animal=cachorro" optype="continuous" dataType="double">
+				<NormDiscrete field="tipo_do_animal" value="cachorro"/>
+			</DerivedField>
+			<DerivedField name="tipo_do_animal=gato" optype="continuous" dataType="double">
+				<NormDiscrete field="tipo_do_animal" value="gato"/>
+			</DerivedField>
+			<DerivedField name="raca=abissinio" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="abissinio"/>
+			</DerivedField>
+			<DerivedField name="raca=azul_russo" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="azul_russo"/>
+			</DerivedField>
+			<DerivedField name="raca=beagle" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="beagle"/>
+			</DerivedField>
+			<DerivedField name="raca=bengal" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="bengal"/>
+			</DerivedField>
+			<DerivedField name="raca=border_collie" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="border_collie"/>
+			</DerivedField>
+			<DerivedField name="raca=boxer" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="boxer"/>
+			</DerivedField>
+			<DerivedField name="raca=britanico" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="britanico"/>
+			</DerivedField>
+			<DerivedField name="raca=british_shorthair" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="british_shorthair"/>
+			</DerivedField>
+			<DerivedField name="raca=buldogue" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="buldogue"/>
+			</DerivedField>
+			<DerivedField name="raca=buldogue_frances" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="buldogue_frances"/>
+			</DerivedField>
+			<DerivedField name="raca=burmes" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="burmes"/>
+			</DerivedField>
+			<DerivedField name="raca=cavalier_king_charles_spaniel" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="cavalier_king_charles_spaniel"/>
+			</DerivedField>
+			<DerivedField name="raca=chihuahua" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="chihuahua"/>
+			</DerivedField>
+			<DerivedField name="raca=cocker_spaniel" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="cocker_spaniel"/>
+			</DerivedField>
+			<DerivedField name="raca=dachshund" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="dachshund"/>
+			</DerivedField>
+			<DerivedField name="raca=dachshund_(salsicha)" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="dachshund_(salsicha)"/>
+			</DerivedField>
+			<DerivedField name="raca=dalmata" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="dalmata"/>
+			</DerivedField>
+			<DerivedField name="raca=doberman" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="doberman"/>
+			</DerivedField>
+			<DerivedField name="raca=golden_retriever" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="golden_retriever"/>
+			</DerivedField>
+			<DerivedField name="raca=husky" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="husky"/>
+			</DerivedField>
+			<DerivedField name="raca=husky_siberiano" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="husky_siberiano"/>
+			</DerivedField>
+			<DerivedField name="raca=labrador" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="labrador"/>
+			</DerivedField>
+			<DerivedField name="raca=labrador_retriever" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="labrador_retriever"/>
+			</DerivedField>
+			<DerivedField name="raca=maine_coon" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="maine_coon"/>
+			</DerivedField>
+			<DerivedField name="raca=maltes" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="maltes"/>
+			</DerivedField>
+			<DerivedField name="raca=manx" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="manx"/>
+			</DerivedField>
+			<DerivedField name="raca=pastor_alemao" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="pastor_alemao"/>
+			</DerivedField>
+			<DerivedField name="raca=persa" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="persa"/>
+			</DerivedField>
+			<DerivedField name="raca=pit_bull" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="pit_bull"/>
+			</DerivedField>
+			<DerivedField name="raca=poodle" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="poodle"/>
+			</DerivedField>
+			<DerivedField name="raca=pug" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="pug"/>
+			</DerivedField>
+			<DerivedField name="raca=ragdoll" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="ragdoll"/>
+			</DerivedField>
+			<DerivedField name="raca=rottweiler" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="rottweiler"/>
+			</DerivedField>
+			<DerivedField name="raca=scottish_fold" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="scottish_fold"/>
+			</DerivedField>
+			<DerivedField name="raca=sem_raca_definida" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="sem_raca_definida"/>
+			</DerivedField>
+			<DerivedField name="raca=sem_raca_definida_(srd)" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="sem_raca_definida_(srd)"/>
+			</DerivedField>
+			<DerivedField name="raca=shih_tzu" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="shih_tzu"/>
+			</DerivedField>
+			<DerivedField name="raca=siames" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="siames"/>
+			</DerivedField>
+			<DerivedField name="raca=siberiano" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="siberiano"/>
+			</DerivedField>
+			<DerivedField name="raca=sphynx" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="sphynx"/>
+			</DerivedField>
+			<DerivedField name="raca=yorkshire" optype="continuous" dataType="double">
+				<NormDiscrete field="raca" value="yorkshire"/>
+			</DerivedField>
+		</LocalTransformations>
+		<BayesInputs>
+			<BayesInput fieldName="standardScaler(idade)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.32638550392256566" variance="0.6751967527090018"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.04834282735142727" variance="0.6134326174407035"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.4638339864890185" variance="0.721516139957185"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="-0.5360122078354401" variance="0.4865918147338268"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.8998502747420006" variance="0.8465190057798232"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.16835521395491476" variance="0.6178975390515661"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.006338492040206495" variance="1.5688432368792313"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(genero)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="-0.042217781900539944" variance="1.0047124866887454"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.4171857180118177" variance="0.7618846062962895"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.19987237704203972" variance="0.9293598001870891"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="-0.09272185133980819" variance="1.0056551222867622"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.09272185133980826" variance="1.0056551222867622"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.09177141784614254" variance="1.0056844803111027"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.2832907553013442" variance="0.9632709923122572"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(peso)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="-0.09166371623703777" variance="1.0493788488883644"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.4498223729937002" variance="0.729714170272745"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.18550979735885703" variance="1.3446930620590611"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="-0.18286602097213542" variance="0.6605719429124727"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.7077058523144677" variance="0.37635535307970314"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.13927707330389041" variance="0.9111535878629112"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.014142365033914302" variance="1.1598557960930362"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(duracao)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.25997655663048475" variance="0.8842787507133504"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.35263798437694466" variance="0.1092357903815445"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.6685757854239243" variance="0.025946933339436228"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.45582149504762265" variance="3.516478196926605"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.11709106110036721" variance="0.5175976509824002"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.45118344605821536" variance="0.06448749276538417"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.13178358623511016" variance="0.8599166767348506"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(perda_de_apetite)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.07195252217285544" variance="0.9902930307268383"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.04648001649920519" variance="1.000782238505991"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.5894512237616416" variance="0.615366162122326"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="-1.032044707883223" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.5238555067462982" variance="0.7586377759470461"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.2521759505868607" variance="0.9205063904974893"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.6746863040233247" variance="0.502239439138543"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(vomito)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="-0.414830508525592" variance="0.4934831523177009"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="7.973712315670452E-4" variance="1.00065221668982"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="1.2210453119338256" variance="0.49348315231770046"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="-0.6750834799623177" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.6750834799623177" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.44978986289768946" variance="0.4350718333433997"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="1.0056258355765364" variance="0.7994771141525715"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(diarreia)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="-0.0286607853024586" variance="0.9197826333509951"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.32322996757772743" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="1.8565819812592599" variance="2.6968527777876377"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="-0.32322996757772743" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.32322996757772743" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.32322996757772743" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.32322996757772743" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(tosse)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.5759741862512635" variance="1.5302006429828008"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.5007037301160365" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.07003256356911641" variance="0.8903027377354478"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="-0.38175645554593485" variance="0.28297908255310383"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.5007037301160365" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="1.2888313858043003" variance="1.2676408893985038"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.3905025786760894" variance="0.2631363652049537"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(dificuldade_para_respirar)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="1.0449027418394279" variance="2.198750322284933"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.38763264485529775" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.3876326448552977" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.2717884061629095" variance="1.5219364288408468"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.38763264485529775" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.32099893235829785" variance="1.6006408952147255"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.38763264485529775" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(dificuldade_para_locomover)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="-0.11522873711099123" variance="0.7972302113376035"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.085910555659605" variance="0.8513431537289092"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.47237749297332976" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="-0.47237749297332976" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="2.1169509870286287" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.47237749297332976" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.47237749297332976" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(problemas_na_pele)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="-0.21891734986033312" variance="0.6046303499235606"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="2.0701966780270604" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.4390244679264283" variance="0.11046948700526567"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="-0.07776929319572568" variance="0.8705303421756708"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.48304589153964717" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.4830458915396471" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.4830458915396471" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(secrecao_nasal)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.12398713610710442" variance="1.2564330413056766"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.38763264485529775" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.18298473247033656" variance="0.5654003685875536"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="-0.10502362299035142" variance="0.758754662774884"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.38763264485529775" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="1.295367351026992" variance="2.161646331527728"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.38763264485529775" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(secrecao_ocular)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="-0.28335837874133846" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.28335837874133823" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.28335837874133846" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.261278505073182" variance="1.7797860112671493"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.2833583787413383" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="1.0822982851517873" variance="3.3415008048473"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.2833583787413382" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(batimento_cardiaco)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.6712843885498169" variance="1.3751042063688401"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.33742992832450514" variance="0.5063405197713191"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.3525389971254291" variance="0.27563969640282665"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.7013126603211024" variance="0.9444917155557413"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-1.0684634475303232" variance="0.5076382826307225"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.20492961971196963" variance="0.4418777732853004"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.06226843802167242" variance="0.6807113853674781"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(agitacao)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="-0.264347343607401" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.264347343607401" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.264347343607401" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="1.2774617934919226" variance="3.862920049769807"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.056862893288291194" variance="1.196851788924406"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.264347343607401" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.264347343607401" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(andar_em_circulos)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="-0.12656344905285888" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.1265634490528589" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.12656344905285888" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.7654075252244318" variance="6.3649077516254415"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.12656344905285888" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.1265634490528589" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.12656344905285893" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="aumento_apetite">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(cera_excessiva_nas_orelhas)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="-0.047511433814558" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.047511433814558024" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.047511433814558" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.2873310521166119" variance="6.951418403843092"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.04751143381455802" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.047511433814558024" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.047511433814558024" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(coceira)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="-0.33996748292628826" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.8354684346799822" variance="2.475465526881357"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.33996748292628826" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.8059270557983437" variance="2.4471030022289315"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.33996748292628814" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.3399674829262881" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.3399674829262881" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(desidratacao)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.10626734866105393" variance="1.3793013350651213"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.25445667890399154" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.1062673486610539" variance="1.3793013350651218"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.14405748488215378" variance="1.5087386180126203"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.25445667890399154" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.25445667890399154" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.42243134929159304" variance="2.3742019958842633"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(desmaio)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.8349274732762717" variance="5.987408690666563"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.1438389904456153" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.1438389904456152" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="-0.14383899044561527" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.14383899044561527" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.03792769399809754" variance="0.7403453792028024"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.1438389904456153" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(dificuldade_para_urinar)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="-0.151794185179729" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.1517941851797289" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.151794185179729" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="-0.15179418517972892" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.15179418517972892" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.1517941851797289" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.8393325533467365" variance="5.697536828568236"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(dor)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="-0.3440754413205034" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.3440754413205032" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.2880338067107077" variance="0.17902789415505876"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="-0.3440754413205033" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="1.8228677635916055" variance="2.3478314266573768"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.3440754413205032" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.1528745702988472" variance="0.5849343692710418"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="espamos_musculares">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(espirros)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="-0.25445667890399154" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.25445667890399154" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.25445667890399154" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.21047651217984412" variance="1.7293129773711877"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.25445667890399154" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.9946175657988512" variance="3.666448201632951"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.25445667890399154" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(febre)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.04105879068960405" variance="1.0397554507019275"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.28118468306441163" variance="0.637209590649912"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.3500435884215397" variance="1.230698661160819"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="-0.6155339044907604" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.04660951501608415" variance="0.9508051977587006"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.22033914907511126" variance="1.1737987196182578"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.3398198267318799" variance="1.2274351489199942"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(fraqueza)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="1.3680146999660037" variance="5.5025137262815855"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.20555661294825928" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.20555661294825936" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="-0.2055566129482593" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.2055566129482593" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.20555661294825928" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.20555661294825928" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(inchaco)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="-0.2584053251687865" variance="0.4028460901974054"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.40663783728111363" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.30781616253956223" variance="0.2734502551642997"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="-0.40663783728111363" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="2.2317440185171336" variance="0.6001012773280517"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.40663783728111363" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.40663783728111363" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(lambedura)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="-0.13545709229571926" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.13545709229571934" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.13545709229571926" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.8191928915026833" variance="6.265586567018243"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.1354570922957193" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.13545709229571934" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.13545709229571937" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(letargia)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.17968621418451833" variance="0.7997558194735022"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.6364458273405846" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.17968621418451816" variance="0.7997558194735019"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="-1.5361832320631343" variance="0.07614414564137875"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.07576736039768865" variance="0.9234435084244679"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.08846122040461465" variance="1.0748763751899877"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.5065828000707221" variance="0.2698404936270861"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(lingua_azulada)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="-0.047511433814558" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.047511433814558024" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.047511433814558" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="-0.04751143381455802" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.04751143381455802" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.26734045594161593" variance="6.54270302388029"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.047511433814558024" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(perda_de_pelos)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="-0.2390457218668786" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="1.3450781663255735" variance="4.4961052168793545"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.2390457218668786" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="-0.23904572186687859" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.23904572186687859" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.23904572186687856" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.23904572186687859" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(perda_de_peso)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.33281777613351926" variance="1.6818179788395726"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.36421567954234146" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.20336180515560476" variance="0.4743660965957774"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="-0.3642156795423415" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.3642156795423415" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.36421567954234146" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="1.2821710347689694" variance="2.409422633831814"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="ranger_de_dentes">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="standardScaler(ronco)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="-0.15938681577809352" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="-0.15938681577809352" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="-0.15938681577809352" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.9639107430389475" variance="5.964870463045881"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="-0.15938681577809352" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="-0.15938681577809352" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="-0.15938681577809352" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="salivacao">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="suor_alterado">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="tipo_do_animal=cachorro">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.3793103448275862" variance="0.2354440071343637"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.14925373134328357" variance="0.12698705502339058"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.6896551724137931" variance="0.21404091557669427"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.5079365079365079" variance="0.24994701184177412"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.9206349206349206" variance="0.07307626354245397"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.47761194029850745" variance="0.24950877478280234"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.47058823529411764" variance="0.24914494809688567"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="tipo_do_animal=gato">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.6206896551724138" variance="0.2354440071343637"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.8507462686567164" variance="0.12698705502339058"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.3103448275862069" variance="0.21404091557669427"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.49206349206349204" variance="0.24994701184177412"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.07936507936507936" variance="0.07307626354245399"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.5223880597014925" variance="0.24950877478280234"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.5294117647058824" variance="0.24914494809688567"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=abissinio">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.034482758620689655" variance="0.033303697978596954"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.017241379310344827" variance="0.016954114149821644"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.014925373134328358" variance="0.01471260637112939"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=azul_russo">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.029850746268656716" variance="0.028969679215860997"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=beagle">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.06896551724137931" variance="0.06421927467300838"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.031746031746031744" variance="0.030748221214411658"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.05970149253731343" variance="0.05614722432613059"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.058823529411764705" variance="0.055373321799307935"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=bengal">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.10344827586206896" variance="0.09275673008323418"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.06896551724137931" variance="0.06421927467300839"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.015873015873015872" variance="0.015631063240110855"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.04477611940298507" variance="0.042781218534194705"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=border_collie">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.031746031746031744" variance="0.030748221214411675"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.014925373134328358" variance="0.014712606371129401"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=boxer">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.017241379310344827" variance="0.016954114149821644"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.017241379310344827" variance="0.016954114149821644"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.04411764705882353" variance="0.04218128027681655"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=britanico">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.047619047619047616" variance="0.045361473922902476"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=british_shorthair">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.06896551724137931" variance="0.06421927467300832"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.08955223880597014" variance="0.08154263533080856"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=buldogue">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.08955223880597014" variance="0.08154263533080858"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.04411764705882353" variance="0.04218128027681666"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=buldogue_frances">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.031746031746031744" variance="0.03074822121441168"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=burmes">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.029850746268656716" variance="0.028969679215861004"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=cavalier_king_charles_spaniel">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.05172413793103448" variance="0.0490587514863258"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=chihuahua">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.13793103448275862" variance="0.11891606420927466"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.029850746268656716" variance="0.028969679215861008"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=cocker_spaniel">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.014925373134328358" variance="0.014712606371129424"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.08823529411764706" variance="0.08045982698961945"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=dachshund">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.015873015873015872" variance="0.015631063240110852"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=dachshund_(salsicha)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.017241379310344827" variance="0.01695411414982164"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.014925373134328358" variance="0.014712606371129392"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=dalmata">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.017241379310344827" variance="0.01695411414982164"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=doberman">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.05172413793103448" variance="0.04905875148632579"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=golden_retriever">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.034482758620689655" variance="0.03330369797859695"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.08620689655172414" variance="0.07878526753864444"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.07936507936507936" variance="0.07307626354245408"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.25396825396825395" variance="0.18947837994457029"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.014925373134328358" variance="0.014712606371129398"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.029411764705882353" variance="0.028556712802768145"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=husky">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.017241379310344827" variance="0.016954114149821644"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=husky_siberiano">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.05172413793103448" variance="0.0490587514863258"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=labrador">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.08620689655172414" variance="0.07878526753864448"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.031746031746031744" variance="0.030748221214411686"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=labrador_retriever">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.014925373134328358" variance="0.014712606371129384"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=maine_coon">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.13793103448275862" variance="0.11891606420927464"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.10344827586206896" variance="0.09275673008323418"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.07936507936507936" variance="0.073076263542454"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.029850746268656716" variance="0.028969679215861008"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.07352941176470588" variance="0.06813283737024223"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=maltes">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.015873015873015872" variance="0.015631063240110855"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=manx">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.014925373134328358" variance="0.014712606371129387"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=pastor_alemao">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.05172413793103448" variance="0.04905875148632579"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.14925373134328357" variance="0.12698705502339058"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.034482758620689655" variance="0.033303697978596954"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.015873015873015872" variance="0.015631063240110855"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.014925373134328358" variance="0.014712606371129406"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=persa">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.1791044776119403" variance="0.14703606371129407"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.034482758620689655" variance="0.03330369797859695"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.06349206349206349" variance="0.05947082136558318"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.05970149253731343" variance="0.05614722432613059"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=pit_bull">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.015873015873015872" variance="0.015631063240110855"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.04411764705882353" variance="0.042181280276816585"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=poodle">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.06896551724137931" variance="0.0642192746730084"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.034482758620689655" variance="0.033303697978596954"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.08955223880597014" variance="0.08154263533080858"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=pug">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.047619047619047616" variance="0.04536147392290248"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=ragdoll">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.08620689655172414" variance="0.07878526753864439"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.31343283582089554" variance="0.21520269325016722"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.06349206349206349" variance="0.059470821365583154"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.014925373134328358" variance="0.014712606371129387"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=rottweiler">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.034482758620689655" variance="0.033303697978596954"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.029850746268656716" variance="0.028969679215861"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.10294117647058823" variance="0.09235429065743933"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=scottish_fold">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.017241379310344827" variance="0.016954114149821647"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.029850746268656716" variance="0.028969679215861008"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=sem_raca_definida">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.23809523809523808" variance="0.18141589569160993"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=sem_raca_definida_(srd)">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.08620689655172414" variance="0.0787852675386444"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.3582089552238806" variance="0.2299052996212965"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.13793103448275862" variance="0.11891606420927461"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.031746031746031744" variance="0.03074822121441167"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.746031746031746" variance="0.18947837994457029"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.13432835820895522" variance="0.11629425038984186"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.5147058823529411" variance="0.24979373702422167"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=shih_tzu">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.017241379310344827" variance="0.016954114149821644"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.015873015873015872" variance="0.01563106324011086"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.014925373134328358" variance="0.014712606371129405"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=siames">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.10344827586206896" variance="0.09275673008323419"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.034482758620689655" variance="0.033303697978596954"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.06349206349206349" variance="0.05947082136558329"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.07462686567164178" variance="0.0690676965916685"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=siberiano">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.014925373134328358" variance="0.014712606371129422"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=sphynx">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.05172413793103448" variance="0.04905875148632579"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.017241379310344827" variance="0.01695411414982164"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.031746031746031744" variance="0.030748221214411665"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.014925373134328358" variance="0.014712606371129386"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+			<BayesInput fieldName="raca=yorkshire">
+				<TargetValueStats>
+					<TargetValueStat value="cardiovascular_hematologica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="cutanea">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="gastrointestinal">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="nenhuma">
+						<GaussianDistribution mean="0.031746031746031744" variance="0.03074822121441167"/>
+					</TargetValueStat>
+					<TargetValueStat value="neuro_musculoesqueletica">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="respiratoria">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+					<TargetValueStat value="urogenital">
+						<GaussianDistribution mean="0.0" variance="1.0000000000000113E-5"/>
+					</TargetValueStat>
+				</TargetValueStats>
+			</BayesInput>
+		</BayesInputs>
+		<BayesOutput fieldName="classe_doenca">
+			<TargetValueCounts>
+				<TargetValueCount value="cardiovascular_hematologica" count="58"/>
+				<TargetValueCount value="cutanea" count="67"/>
+				<TargetValueCount value="gastrointestinal" count="58"/>
+				<TargetValueCount value="nenhuma" count="63"/>
+				<TargetValueCount value="neuro_musculoesqueletica" count="63"/>
+				<TargetValueCount value="respiratoria" count="67"/>
+				<TargetValueCount value="urogenital" count="68"/>
+			</TargetValueCounts>
+		</BayesOutput>
+	</NaiveBayesModel>
+</PMML>

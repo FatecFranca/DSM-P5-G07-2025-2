@@ -1,0 +1,2243 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PMML xmlns="http://www.dmg.org/PMML-4_4" xmlns:data="http://jpmml.org/jpmml-model/InlineTable" version="4.4">
+	<Header>
+		<Application name="SkLearn2PMML package" version="0.123.1"/>
+		<Timestamp>2025-11-12T23:28:17Z</Timestamp>
+	</Header>
+	<MiningBuildTask>
+		<Extension name="repr">PMMLPipeline(steps=[('preprocessor', ColumnTransformer(transformers=[('num', StandardScaler(),
+                                 ['idade', 'genero', 'duracao',
+                                  'perda_de_apetite', 'vomito', 'diarreia',
+                                  'tosse', 'dificuldade_para_respirar',
+                                  'dificuldade_para_locomover',
+                                  'problemas_na_pele', 'secrecao_nasal',
+                                  'secrecao_ocular', 'batimento_cardiaco',
+                                  'agitacao', 'andar_em_circulos',
+                                  'aumento_apetite',
+                                  'cera_excessiva_nas_orelhas', 'coceira',
+                                  'desidratacao', 'desmaio',
+                                  'dificuldade_para_urinar', 'dor',
+                                  'espamos_musculares', 'espirros', 'febre',
+                                  'fraqueza', 'inchaco', 'lambedura',
+                                  'letargia', 'lingua_azulada', ...]),
+                                ('cat',
+                                 OneHotEncoder(handle_unknown='ignore',
+                                               sparse_output=False),
+                                 ['tipo_do_animal', 'raca', 'peso'])])),
+       ('model', DecisionTreeClassifier(criterion='entropy', random_state=7))])</Extension>
+	</MiningBuildTask>
+	<DataDictionary>
+		<DataField name="classe_doenca" optype="categorical" dataType="string">
+			<Value value="cardiovascular_hematologica"/>
+			<Value value="cutanea"/>
+			<Value value="gastrointestinal"/>
+			<Value value="nenhuma"/>
+			<Value value="neuro_musculoesqueletica"/>
+			<Value value="respiratoria"/>
+			<Value value="urogenital"/>
+		</DataField>
+		<DataField name="tipo_do_animal" optype="categorical" dataType="string">
+			<Value value="cabra"/>
+			<Value value="cachorro"/>
+			<Value value="cavalo"/>
+			<Value value="coelho"/>
+			<Value value="gato"/>
+			<Value value="ovelha"/>
+			<Value value="porco"/>
+			<Value value="vaca"/>
+		</DataField>
+		<DataField name="raca" optype="categorical" dataType="string">
+			<Value value="aberdeen_angus"/>
+			<Value value="abissinio"/>
+			<Value value="akita"/>
+			<Value value="alpina"/>
+			<Value value="american_curl"/>
+			<Value value="anao_nigeriano"/>
+			<Value value="andaluz"/>
+			<Value value="angora"/>
+			<Value value="angora_ingles"/>
+			<Value value="angus"/>
+			<Value value="angus_vermelho"/>
+			<Value value="appaloosa"/>
+			<Value value="arabe"/>
+			<Value value="ayrshire"/>
+			<Value value="azul_russo"/>
+			<Value value="beagle"/>
+			<Value value="belga"/>
+			<Value value="bengal"/>
+			<Value value="berkshire"/>
+			<Value value="boer"/>
+			<Value value="border_collie"/>
+			<Value value="boxer"/>
+			<Value value="brahman"/>
+			<Value value="britanico"/>
+			<Value value="british_shorthair"/>
+			<Value value="buldogue"/>
+			<Value value="buldogue_frances"/>
+			<Value value="burmes"/>
+			<Value value="cavalier_king_charles_spaniel"/>
+			<Value value="charoles"/>
+			<Value value="chester_white"/>
+			<Value value="cheviot"/>
+			<Value value="chihuahua"/>
+			<Value value="clydesdale"/>
+			<Value value="cocker_spaniel"/>
+			<Value value="corriedale"/>
+			<Value value="crioulo"/>
+			<Value value="dachshund"/>
+			<Value value="dachshund_(salsicha)"/>
+			<Value value="dalmata"/>
+			<Value value="dexter"/>
+			<Value value="doberman"/>
+			<Value value="dorper"/>
+			<Value value="dorset"/>
+			<Value value="duroc"/>
+			<Value value="english_lop"/>
+			<Value value="finnsheep"/>
+			<Value value="galloway_cintada"/>
+			<Value value="gigante_de_flandres"/>
+			<Value value="golden_retriever"/>
+			<Value value="guernsey"/>
+			<Value value="hampshire"/>
+			<Value value="hereford"/>
+			<Value value="himalaio"/>
+			<Value value="holandes"/>
+			<Value value="holandesa"/>
+			<Value value="holland_lop"/>
+			<Value value="husky"/>
+			<Value value="husky_siberiano"/>
+			<Value value="jersey"/>
+			<Value value="karakul"/>
+			<Value value="kiko"/>
+			<Value value="labrador"/>
+			<Value value="landrace"/>
+			<Value value="large_white"/>
+			<Value value="limousin"/>
+			<Value value="lincoln"/>
+			<Value value="lusitano"/>
+			<Value value="maine_coon"/>
+			<Value value="maltes"/>
+			<Value value="mangalarga"/>
+			<Value value="manx"/>
+			<Value value="merino"/>
+			<Value value="mini_lop"/>
+			<Value value="mini_rex"/>
+			<Value value="morgan"/>
+			<Value value="mustangue"/>
+			<Value value="nelore"/>
+			<Value value="nubiana"/>
+			<Value value="paint_horse"/>
+			<Value value="pardo_suico"/>
+			<Value value="pastor_alemao"/>
+			<Value value="percheron"/>
+			<Value value="persa"/>
+			<Value value="pietrain"/>
+			<Value value="pinto"/>
+			<Value value="pit_bull"/>
+			<Value value="poland_china"/>
+			<Value value="ponei_gales"/>
+			<Value value="ponei_shetland"/>
+			<Value value="poodle"/>
+			<Value value="pug"/>
+			<Value value="puro-sangue"/>
+			<Value value="puro-sangue_ingles"/>
+			<Value value="quarto_de_milha"/>
+			<Value value="quarto_de_milha_americano"/>
+			<Value value="ragdoll"/>
+			<Value value="rambouillet"/>
+			<Value value="red_poll"/>
+			<Value value="romney"/>
+			<Value value="rottweiler"/>
+			<Value value="saanen"/>
+			<Value value="scottish_fold"/>
+			<Value value="sem_raca_definida"/>
+			<Value value="sem_raca_definida_(srd)"/>
+			<Value value="shih_tzu"/>
+			<Value value="shire"/>
+			<Value value="shorthorn"/>
+			<Value value="siames"/>
+			<Value value="siberiano"/>
+			<Value value="simental"/>
+			<Value value="southdown"/>
+			<Value value="sphynx"/>
+			<Value value="standardbred"/>
+			<Value value="suffolk"/>
+			<Value value="tamworth"/>
+			<Value value="texel"/>
+			<Value value="toggenburg"/>
+			<Value value="tunis"/>
+			<Value value="wessex_saddleback"/>
+			<Value value="yorkshire"/>
+			<Value value="yorkshire_terrier"/>
+		</DataField>
+		<DataField name="idade" optype="continuous" dataType="double"/>
+		<DataField name="genero" optype="continuous" dataType="double"/>
+		<DataField name="peso" optype="categorical" dataType="string">
+			<Value value="1"/>
+			<Value value="1.1"/>
+			<Value value="1.2"/>
+			<Value value="1.3"/>
+			<Value value="1.5"/>
+			<Value value="1.9"/>
+			<Value value="10"/>
+			<Value value="100"/>
+			<Value value="105"/>
+			<Value value="11"/>
+			<Value value="110"/>
+			<Value value="115"/>
+			<Value value="12"/>
+			<Value value="120"/>
+			<Value value="125"/>
+			<Value value="13"/>
+			<Value value="130"/>
+			<Value value="140"/>
+			<Value value="15"/>
+			<Value value="150"/>
+			<Value value="16"/>
+			<Value value="160"/>
+			<Value value="17"/>
+			<Value value="17.5"/>
+			<Value value="18"/>
+			<Value value="2"/>
+			<Value value="2.1"/>
+			<Value value="2.2"/>
+			<Value value="2.3"/>
+			<Value value="2.4"/>
+			<Value value="2.5"/>
+			<Value value="2.6"/>
+			<Value value="20"/>
+			<Value value="22"/>
+			<Value value="23"/>
+			<Value value="25"/>
+			<Value value="26"/>
+			<Value value="27"/>
+			<Value value="28"/>
+			<Value value="3"/>
+			<Value value="3,.4"/>
+			<Value value="3.0"/>
+			<Value value="3.1"/>
+			<Value value="3.4"/>
+			<Value value="3.5"/>
+			<Value value="3.8"/>
+			<Value value="30"/>
+			<Value value="300"/>
+			<Value value="32"/>
+			<Value value="33"/>
+			<Value value="35"/>
+			<Value value="38"/>
+			<Value value="4"/>
+			<Value value="4.1"/>
+			<Value value="4.2"/>
+			<Value value="4.5"/>
+			<Value value="4.8"/>
+			<Value value="40"/>
+			<Value value="400"/>
+			<Value value="42"/>
+			<Value value="45"/>
+			<Value value="450"/>
+			<Value value="460"/>
+			<Value value="480"/>
+			<Value value="490"/>
+			<Value value="5"/>
+			<Value value="5.1"/>
+			<Value value="5.2"/>
+			<Value value="5.5"/>
+			<Value value="5.8"/>
+			<Value value="500"/>
+			<Value value="510"/>
+			<Value value="520"/>
+			<Value value="530"/>
+			<Value value="540"/>
+			<Value value="55"/>
+			<Value value="550"/>
+			<Value value="560"/>
+			<Value value="570"/>
+			<Value value="580"/>
+			<Value value="590"/>
+			<Value value="6"/>
+			<Value value="6.1"/>
+			<Value value="6.5"/>
+			<Value value="60"/>
+			<Value value="600"/>
+			<Value value="610"/>
+			<Value value="620"/>
+			<Value value="630"/>
+			<Value value="65"/>
+			<Value value="650"/>
+			<Value value="68"/>
+			<Value value="680"/>
+			<Value value="7"/>
+			<Value value="7.1"/>
+			<Value value="7.2"/>
+			<Value value="7.5"/>
+			<Value value="70"/>
+			<Value value="700"/>
+			<Value value="72"/>
+			<Value value="720"/>
+			<Value value="75"/>
+			<Value value="750"/>
+			<Value value="78"/>
+			<Value value="8"/>
+			<Value value="80"/>
+			<Value value="800"/>
+			<Value value="85"/>
+			<Value value="850"/>
+			<Value value="9"/>
+			<Value value="9.1"/>
+			<Value value="9.5"/>
+			<Value value="90"/>
+			<Value value="95"/>
+		</DataField>
+		<DataField name="duracao" optype="continuous" dataType="double"/>
+		<DataField name="perda_de_apetite" optype="continuous" dataType="double"/>
+		<DataField name="vomito" optype="continuous" dataType="double"/>
+		<DataField name="diarreia" optype="continuous" dataType="double"/>
+		<DataField name="tosse" optype="continuous" dataType="double"/>
+		<DataField name="dificuldade_para_respirar" optype="continuous" dataType="double"/>
+		<DataField name="problemas_na_pele" optype="continuous" dataType="double"/>
+		<DataField name="secrecao_nasal" optype="continuous" dataType="double"/>
+		<DataField name="secrecao_ocular" optype="continuous" dataType="double"/>
+		<DataField name="batimento_cardiaco" optype="continuous" dataType="double"/>
+		<DataField name="agitacao" optype="continuous" dataType="double"/>
+		<DataField name="desidratacao" optype="continuous" dataType="double"/>
+		<DataField name="dor" optype="continuous" dataType="double"/>
+		<DataField name="espirros" optype="continuous" dataType="double"/>
+		<DataField name="febre" optype="continuous" dataType="double"/>
+		<DataField name="fraqueza" optype="continuous" dataType="double"/>
+		<DataField name="inchaco" optype="continuous" dataType="double"/>
+		<DataField name="lambedura" optype="continuous" dataType="double"/>
+		<DataField name="letargia" optype="continuous" dataType="double"/>
+		<DataField name="perda_de_peso" optype="continuous" dataType="double"/>
+	</DataDictionary>
+	<TreeModel functionName="classification" algorithmName="sklearn.tree._classes.DecisionTreeClassifier" missingValueStrategy="nullPrediction">
+		<MiningSchema>
+			<MiningField name="classe_doenca" usageType="target"/>
+			<MiningField name="tipo_do_animal" invalidValueTreatment="asIs"/>
+			<MiningField name="raca" invalidValueTreatment="asIs"/>
+			<MiningField name="peso" invalidValueTreatment="asIs"/>
+			<MiningField name="letargia"/>
+			<MiningField name="perda_de_apetite"/>
+			<MiningField name="tosse"/>
+			<MiningField name="febre"/>
+			<MiningField name="perda_de_peso"/>
+			<MiningField name="dor"/>
+			<MiningField name="lambedura"/>
+			<MiningField name="fraqueza"/>
+			<MiningField name="batimento_cardiaco"/>
+			<MiningField name="duracao"/>
+			<MiningField name="secrecao_nasal"/>
+			<MiningField name="problemas_na_pele"/>
+			<MiningField name="idade"/>
+			<MiningField name="genero"/>
+			<MiningField name="espirros"/>
+			<MiningField name="diarreia"/>
+			<MiningField name="dificuldade_para_respirar"/>
+			<MiningField name="inchaco"/>
+			<MiningField name="vomito"/>
+			<MiningField name="desidratacao"/>
+			<MiningField name="agitacao"/>
+			<MiningField name="secrecao_ocular"/>
+		</MiningSchema>
+		<Output>
+			<OutputField name="probability(cardiovascular_hematologica)" optype="continuous" dataType="double" feature="probability" value="cardiovascular_hematologica"/>
+			<OutputField name="probability(cutanea)" optype="continuous" dataType="double" feature="probability" value="cutanea"/>
+			<OutputField name="probability(gastrointestinal)" optype="continuous" dataType="double" feature="probability" value="gastrointestinal"/>
+			<OutputField name="probability(nenhuma)" optype="continuous" dataType="double" feature="probability" value="nenhuma"/>
+			<OutputField name="probability(neuro_musculoesqueletica)" optype="continuous" dataType="double" feature="probability" value="neuro_musculoesqueletica"/>
+			<OutputField name="probability(respiratoria)" optype="continuous" dataType="double" feature="probability" value="respiratoria"/>
+			<OutputField name="probability(urogenital)" optype="continuous" dataType="double" feature="probability" value="urogenital"/>
+		</Output>
+		<LocalTransformations>
+			<DerivedField name="standardScaler(idade)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="idade"/>
+						<Constant dataType="double">5.126271186440678</Constant>
+					</Apply>
+					<Constant dataType="double">2.685520748229248</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(genero)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="genero"/>
+						<Constant dataType="double">0.5279661016949152</Constant>
+					</Apply>
+					<Constant dataType="double">0.49921728451245523</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(duracao)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="duracao"/>
+						<Constant dataType="double">7.840677966101695</Constant>
+					</Apply>
+					<Constant dataType="double">6.987764576575981</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(perda_de_apetite)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="perda_de_apetite"/>
+						<Constant dataType="double">0.635593220338983</Constant>
+					</Apply>
+					<Constant dataType="double">0.48126341913561643</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(vomito)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="vomito"/>
+						<Constant dataType="double">0.27372881355932205</Constant>
+					</Apply>
+					<Constant dataType="double">0.44587145029338665</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(diarreia)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="diarreia"/>
+						<Constant dataType="double">0.1483050847457627</Constant>
+					</Apply>
+					<Constant dataType="double">0.35540214769232176</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(tosse)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="tosse"/>
+						<Constant dataType="double">0.2457627118644068</Constant>
+					</Apply>
+					<Constant dataType="double">0.43053850155527246</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(dificuldade_para_respirar)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="dificuldade_para_respirar"/>
+						<Constant dataType="double">0.11610169491525424</Constant>
+					</Apply>
+					<Constant dataType="double">0.320346829784625</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(problemas_na_pele)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="problemas_na_pele"/>
+						<Constant dataType="double">0.11186440677966102</Constant>
+					</Apply>
+					<Constant dataType="double">0.3151995578605648</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(secrecao_nasal)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="secrecao_nasal"/>
+						<Constant dataType="double">0.15084745762711865</Constant>
+					</Apply>
+					<Constant dataType="double">0.35790012874341537</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(secrecao_ocular)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="secrecao_ocular"/>
+						<Constant dataType="double">0.03728813559322034</Constant>
+					</Apply>
+					<Constant dataType="double">0.1894669642370457</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(batimento_cardiaco)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="batimento_cardiaco"/>
+						<Constant dataType="double">120.94745762711864</Constant>
+					</Apply>
+					<Constant dataType="double">33.64390722755519</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(agitacao)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="agitacao"/>
+						<Constant dataType="double">0.06694915254237288</Constant>
+					</Apply>
+					<Constant dataType="double">0.2499339182988795</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(desidratacao)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="desidratacao"/>
+						<Constant dataType="double">0.0711864406779661</Constant>
+					</Apply>
+					<Constant dataType="double">0.25713601720017465</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(dor)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="dor"/>
+						<Constant dataType="double">0.025423728813559324</Constant>
+					</Apply>
+					<Constant dataType="double">0.15740826797463311</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(espirros)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="espirros"/>
+						<Constant dataType="double">0.08305084745762711</Constant>
+					</Apply>
+					<Constant dataType="double">0.27595906253318997</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(febre)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="febre"/>
+						<Constant dataType="double">0.45084745762711864</Constant>
+					</Apply>
+					<Constant dataType="double">0.4975781622803418</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(fraqueza)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="fraqueza"/>
+						<Constant dataType="double">0.03728813559322034</Constant>
+					</Apply>
+					<Constant dataType="double">0.1894669642370457</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(inchaco)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="inchaco"/>
+						<Constant dataType="double">0.13813559322033897</Constant>
+					</Apply>
+					<Constant dataType="double">0.34504224539323297</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(lambedura)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="lambedura"/>
+						<Constant dataType="double">0.009322033898305085</Constant>
+					</Apply>
+					<Constant dataType="double">0.09609960240450494</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(letargia)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="letargia"/>
+						<Constant dataType="double">0.6237288135593221</Constant>
+					</Apply>
+					<Constant dataType="double">0.48444935823592805</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="standardScaler(perda_de_peso)" optype="continuous" dataType="double">
+				<Apply function="/">
+					<Apply function="-">
+						<FieldRef field="perda_de_peso"/>
+						<Constant dataType="double">0.1228813559322034</Constant>
+					</Apply>
+					<Constant dataType="double">0.3283009721223294</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(idade))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(idade)"/>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(genero))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(genero)"/>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(duracao))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(duracao)"/>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(perda_de_apetite))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(perda_de_apetite)"/>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(vomito))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(vomito)"/>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(diarreia))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(diarreia)"/>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(tosse))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(tosse)"/>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(dificuldade_para_respirar))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(dificuldade_para_respirar)"/>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(problemas_na_pele))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(problemas_na_pele)"/>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(secrecao_nasal))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(secrecao_nasal)"/>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(secrecao_ocular))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(secrecao_ocular)"/>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(batimento_cardiaco))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(batimento_cardiaco)"/>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(agitacao))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(agitacao)"/>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(desidratacao))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(desidratacao)"/>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(dor))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(dor)"/>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(espirros))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(espirros)"/>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(febre))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(febre)"/>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(fraqueza))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(fraqueza)"/>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(inchaco))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(inchaco)"/>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(lambedura))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(lambedura)"/>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(letargia))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(letargia)"/>
+			</DerivedField>
+			<DerivedField name="float(standardScaler(perda_de_peso))" optype="continuous" dataType="float">
+				<FieldRef field="standardScaler(perda_de_peso)"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(letargia)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(letargia))"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(perda_de_apetite)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(perda_de_apetite))"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(tosse)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(tosse))"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(febre)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(febre))"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(perda_de_peso)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(perda_de_peso))"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(dor)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(dor))"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(lambedura)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(lambedura))"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(fraqueza)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(fraqueza))"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(batimento_cardiaco)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(batimento_cardiaco))"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(duracao)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(duracao))"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(secrecao_nasal)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(secrecao_nasal))"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(problemas_na_pele)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(problemas_na_pele))"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(idade)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(idade))"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(genero)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(genero))"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(espirros)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(espirros))"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(diarreia)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(diarreia))"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(dificuldade_para_respirar)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(dificuldade_para_respirar))"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(inchaco)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(inchaco))"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(vomito)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(vomito))"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(desidratacao)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(desidratacao))"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(agitacao)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(agitacao))"/>
+			</DerivedField>
+			<DerivedField name="double(float(standardScaler(secrecao_ocular)))" optype="continuous" dataType="double">
+				<FieldRef field="float(standardScaler(secrecao_ocular))"/>
+			</DerivedField>
+		</LocalTransformations>
+		<Node>
+			<True/>
+			<Node>
+				<SimplePredicate field="double(float(standardScaler(letargia)))" operator="lessOrEqual" value="-0.2554008960723877"/>
+				<Node>
+					<SimplePredicate field="double(float(standardScaler(perda_de_apetite)))" operator="lessOrEqual" value="-0.2817442715167999"/>
+					<Node>
+						<SimplePredicate field="double(float(standardScaler(tosse)))" operator="lessOrEqual" value="0.5905099809169769"/>
+						<Node>
+							<SimplePredicate field="double(float(standardScaler(febre)))" operator="lessOrEqual" value="0.09878355264663696"/>
+							<Node score="nenhuma" recordCount="1">
+								<SimplePredicate field="double(float(standardScaler(perda_de_peso)))" operator="lessOrEqual" value="1.148697942495346"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="1"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node score="gastrointestinal" recordCount="1">
+								<True/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+						</Node>
+						<Node score="cardiovascular_hematologica" recordCount="1">
+							<SimplePredicate field="double(float(standardScaler(dor)))" operator="lessOrEqual" value="3.0149386897683144"/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="0"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+						<Node score="urogenital" recordCount="1">
+							<True/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="0"/>
+							<ScoreDistribution value="urogenital" recordCount="1"/>
+						</Node>
+					</Node>
+					<Node>
+						<SimplePredicate field="double(float(standardScaler(lambedura)))" operator="lessOrEqual" value="5.105931311845779"/>
+						<Node score="respiratoria" recordCount="1">
+							<SimplePredicate field="double(float(standardScaler(fraqueza)))" operator="lessOrEqual" value="2.4421770572662354"/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="1"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+						<Node score="cardiovascular_hematologica" recordCount="1">
+							<True/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="0"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+					</Node>
+					<Node score="nenhuma" recordCount="1">
+						<True/>
+						<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+						<ScoreDistribution value="cutanea" recordCount="0"/>
+						<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+						<ScoreDistribution value="nenhuma" recordCount="1"/>
+						<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+						<ScoreDistribution value="respiratoria" recordCount="0"/>
+						<ScoreDistribution value="urogenital" recordCount="0"/>
+					</Node>
+				</Node>
+				<Node>
+					<SimplePredicate field="double(float(standardScaler(batimento_cardiaco)))" operator="lessOrEqual" value="-0.10246900282800198"/>
+					<Node>
+						<SimplePredicate field="peso" operator="equal" value="800"/>
+						<Node score="urogenital" recordCount="1">
+							<SimplePredicate field="double(float(standardScaler(idade)))" operator="lessOrEqual" value="0.883898913860321"/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="0"/>
+							<ScoreDistribution value="urogenital" recordCount="1"/>
+						</Node>
+						<Node score="neuro_musculoesqueletica" recordCount="1">
+							<True/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="1"/>
+							<ScoreDistribution value="respiratoria" recordCount="0"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+					</Node>
+					<Node score="nenhuma" recordCount="1">
+						<SimplePredicate field="double(float(standardScaler(duracao)))" operator="lessOrEqual" value="-0.764289915561676"/>
+						<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+						<ScoreDistribution value="cutanea" recordCount="0"/>
+						<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+						<ScoreDistribution value="nenhuma" recordCount="1"/>
+						<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+						<ScoreDistribution value="respiratoria" recordCount="0"/>
+						<ScoreDistribution value="urogenital" recordCount="0"/>
+					</Node>
+					<Node>
+						<SimplePredicate field="double(float(standardScaler(secrecao_nasal)))" operator="lessOrEqual" value="0.9755585342645645"/>
+						<Node score="cardiovascular_hematologica" recordCount="1">
+							<SimplePredicate field="double(float(standardScaler(batimento_cardiaco)))" operator="lessOrEqual" value="-1.4251453280448914"/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="0"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+						<Node>
+							<SimplePredicate field="double(float(standardScaler(batimento_cardiaco)))" operator="lessOrEqual" value="-0.7712379395961761"/>
+							<Node>
+								<SimplePredicate field="double(float(standardScaler(problemas_na_pele)))" operator="lessOrEqual" value="1.2313963621854782"/>
+								<Node>
+									<SimplePredicate field="double(float(standardScaler(idade)))" operator="lessOrEqual" value="1.256266176700592"/>
+									<Node score="respiratoria" recordCount="1">
+										<SimplePredicate field="double(float(standardScaler(batimento_cardiaco)))" operator="lessOrEqual" value="-1.2616685032844543"/>
+										<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+										<ScoreDistribution value="cutanea" recordCount="0"/>
+										<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+										<ScoreDistribution value="nenhuma" recordCount="0"/>
+										<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+										<ScoreDistribution value="respiratoria" recordCount="1"/>
+										<ScoreDistribution value="urogenital" recordCount="0"/>
+									</Node>
+									<Node score="neuro_musculoesqueletica" recordCount="1">
+										<SimplePredicate field="raca" operator="equal" value="arabe"/>
+										<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+										<ScoreDistribution value="cutanea" recordCount="0"/>
+										<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+										<ScoreDistribution value="nenhuma" recordCount="0"/>
+										<ScoreDistribution value="neuro_musculoesqueletica" recordCount="1"/>
+										<ScoreDistribution value="respiratoria" recordCount="0"/>
+										<ScoreDistribution value="urogenital" recordCount="0"/>
+									</Node>
+									<Node score="respiratoria" recordCount="1">
+										<SimplePredicate field="double(float(standardScaler(genero)))" operator="lessOrEqual" value="-0.056019872426986694"/>
+										<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+										<ScoreDistribution value="cutanea" recordCount="0"/>
+										<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+										<ScoreDistribution value="nenhuma" recordCount="0"/>
+										<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+										<ScoreDistribution value="respiratoria" recordCount="1"/>
+										<ScoreDistribution value="urogenital" recordCount="0"/>
+									</Node>
+									<Node score="neuro_musculoesqueletica" recordCount="1">
+										<SimplePredicate field="peso" operator="equal" value="700"/>
+										<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+										<ScoreDistribution value="cutanea" recordCount="0"/>
+										<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+										<ScoreDistribution value="nenhuma" recordCount="0"/>
+										<ScoreDistribution value="neuro_musculoesqueletica" recordCount="1"/>
+										<ScoreDistribution value="respiratoria" recordCount="0"/>
+										<ScoreDistribution value="urogenital" recordCount="0"/>
+									</Node>
+									<Node score="neuro_musculoesqueletica" recordCount="1">
+										<SimplePredicate field="peso" operator="equal" value="80"/>
+										<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+										<ScoreDistribution value="cutanea" recordCount="0"/>
+										<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+										<ScoreDistribution value="nenhuma" recordCount="0"/>
+										<ScoreDistribution value="neuro_musculoesqueletica" recordCount="1"/>
+										<ScoreDistribution value="respiratoria" recordCount="0"/>
+										<ScoreDistribution value="urogenital" recordCount="0"/>
+									</Node>
+									<Node score="neuro_musculoesqueletica" recordCount="1">
+										<SimplePredicate field="raca" operator="equal" value="andaluz"/>
+										<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+										<ScoreDistribution value="cutanea" recordCount="0"/>
+										<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+										<ScoreDistribution value="nenhuma" recordCount="0"/>
+										<ScoreDistribution value="neuro_musculoesqueletica" recordCount="1"/>
+										<ScoreDistribution value="respiratoria" recordCount="0"/>
+										<ScoreDistribution value="urogenital" recordCount="0"/>
+									</Node>
+									<Node score="respiratoria" recordCount="1">
+										<True/>
+										<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+										<ScoreDistribution value="cutanea" recordCount="0"/>
+										<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+										<ScoreDistribution value="nenhuma" recordCount="0"/>
+										<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+										<ScoreDistribution value="respiratoria" recordCount="1"/>
+										<ScoreDistribution value="urogenital" recordCount="0"/>
+									</Node>
+								</Node>
+								<Node>
+									<SimplePredicate field="double(float(standardScaler(tosse)))" operator="lessOrEqual" value="0.5905099809169769"/>
+									<Node score="cardiovascular_hematologica" recordCount="1">
+										<SimplePredicate field="raca" operator="equal" value="quarto_de_milha"/>
+										<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+										<ScoreDistribution value="cutanea" recordCount="0"/>
+										<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+										<ScoreDistribution value="nenhuma" recordCount="0"/>
+										<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+										<ScoreDistribution value="respiratoria" recordCount="0"/>
+										<ScoreDistribution value="urogenital" recordCount="0"/>
+									</Node>
+									<Node score="neuro_musculoesqueletica" recordCount="1">
+										<True/>
+										<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+										<ScoreDistribution value="cutanea" recordCount="0"/>
+										<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+										<ScoreDistribution value="nenhuma" recordCount="0"/>
+										<ScoreDistribution value="neuro_musculoesqueletica" recordCount="1"/>
+										<ScoreDistribution value="respiratoria" recordCount="0"/>
+										<ScoreDistribution value="urogenital" recordCount="0"/>
+									</Node>
+								</Node>
+								<Node score="respiratoria" recordCount="1">
+									<SimplePredicate field="raca" operator="equal" value="clydesdale"/>
+									<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+									<ScoreDistribution value="cutanea" recordCount="0"/>
+									<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+									<ScoreDistribution value="nenhuma" recordCount="0"/>
+									<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+									<ScoreDistribution value="respiratoria" recordCount="1"/>
+									<ScoreDistribution value="urogenital" recordCount="0"/>
+								</Node>
+								<Node score="cardiovascular_hematologica" recordCount="1">
+									<True/>
+									<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+									<ScoreDistribution value="cutanea" recordCount="0"/>
+									<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+									<ScoreDistribution value="nenhuma" recordCount="0"/>
+									<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+									<ScoreDistribution value="respiratoria" recordCount="0"/>
+									<ScoreDistribution value="urogenital" recordCount="0"/>
+								</Node>
+							</Node>
+							<Node score="cardiovascular_hematologica" recordCount="1">
+								<True/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+						</Node>
+						<Node>
+							<SimplePredicate field="peso" operator="equal" value="550"/>
+							<Node>
+								<SimplePredicate field="double(float(standardScaler(batimento_cardiaco)))" operator="lessOrEqual" value="-0.4740072935819626"/>
+								<Node score="respiratoria" recordCount="1">
+									<SimplePredicate field="raca" operator="equal" value="puro-sangue_ingles"/>
+									<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+									<ScoreDistribution value="cutanea" recordCount="0"/>
+									<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+									<ScoreDistribution value="nenhuma" recordCount="0"/>
+									<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+									<ScoreDistribution value="respiratoria" recordCount="1"/>
+									<ScoreDistribution value="urogenital" recordCount="0"/>
+								</Node>
+								<Node score="cardiovascular_hematologica" recordCount="1">
+									<True/>
+									<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+									<ScoreDistribution value="cutanea" recordCount="0"/>
+									<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+									<ScoreDistribution value="nenhuma" recordCount="0"/>
+									<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+									<ScoreDistribution value="respiratoria" recordCount="0"/>
+									<ScoreDistribution value="urogenital" recordCount="0"/>
+								</Node>
+							</Node>
+							<Node score="cardiovascular_hematologica" recordCount="1">
+								<True/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+						</Node>
+						<Node score="respiratoria" recordCount="1">
+							<SimplePredicate field="raca" operator="equal" value="clydesdale"/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="1"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+						<Node score="cardiovascular_hematologica" recordCount="1">
+							<SimplePredicate field="raca" operator="equal" value="arabe"/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="0"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+						<Node score="neuro_musculoesqueletica" recordCount="1">
+							<True/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="1"/>
+							<ScoreDistribution value="respiratoria" recordCount="0"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+					</Node>
+					<Node score="respiratoria" recordCount="1">
+						<True/>
+						<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+						<ScoreDistribution value="cutanea" recordCount="0"/>
+						<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+						<ScoreDistribution value="nenhuma" recordCount="0"/>
+						<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+						<ScoreDistribution value="respiratoria" recordCount="1"/>
+						<ScoreDistribution value="urogenital" recordCount="0"/>
+					</Node>
+				</Node>
+				<Node>
+					<SimplePredicate field="double(float(standardScaler(espirros)))" operator="lessOrEqual" value="1.5109094977378845"/>
+					<Node>
+						<SimplePredicate field="double(float(standardScaler(diarreia)))" operator="lessOrEqual" value="0.9895689338445663"/>
+						<Node score="cardiovascular_hematologica" recordCount="1">
+							<SimplePredicate field="peso" operator="equal" value="8"/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="0"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+						<Node score="gastrointestinal" recordCount="1">
+							<SimplePredicate field="raca" operator="equal" value="scottish_fold"/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="0"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+						<Node>
+							<SimplePredicate field="double(float(standardScaler(idade)))" operator="lessOrEqual" value="-0.9779374003410339"/>
+							<Node score="respiratoria" recordCount="1">
+								<SimplePredicate field="raca" operator="equal" value="azul_russo"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="1"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node score="gastrointestinal" recordCount="1">
+								<True/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+						</Node>
+						<Node score="respiratoria" recordCount="1">
+							<SimplePredicate field="double(float(standardScaler(batimento_cardiaco)))" operator="lessOrEqual" value="0.343376949429512"/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="1"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+						<Node score="respiratoria" recordCount="1">
+							<SimplePredicate field="peso" operator="equal" value="5"/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="1"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+						<Node score="cardiovascular_hematologica" recordCount="1">
+							<SimplePredicate field="raca" operator="equal" value="bengal"/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="0"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+						<Node>
+							<SimplePredicate field="double(float(standardScaler(duracao)))" operator="lessOrEqual" value="-0.4780753403902054"/>
+							<Node score="respiratoria" recordCount="1">
+								<SimplePredicate field="peso" operator="equal" value="4.1"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="1"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node score="respiratoria" recordCount="1">
+								<SimplePredicate field="double(float(standardScaler(duracao)))" operator="lessOrEqual" value="-0.6211826205253601"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="1"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node score="cardiovascular_hematologica" recordCount="1">
+								<True/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+						</Node>
+						<Node score="respiratoria" recordCount="1">
+							<True/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="1"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+					</Node>
+					<Node score="cardiovascular_hematologica" recordCount="1">
+						<SimplePredicate field="double(float(standardScaler(idade)))" operator="lessOrEqual" value="-1.350304663181305"/>
+						<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+						<ScoreDistribution value="cutanea" recordCount="0"/>
+						<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+						<ScoreDistribution value="nenhuma" recordCount="0"/>
+						<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+						<ScoreDistribution value="respiratoria" recordCount="0"/>
+						<ScoreDistribution value="urogenital" recordCount="0"/>
+					</Node>
+					<Node score="gastrointestinal" recordCount="1">
+						<True/>
+						<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+						<ScoreDistribution value="cutanea" recordCount="0"/>
+						<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+						<ScoreDistribution value="nenhuma" recordCount="0"/>
+						<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+						<ScoreDistribution value="respiratoria" recordCount="0"/>
+						<ScoreDistribution value="urogenital" recordCount="0"/>
+					</Node>
+				</Node>
+				<Node>
+					<SimplePredicate field="double(float(standardScaler(batimento_cardiaco)))" operator="lessOrEqual" value="0.4176845997571945"/>
+					<Node score="respiratoria" recordCount="1">
+						<SimplePredicate field="raca" operator="equal" value="holland_lop"/>
+						<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+						<ScoreDistribution value="cutanea" recordCount="0"/>
+						<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+						<ScoreDistribution value="nenhuma" recordCount="0"/>
+						<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+						<ScoreDistribution value="respiratoria" recordCount="1"/>
+						<ScoreDistribution value="urogenital" recordCount="0"/>
+					</Node>
+					<Node score="cardiovascular_hematologica" recordCount="1">
+						<True/>
+						<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+						<ScoreDistribution value="cutanea" recordCount="0"/>
+						<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+						<ScoreDistribution value="nenhuma" recordCount="0"/>
+						<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+						<ScoreDistribution value="respiratoria" recordCount="0"/>
+						<ScoreDistribution value="urogenital" recordCount="0"/>
+					</Node>
+				</Node>
+				<Node>
+					<SimplePredicate field="raca" operator="equal" value="himalaio"/>
+					<Node score="respiratoria" recordCount="1">
+						<SimplePredicate field="double(float(standardScaler(genero)))" operator="lessOrEqual" value="-0.056019872426986694"/>
+						<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+						<ScoreDistribution value="cutanea" recordCount="0"/>
+						<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+						<ScoreDistribution value="nenhuma" recordCount="0"/>
+						<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+						<ScoreDistribution value="respiratoria" recordCount="1"/>
+						<ScoreDistribution value="urogenital" recordCount="0"/>
+					</Node>
+					<Node score="cardiovascular_hematologica" recordCount="1">
+						<True/>
+						<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+						<ScoreDistribution value="cutanea" recordCount="0"/>
+						<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+						<ScoreDistribution value="nenhuma" recordCount="0"/>
+						<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+						<ScoreDistribution value="respiratoria" recordCount="0"/>
+						<ScoreDistribution value="urogenital" recordCount="0"/>
+					</Node>
+				</Node>
+				<Node score="respiratoria" recordCount="1">
+					<SimplePredicate field="peso" operator="equal" value="1.5"/>
+					<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+					<ScoreDistribution value="cutanea" recordCount="0"/>
+					<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+					<ScoreDistribution value="nenhuma" recordCount="0"/>
+					<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+					<ScoreDistribution value="respiratoria" recordCount="1"/>
+					<ScoreDistribution value="urogenital" recordCount="0"/>
+				</Node>
+				<Node score="cardiovascular_hematologica" recordCount="1">
+					<SimplePredicate field="peso" operator="equal" value="1.2"/>
+					<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+					<ScoreDistribution value="cutanea" recordCount="0"/>
+					<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+					<ScoreDistribution value="nenhuma" recordCount="0"/>
+					<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+					<ScoreDistribution value="respiratoria" recordCount="0"/>
+					<ScoreDistribution value="urogenital" recordCount="0"/>
+				</Node>
+				<Node score="cutanea" recordCount="1">
+					<True/>
+					<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+					<ScoreDistribution value="cutanea" recordCount="1"/>
+					<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+					<ScoreDistribution value="nenhuma" recordCount="0"/>
+					<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+					<ScoreDistribution value="respiratoria" recordCount="0"/>
+					<ScoreDistribution value="urogenital" recordCount="0"/>
+				</Node>
+			</Node>
+			<Node>
+				<SimplePredicate field="double(float(standardScaler(problemas_na_pele)))" operator="lessOrEqual" value="1.2313963621854782"/>
+				<Node>
+					<SimplePredicate field="double(float(standardScaler(batimento_cardiaco)))" operator="lessOrEqual" value="-0.13219206780195236"/>
+					<Node>
+						<SimplePredicate field="tipo_do_animal" operator="equal" value="vaca"/>
+						<Node>
+							<SimplePredicate field="double(float(standardScaler(diarreia)))" operator="lessOrEqual" value="0.9895689338445663"/>
+							<Node score="gastrointestinal" recordCount="1">
+								<SimplePredicate field="peso" operator="equal" value="550"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node score="respiratoria" recordCount="1">
+								<SimplePredicate field="peso" operator="equal" value="650"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="1"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node score="gastrointestinal" recordCount="1">
+								<SimplePredicate field="raca" operator="equal" value="hereford"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node score="gastrointestinal" recordCount="1">
+								<SimplePredicate field="raca" operator="equal" value="simental"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node>
+								<SimplePredicate field="peso" operator="equal" value="500"/>
+								<Node score="respiratoria" recordCount="1">
+									<SimplePredicate field="double(float(standardScaler(idade)))" operator="lessOrEqual" value="-0.6055701430886984"/>
+									<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+									<ScoreDistribution value="cutanea" recordCount="0"/>
+									<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+									<ScoreDistribution value="nenhuma" recordCount="0"/>
+									<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+									<ScoreDistribution value="respiratoria" recordCount="1"/>
+									<ScoreDistribution value="urogenital" recordCount="0"/>
+								</Node>
+								<Node score="gastrointestinal" recordCount="1">
+									<True/>
+									<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+									<ScoreDistribution value="cutanea" recordCount="0"/>
+									<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+									<ScoreDistribution value="nenhuma" recordCount="0"/>
+									<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+									<ScoreDistribution value="respiratoria" recordCount="0"/>
+									<ScoreDistribution value="urogenital" recordCount="0"/>
+								</Node>
+							</Node>
+							<Node score="gastrointestinal" recordCount="1">
+								<SimplePredicate field="raca" operator="equal" value="dexter"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node score="respiratoria" recordCount="1">
+								<SimplePredicate field="double(float(standardScaler(duracao)))" operator="lessOrEqual" value="0.09435378387570381"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="1"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node score="gastrointestinal" recordCount="1">
+								<True/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+						</Node>
+						<Node score="cardiovascular_hematologica" recordCount="1">
+							<SimplePredicate field="raca" operator="equal" value="angus_vermelho"/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="0"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+						<Node score="gastrointestinal" recordCount="1">
+							<True/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="0"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+					</Node>
+					<Node>
+						<SimplePredicate field="double(float(standardScaler(perda_de_apetite)))" operator="lessOrEqual" value="-0.2817442715167999"/>
+						<Node>
+							<SimplePredicate field="raca" operator="equal" value="boer"/>
+							<Node score="cutanea" recordCount="1">
+								<SimplePredicate field="peso" operator="equal" value="85"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="1"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node score="respiratoria" recordCount="1">
+								<True/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="1"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+						</Node>
+						<Node>
+							<SimplePredicate field="raca" operator="equal" value="nubiana"/>
+							<Node score="neuro_musculoesqueletica" recordCount="1">
+								<SimplePredicate field="double(float(standardScaler(idade)))" operator="lessOrEqual" value="-0.7917537689208984"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="1"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node score="respiratoria" recordCount="1">
+								<True/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="1"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+						</Node>
+						<Node>
+							<SimplePredicate field="double(float(standardScaler(dificuldade_para_respirar)))" operator="lessOrEqual" value="1.1983833760023117"/>
+							<Node score="respiratoria" recordCount="1">
+								<SimplePredicate field="raca" operator="equal" value="angora"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="1"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node score="neuro_musculoesqueletica" recordCount="1">
+								<True/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="1"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+						</Node>
+						<Node score="respiratoria" recordCount="1">
+							<True/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="1"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+					</Node>
+					<Node>
+						<SimplePredicate field="double(float(standardScaler(tosse)))" operator="lessOrEqual" value="0.5905099809169769"/>
+						<Node>
+							<SimplePredicate field="double(float(standardScaler(idade)))" operator="lessOrEqual" value="0.1391643676906824"/>
+							<Node>
+								<SimplePredicate field="double(float(standardScaler(perda_de_peso)))" operator="lessOrEqual" value="1.148697942495346"/>
+								<Node score="cardiovascular_hematologica" recordCount="1">
+									<SimplePredicate field="peso" operator="equal" value="8"/>
+									<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+									<ScoreDistribution value="cutanea" recordCount="0"/>
+									<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+									<ScoreDistribution value="nenhuma" recordCount="0"/>
+									<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+									<ScoreDistribution value="respiratoria" recordCount="0"/>
+									<ScoreDistribution value="urogenital" recordCount="0"/>
+								</Node>
+								<Node>
+									<SimplePredicate field="double(float(standardScaler(genero)))" operator="lessOrEqual" value="-0.056019872426986694"/>
+									<Node score="neuro_musculoesqueletica" recordCount="1">
+										<SimplePredicate field="double(float(standardScaler(idade)))" operator="lessOrEqual" value="-0.9779374003410339"/>
+										<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+										<ScoreDistribution value="cutanea" recordCount="0"/>
+										<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+										<ScoreDistribution value="nenhuma" recordCount="0"/>
+										<ScoreDistribution value="neuro_musculoesqueletica" recordCount="1"/>
+										<ScoreDistribution value="respiratoria" recordCount="0"/>
+										<ScoreDistribution value="urogenital" recordCount="0"/>
+									</Node>
+									<Node score="gastrointestinal" recordCount="1">
+										<True/>
+										<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+										<ScoreDistribution value="cutanea" recordCount="0"/>
+										<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+										<ScoreDistribution value="nenhuma" recordCount="0"/>
+										<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+										<ScoreDistribution value="respiratoria" recordCount="0"/>
+										<ScoreDistribution value="urogenital" recordCount="0"/>
+									</Node>
+								</Node>
+								<Node score="gastrointestinal" recordCount="1">
+									<SimplePredicate field="peso" operator="equal" value="30"/>
+									<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+									<ScoreDistribution value="cutanea" recordCount="0"/>
+									<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+									<ScoreDistribution value="nenhuma" recordCount="0"/>
+									<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+									<ScoreDistribution value="respiratoria" recordCount="0"/>
+									<ScoreDistribution value="urogenital" recordCount="0"/>
+								</Node>
+								<Node score="respiratoria" recordCount="1">
+									<True/>
+									<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+									<ScoreDistribution value="cutanea" recordCount="0"/>
+									<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+									<ScoreDistribution value="nenhuma" recordCount="0"/>
+									<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+									<ScoreDistribution value="respiratoria" recordCount="1"/>
+									<ScoreDistribution value="urogenital" recordCount="0"/>
+								</Node>
+							</Node>
+							<Node score="neuro_musculoesqueletica" recordCount="1">
+								<True/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="1"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+						</Node>
+						<Node>
+							<SimplePredicate field="tipo_do_animal" operator="equal" value="cabra"/>
+							<Node>
+								<SimplePredicate field="double(float(standardScaler(idade)))" operator="lessOrEqual" value="0.5115316361188889"/>
+								<Node score="neuro_musculoesqueletica" recordCount="1">
+									<SimplePredicate field="raca" operator="equal" value="boer"/>
+									<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+									<ScoreDistribution value="cutanea" recordCount="0"/>
+									<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+									<ScoreDistribution value="nenhuma" recordCount="0"/>
+									<ScoreDistribution value="neuro_musculoesqueletica" recordCount="1"/>
+									<ScoreDistribution value="respiratoria" recordCount="0"/>
+									<ScoreDistribution value="urogenital" recordCount="0"/>
+								</Node>
+								<Node score="respiratoria" recordCount="1">
+									<True/>
+									<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+									<ScoreDistribution value="cutanea" recordCount="0"/>
+									<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+									<ScoreDistribution value="nenhuma" recordCount="0"/>
+									<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+									<ScoreDistribution value="respiratoria" recordCount="1"/>
+									<ScoreDistribution value="urogenital" recordCount="0"/>
+								</Node>
+							</Node>
+							<Node score="gastrointestinal" recordCount="1">
+								<True/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+						</Node>
+						<Node>
+							<SimplePredicate field="double(float(standardScaler(inchaco)))" operator="lessOrEqual" value="1.0487539172172546"/>
+							<Node score="respiratoria" recordCount="1">
+								<SimplePredicate field="raca" operator="equal" value="arabe"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="1"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node score="urogenital" recordCount="1">
+								<True/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="1"/>
+							</Node>
+						</Node>
+						<Node score="neuro_musculoesqueletica" recordCount="1">
+							<True/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="1"/>
+							<ScoreDistribution value="respiratoria" recordCount="0"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+					</Node>
+					<Node>
+						<SimplePredicate field="tipo_do_animal" operator="equal" value="ovelha"/>
+						<Node score="cutanea" recordCount="1">
+							<SimplePredicate field="raca" operator="equal" value="dorper"/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="1"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="0"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+						<Node score="cutanea" recordCount="1">
+							<SimplePredicate field="raca" operator="equal" value="southdown"/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="1"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="0"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+						<Node score="respiratoria" recordCount="1">
+							<SimplePredicate field="peso" operator="equal" value="95"/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="1"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+						<Node score="respiratoria" recordCount="1">
+							<SimplePredicate field="double(float(standardScaler(idade)))" operator="lessOrEqual" value="-0.6055701375007629"/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="1"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+						<Node score="respiratoria" recordCount="1">
+							<SimplePredicate field="peso" operator="equal" value="130"/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="1"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+						<Node score="neuro_musculoesqueletica" recordCount="1">
+							<SimplePredicate field="double(float(standardScaler(duracao)))" operator="lessOrEqual" value="-0.33496806025505066"/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="1"/>
+							<ScoreDistribution value="respiratoria" recordCount="0"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+						<Node>
+							<SimplePredicate field="double(float(standardScaler(batimento_cardiaco)))" operator="lessOrEqual" value="-1.1427762508392334"/>
+							<Node score="neuro_musculoesqueletica" recordCount="1">
+								<SimplePredicate field="double(float(standardScaler(batimento_cardiaco)))" operator="lessOrEqual" value="-1.4102838039398193"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="1"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node score="respiratoria" recordCount="1">
+								<True/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="1"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+						</Node>
+						<Node score="neuro_musculoesqueletica" recordCount="1">
+							<True/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="1"/>
+							<ScoreDistribution value="respiratoria" recordCount="0"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+					</Node>
+					<Node>
+						<SimplePredicate field="double(float(standardScaler(genero)))" operator="lessOrEqual" value="-0.056019872426986694"/>
+						<Node>
+							<SimplePredicate field="double(float(standardScaler(idade)))" operator="lessOrEqual" value="-0.6055701375007629"/>
+							<Node score="gastrointestinal" recordCount="1">
+								<SimplePredicate field="raca" operator="equal" value="yorkshire"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node score="respiratoria" recordCount="1">
+								<True/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="1"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+						</Node>
+						<Node>
+							<SimplePredicate field="double(float(standardScaler(idade)))" operator="lessOrEqual" value="-0.2332028802484274"/>
+							<Node score="respiratoria" recordCount="1">
+								<SimplePredicate field="double(float(standardScaler(batimento_cardiaco)))" operator="lessOrEqual" value="-1.0981916189193726"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="1"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node score="cutanea" recordCount="1">
+								<True/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="1"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+						</Node>
+						<Node score="respiratoria" recordCount="1">
+							<True/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="1"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+					</Node>
+					<Node>
+						<SimplePredicate field="double(float(standardScaler(duracao)))" operator="lessOrEqual" value="-0.33496806025505066"/>
+						<Node score="respiratoria" recordCount="1">
+							<SimplePredicate field="raca" operator="equal" value="tamworth"/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="1"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+						<Node>
+							<SimplePredicate field="double(float(standardScaler(idade)))" operator="lessOrEqual" value="0.1391643676906824"/>
+							<Node score="respiratoria" recordCount="1">
+								<SimplePredicate field="raca" operator="equal" value="chester_white"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="1"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node score="gastrointestinal" recordCount="1">
+								<True/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+						</Node>
+						<Node score="respiratoria" recordCount="1">
+							<True/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="1"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+					</Node>
+					<Node score="respiratoria" recordCount="1">
+						<True/>
+						<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+						<ScoreDistribution value="cutanea" recordCount="0"/>
+						<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+						<ScoreDistribution value="nenhuma" recordCount="0"/>
+						<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+						<ScoreDistribution value="respiratoria" recordCount="1"/>
+						<ScoreDistribution value="urogenital" recordCount="0"/>
+					</Node>
+				</Node>
+				<Node>
+					<SimplePredicate field="double(float(standardScaler(vomito)))" operator="lessOrEqual" value="0.507480800151825"/>
+					<Node>
+						<SimplePredicate field="double(float(standardScaler(desidratacao)))" operator="lessOrEqual" value="1.6676526218652725"/>
+						<Node>
+							<SimplePredicate field="double(float(standardScaler(duracao)))" operator="lessOrEqual" value="-0.33496806025505066"/>
+							<Node score="cutanea" recordCount="1">
+								<SimplePredicate field="raca" operator="equal" value="mini_lop"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="1"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node>
+								<SimplePredicate field="double(float(standardScaler(idade)))" operator="lessOrEqual" value="1.0700825452804565"/>
+								<Node>
+									<SimplePredicate field="double(float(standardScaler(idade)))" operator="lessOrEqual" value="-0.6055701375007629"/>
+									<Node score="cardiovascular_hematologica" recordCount="1">
+										<SimplePredicate field="peso" operator="equal" value="2.4"/>
+										<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+										<ScoreDistribution value="cutanea" recordCount="0"/>
+										<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+										<ScoreDistribution value="nenhuma" recordCount="0"/>
+										<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+										<ScoreDistribution value="respiratoria" recordCount="0"/>
+										<ScoreDistribution value="urogenital" recordCount="0"/>
+									</Node>
+									<Node score="cardiovascular_hematologica" recordCount="1">
+										<SimplePredicate field="raca" operator="equal" value="azul_russo"/>
+										<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+										<ScoreDistribution value="cutanea" recordCount="0"/>
+										<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+										<ScoreDistribution value="nenhuma" recordCount="0"/>
+										<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+										<ScoreDistribution value="respiratoria" recordCount="0"/>
+										<ScoreDistribution value="urogenital" recordCount="0"/>
+									</Node>
+									<Node score="respiratoria" recordCount="1">
+										<True/>
+										<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+										<ScoreDistribution value="cutanea" recordCount="0"/>
+										<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+										<ScoreDistribution value="nenhuma" recordCount="0"/>
+										<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+										<ScoreDistribution value="respiratoria" recordCount="1"/>
+										<ScoreDistribution value="urogenital" recordCount="0"/>
+									</Node>
+								</Node>
+								<Node>
+									<SimplePredicate field="double(float(standardScaler(genero)))" operator="lessOrEqual" value="-0.056019872426986694"/>
+									<Node score="respiratoria" recordCount="1">
+										<SimplePredicate field="double(float(standardScaler(duracao)))" operator="lessOrEqual" value="-0.4780753403902054"/>
+										<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+										<ScoreDistribution value="cutanea" recordCount="0"/>
+										<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+										<ScoreDistribution value="nenhuma" recordCount="0"/>
+										<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+										<ScoreDistribution value="respiratoria" recordCount="1"/>
+										<ScoreDistribution value="urogenital" recordCount="0"/>
+									</Node>
+									<Node score="respiratoria" recordCount="1">
+										<SimplePredicate field="peso" operator="equal" value="22"/>
+										<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+										<ScoreDistribution value="cutanea" recordCount="0"/>
+										<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+										<ScoreDistribution value="nenhuma" recordCount="0"/>
+										<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+										<ScoreDistribution value="respiratoria" recordCount="1"/>
+										<ScoreDistribution value="urogenital" recordCount="0"/>
+									</Node>
+									<Node score="gastrointestinal" recordCount="1">
+										<True/>
+										<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+										<ScoreDistribution value="cutanea" recordCount="0"/>
+										<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+										<ScoreDistribution value="nenhuma" recordCount="0"/>
+										<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+										<ScoreDistribution value="respiratoria" recordCount="0"/>
+										<ScoreDistribution value="urogenital" recordCount="0"/>
+									</Node>
+								</Node>
+								<Node score="respiratoria" recordCount="1">
+									<True/>
+									<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+									<ScoreDistribution value="cutanea" recordCount="0"/>
+									<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+									<ScoreDistribution value="nenhuma" recordCount="0"/>
+									<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+									<ScoreDistribution value="respiratoria" recordCount="1"/>
+									<ScoreDistribution value="urogenital" recordCount="0"/>
+								</Node>
+							</Node>
+							<Node score="cardiovascular_hematologica" recordCount="1">
+								<SimplePredicate field="double(float(standardScaler(agitacao)))" operator="lessOrEqual" value="1.732661321759224"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node score="neuro_musculoesqueletica" recordCount="1">
+								<True/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="1"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+						</Node>
+						<Node>
+							<SimplePredicate field="double(float(standardScaler(secrecao_ocular)))" operator="lessOrEqual" value="2.4421770572662354"/>
+							<Node>
+								<SimplePredicate field="double(float(standardScaler(batimento_cardiaco)))" operator="lessOrEqual" value="0.3879615515470505"/>
+								<Node score="cardiovascular_hematologica" recordCount="1">
+									<SimplePredicate field="peso" operator="equal" value="30"/>
+									<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+									<ScoreDistribution value="cutanea" recordCount="0"/>
+									<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+									<ScoreDistribution value="nenhuma" recordCount="0"/>
+									<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+									<ScoreDistribution value="respiratoria" recordCount="0"/>
+									<ScoreDistribution value="urogenital" recordCount="0"/>
+								</Node>
+								<Node score="respiratoria" recordCount="1">
+									<True/>
+									<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+									<ScoreDistribution value="cutanea" recordCount="0"/>
+									<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+									<ScoreDistribution value="nenhuma" recordCount="0"/>
+									<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+									<ScoreDistribution value="respiratoria" recordCount="1"/>
+									<ScoreDistribution value="urogenital" recordCount="0"/>
+								</Node>
+							</Node>
+							<Node score="cardiovascular_hematologica" recordCount="1">
+								<True/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+						</Node>
+						<Node score="respiratoria" recordCount="1">
+							<True/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="1"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+					</Node>
+					<Node score="nenhuma" recordCount="1">
+						<SimplePredicate field="double(float(standardScaler(perda_de_peso)))" operator="lessOrEqual" value="1.148697942495346"/>
+						<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+						<ScoreDistribution value="cutanea" recordCount="0"/>
+						<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+						<ScoreDistribution value="nenhuma" recordCount="1"/>
+						<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+						<ScoreDistribution value="respiratoria" recordCount="0"/>
+						<ScoreDistribution value="urogenital" recordCount="0"/>
+					</Node>
+					<Node score="urogenital" recordCount="1">
+						<True/>
+						<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+						<ScoreDistribution value="cutanea" recordCount="0"/>
+						<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+						<ScoreDistribution value="nenhuma" recordCount="0"/>
+						<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+						<ScoreDistribution value="respiratoria" recordCount="0"/>
+						<ScoreDistribution value="urogenital" recordCount="1"/>
+					</Node>
+				</Node>
+				<Node>
+					<SimplePredicate field="double(float(standardScaler(diarreia)))" operator="lessOrEqual" value="0.9895689338445663"/>
+					<Node>
+						<SimplePredicate field="double(float(standardScaler(batimento_cardiaco)))" operator="lessOrEqual" value="0.4919922649860382"/>
+						<Node>
+							<SimplePredicate field="double(float(standardScaler(batimento_cardiaco)))" operator="lessOrEqual" value="0.1650385744869709"/>
+							<Node score="gastrointestinal" recordCount="1">
+								<SimplePredicate field="raca" operator="equal" value="labrador"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node>
+								<SimplePredicate field="tipo_do_animal" operator="equal" value="cachorro"/>
+								<Node score="gastrointestinal" recordCount="1">
+									<SimplePredicate field="peso" operator="equal" value="42"/>
+									<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+									<ScoreDistribution value="cutanea" recordCount="0"/>
+									<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+									<ScoreDistribution value="nenhuma" recordCount="0"/>
+									<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+									<ScoreDistribution value="respiratoria" recordCount="0"/>
+									<ScoreDistribution value="urogenital" recordCount="0"/>
+								</Node>
+								<Node score="gastrointestinal" recordCount="1">
+									<SimplePredicate field="raca" operator="equal" value="boxer"/>
+									<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+									<ScoreDistribution value="cutanea" recordCount="0"/>
+									<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+									<ScoreDistribution value="nenhuma" recordCount="0"/>
+									<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+									<ScoreDistribution value="respiratoria" recordCount="0"/>
+									<ScoreDistribution value="urogenital" recordCount="0"/>
+								</Node>
+								<Node score="gastrointestinal" recordCount="1">
+									<SimplePredicate field="double(float(standardScaler(duracao)))" operator="lessOrEqual" value="-0.764289915561676"/>
+									<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+									<ScoreDistribution value="cutanea" recordCount="0"/>
+									<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+									<ScoreDistribution value="nenhuma" recordCount="0"/>
+									<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+									<ScoreDistribution value="respiratoria" recordCount="0"/>
+									<ScoreDistribution value="urogenital" recordCount="0"/>
+								</Node>
+								<Node>
+									<SimplePredicate field="double(float(standardScaler(idade)))" operator="lessOrEqual" value="-0.2332028802484274"/>
+									<Node score="respiratoria" recordCount="1">
+										<SimplePredicate field="raca" operator="equal" value="cocker_spaniel"/>
+										<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+										<ScoreDistribution value="cutanea" recordCount="0"/>
+										<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+										<ScoreDistribution value="nenhuma" recordCount="0"/>
+										<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+										<ScoreDistribution value="respiratoria" recordCount="1"/>
+										<ScoreDistribution value="urogenital" recordCount="0"/>
+									</Node>
+									<Node>
+										<SimplePredicate field="peso" operator="equal" value="25"/>
+										<Node score="respiratoria" recordCount="1">
+											<SimplePredicate field="raca" operator="equal" value="beagle"/>
+											<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+											<ScoreDistribution value="cutanea" recordCount="0"/>
+											<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+											<ScoreDistribution value="nenhuma" recordCount="0"/>
+											<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+											<ScoreDistribution value="respiratoria" recordCount="1"/>
+											<ScoreDistribution value="urogenital" recordCount="0"/>
+										</Node>
+										<Node score="urogenital" recordCount="1">
+											<True/>
+											<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+											<ScoreDistribution value="cutanea" recordCount="0"/>
+											<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+											<ScoreDistribution value="nenhuma" recordCount="0"/>
+											<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+											<ScoreDistribution value="respiratoria" recordCount="0"/>
+											<ScoreDistribution value="urogenital" recordCount="1"/>
+										</Node>
+									</Node>
+									<Node score="urogenital" recordCount="1">
+										<True/>
+										<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+										<ScoreDistribution value="cutanea" recordCount="0"/>
+										<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+										<ScoreDistribution value="nenhuma" recordCount="0"/>
+										<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+										<ScoreDistribution value="respiratoria" recordCount="0"/>
+										<ScoreDistribution value="urogenital" recordCount="1"/>
+									</Node>
+								</Node>
+								<Node score="urogenital" recordCount="1">
+									<True/>
+									<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+									<ScoreDistribution value="cutanea" recordCount="0"/>
+									<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+									<ScoreDistribution value="nenhuma" recordCount="0"/>
+									<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+									<ScoreDistribution value="respiratoria" recordCount="0"/>
+									<ScoreDistribution value="urogenital" recordCount="1"/>
+								</Node>
+							</Node>
+							<Node score="gastrointestinal" recordCount="1">
+								<True/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+						</Node>
+						<Node>
+							<SimplePredicate field="double(float(standardScaler(duracao)))" operator="lessOrEqual" value="-0.4780753403902054"/>
+							<Node score="gastrointestinal" recordCount="1">
+								<SimplePredicate field="double(float(standardScaler(febre)))" operator="lessOrEqual" value="0.09878355264663696"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node score="gastrointestinal" recordCount="1">
+								<SimplePredicate field="raca" operator="equal" value="pastor_alemao"/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="0"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+							<Node score="respiratoria" recordCount="1">
+								<True/>
+								<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+								<ScoreDistribution value="cutanea" recordCount="0"/>
+								<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+								<ScoreDistribution value="nenhuma" recordCount="0"/>
+								<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+								<ScoreDistribution value="respiratoria" recordCount="1"/>
+								<ScoreDistribution value="urogenital" recordCount="0"/>
+							</Node>
+						</Node>
+						<Node score="gastrointestinal" recordCount="1">
+							<True/>
+							<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+							<ScoreDistribution value="cutanea" recordCount="0"/>
+							<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+							<ScoreDistribution value="nenhuma" recordCount="0"/>
+							<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+							<ScoreDistribution value="respiratoria" recordCount="0"/>
+							<ScoreDistribution value="urogenital" recordCount="0"/>
+						</Node>
+					</Node>
+					<Node score="urogenital" recordCount="1">
+						<SimplePredicate field="raca" operator="equal" value="sem_raca_definida_(srd)"/>
+						<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+						<ScoreDistribution value="cutanea" recordCount="0"/>
+						<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+						<ScoreDistribution value="nenhuma" recordCount="0"/>
+						<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+						<ScoreDistribution value="respiratoria" recordCount="0"/>
+						<ScoreDistribution value="urogenital" recordCount="1"/>
+					</Node>
+					<Node score="cardiovascular_hematologica" recordCount="1">
+						<True/>
+						<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+						<ScoreDistribution value="cutanea" recordCount="0"/>
+						<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+						<ScoreDistribution value="nenhuma" recordCount="0"/>
+						<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+						<ScoreDistribution value="respiratoria" recordCount="0"/>
+						<ScoreDistribution value="urogenital" recordCount="0"/>
+					</Node>
+				</Node>
+				<Node>
+					<SimplePredicate field="peso" operator="equal" value="3.1"/>
+					<Node score="gastrointestinal" recordCount="1">
+						<SimplePredicate field="double(float(standardScaler(batimento_cardiaco)))" operator="lessOrEqual" value="0.6406075954437256"/>
+						<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+						<ScoreDistribution value="cutanea" recordCount="0"/>
+						<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+						<ScoreDistribution value="nenhuma" recordCount="0"/>
+						<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+						<ScoreDistribution value="respiratoria" recordCount="0"/>
+						<ScoreDistribution value="urogenital" recordCount="0"/>
+					</Node>
+					<Node score="cardiovascular_hematologica" recordCount="1">
+						<True/>
+						<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+						<ScoreDistribution value="cutanea" recordCount="0"/>
+						<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+						<ScoreDistribution value="nenhuma" recordCount="0"/>
+						<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+						<ScoreDistribution value="respiratoria" recordCount="0"/>
+						<ScoreDistribution value="urogenital" recordCount="0"/>
+					</Node>
+				</Node>
+				<Node score="gastrointestinal" recordCount="1">
+					<True/>
+					<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+					<ScoreDistribution value="cutanea" recordCount="0"/>
+					<ScoreDistribution value="gastrointestinal" recordCount="1"/>
+					<ScoreDistribution value="nenhuma" recordCount="0"/>
+					<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+					<ScoreDistribution value="respiratoria" recordCount="0"/>
+					<ScoreDistribution value="urogenital" recordCount="0"/>
+				</Node>
+			</Node>
+			<Node score="cardiovascular_hematologica" recordCount="1">
+				<SimplePredicate field="raca" operator="equal" value="husky_siberiano"/>
+				<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+				<ScoreDistribution value="cutanea" recordCount="0"/>
+				<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+				<ScoreDistribution value="nenhuma" recordCount="0"/>
+				<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+				<ScoreDistribution value="respiratoria" recordCount="0"/>
+				<ScoreDistribution value="urogenital" recordCount="0"/>
+			</Node>
+			<Node score="cardiovascular_hematologica" recordCount="1">
+				<SimplePredicate field="peso" operator="equal" value="22"/>
+				<ScoreDistribution value="cardiovascular_hematologica" recordCount="1"/>
+				<ScoreDistribution value="cutanea" recordCount="0"/>
+				<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+				<ScoreDistribution value="nenhuma" recordCount="0"/>
+				<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+				<ScoreDistribution value="respiratoria" recordCount="0"/>
+				<ScoreDistribution value="urogenital" recordCount="0"/>
+			</Node>
+			<Node score="respiratoria" recordCount="1">
+				<SimplePredicate field="raca" operator="equal" value="beagle"/>
+				<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+				<ScoreDistribution value="cutanea" recordCount="0"/>
+				<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+				<ScoreDistribution value="nenhuma" recordCount="0"/>
+				<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+				<ScoreDistribution value="respiratoria" recordCount="1"/>
+				<ScoreDistribution value="urogenital" recordCount="0"/>
+			</Node>
+			<Node score="cutanea" recordCount="1">
+				<True/>
+				<ScoreDistribution value="cardiovascular_hematologica" recordCount="0"/>
+				<ScoreDistribution value="cutanea" recordCount="1"/>
+				<ScoreDistribution value="gastrointestinal" recordCount="0"/>
+				<ScoreDistribution value="nenhuma" recordCount="0"/>
+				<ScoreDistribution value="neuro_musculoesqueletica" recordCount="0"/>
+				<ScoreDistribution value="respiratoria" recordCount="0"/>
+				<ScoreDistribution value="urogenital" recordCount="0"/>
+			</Node>
+		</Node>
+	</TreeModel>
+</PMML>
