@@ -6,6 +6,7 @@
 #include <MPU6050_tockn.h>
 #include <Wire.h>
 #include <WiFiManager.h>
+#include <ArduinoJson.h>
 
 WiFiManager wm;
 
@@ -13,12 +14,19 @@ WiFiManager wm;
 #define GREEN_PIN 12
 #define BLUE_PIN 11
 
-const char* JWT_TOKEN = "your-jwt-token-here";
+// Credenciais de login
+const char* USER_EMAIL = "henriquealmeidaflorentino@gmail.com";
+const char* USER_PASSWORD = "senha123";
+
+// Variáveis globais para autenticação
+String JWT_TOKEN = "";
+bool tokenObtido = false;
+
 // ============================================================
 
-const char* serverName = "https://petdex-api-java.onrender.com";
+const char* serverName = "http://172.206.27.122:8080";
 const String coleiraId = "6819475baa479949daccea94";
-const String animalId = "68194120636f719fcd5ee5fd";
+String animalId = "";
 
 MAX30105 particleSensor;
 
@@ -58,6 +66,70 @@ MPU6050 mpu6050(Wire);
 // -------------- // --------------
 
 
+// Função para obter o token JWT
+bool obterTokenJWT() {
+  Serial.println("Obtendo token JWT...");
+  digitalWrite(BLUE_PIN, HIGH);
+
+  String endpoint = String(serverName) + "/auth/login";
+  HTTPClient http;
+
+  String jsonData = "{";
+  jsonData += "\"email\": \"" + String(USER_EMAIL) + "\", ";
+  jsonData += "\"senha\": \"" + String(USER_PASSWORD) + "\"";
+  jsonData += "}";
+
+  Serial.println("Enviando requisição de login:");
+  Serial.println(jsonData);
+
+  http.begin(endpoint);
+  http.addHeader("Content-Type", "application/json");
+
+  int httpResponseCode = http.POST(jsonData);
+  Serial.print("POST status: ");
+  Serial.println(httpResponseCode);
+
+  if (httpResponseCode == 200) {
+    String response = http.getString();
+    Serial.println("Resposta do login: " + response);
+
+    // Parse JSON response
+    DynamicJsonDocument doc(1024);
+    DeserializationError error = deserializeJson(doc, response);
+
+    if (error) {
+      Serial.print("Erro ao fazer parse do JSON: ");
+      Serial.println(error.c_str());
+      digitalWrite(RED_PIN, HIGH);
+      http.end();
+      return false;
+    }
+
+    // Extrair token e animalId
+    JWT_TOKEN = doc["token"].as<String>();
+    animalId = doc["animalId"].as<String>();
+
+    Serial.println("Token JWT obtido com sucesso!");
+    Serial.println("Token: " + JWT_TOKEN);
+    Serial.println("Animal ID: " + animalId);
+
+    digitalWrite(BLUE_PIN, LOW);
+    digitalWrite(GREEN_PIN, HIGH);
+    delay(1000);
+    digitalWrite(GREEN_PIN, LOW);
+
+    http.end();
+    return true;
+  } else {
+    Serial.println("Erro ao obter token JWT.");
+    digitalWrite(RED_PIN, HIGH);
+    delay(2000);
+    digitalWrite(RED_PIN, LOW);
+    http.end();
+    return false;
+  }
+}
+
 
 void setup() {
   pinMode(RED_PIN, OUTPUT);
@@ -80,6 +152,17 @@ void setup() {
     }
   }
   digitalWrite(BLUE_PIN, LOW);
+  // -------------- // --------------
+
+
+  // ------------- AUTENTICAÇÃO JWT -------------
+  while (!tokenObtido) {
+    tokenObtido = obterTokenJWT();
+    if (!tokenObtido) {
+      Serial.println("Tentando novamente em 5 segundos...");
+      delay(5000);
+    }
+  }
   // -------------- // --------------
 
 
